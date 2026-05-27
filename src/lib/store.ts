@@ -64,12 +64,16 @@ type Settings = {
   paymentNumber: string;
 };
 
+export type Role = "client" | "chauffeur" | "admin";
+
 type State = {
   drivers: Driver[];
   clients: Client[];
   rides: Ride[];
   codes: UnlockCode[];
   settings: Settings;
+  role: Role;
+  setRole: (r: Role) => void;
   addDriver: (d: Omit<Driver, "id" | "clientsThisMonth" | "subscriptionPaid" | "blocked" | "thresholdReachedAt" | "createdAt">) => void;
   updateDriver: (id: string, patch: Partial<Driver>) => void;
   deleteDriver: (id: string) => void;
@@ -111,6 +115,8 @@ export const useStore = create<State>()(
       rides: [],
       codes: [],
       settings: defaultSettings,
+      role: "admin",
+      setRole: (r) => set({ role: r }),
 
       addDriver: (d) =>
         set((s) => ({
