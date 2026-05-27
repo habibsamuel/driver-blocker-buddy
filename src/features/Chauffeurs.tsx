@@ -89,7 +89,8 @@ export function Chauffeurs() {
                 <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Aucun chauffeur</TableCell></TableRow>
               )}
               {filtered.map((d) => {
-                const palier = d.clientsThisMonth >= settings.threshold2 ? settings.subscription2 : d.clientsThisMonth >= settings.threshold1 ? settings.subscription1 : 0;
+                const palierBase = d.clientsThisMonth >= settings.threshold2 ? settings.subscription2 : d.clientsThisMonth >= settings.threshold1 ? settings.subscription1 : 0;
+                const palier = d.subscriptionPaid ? 0 : palierBase;
                 return (
                   <TableRow key={d.id}>
                     <TableCell className="font-medium">{d.name}</TableCell>
