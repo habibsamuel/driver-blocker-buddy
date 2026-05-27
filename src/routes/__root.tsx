@@ -73,14 +73,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Yaoundé,taxi,covoiturage,transports" },
+      { name: "description", content: "taxi proxi est une application de covoiturage qui permet a tous personnes possèdent une voiture de pouvoir faire du transport ou du covoiturage" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Yaoundé,taxi,covoiturage,transports" },
+      { property: "og:description", content: "taxi proxi est une application de covoiturage qui permet a tous personnes possèdent une voiture de pouvoir faire du transport ou du covoiturage" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Yaoundé,taxi,covoiturage,transports" },
+      { name: "twitter:description", content: "taxi proxi est une application de covoiturage qui permet a tous personnes possèdent une voiture de pouvoir faire du transport ou du covoiturage" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7ad3105d-0a70-4ad9-b6df-bf7bdbe30644" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7ad3105d-0a70-4ad9-b6df-bf7bdbe30644" },
     ],
     links: [
       {
