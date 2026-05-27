@@ -243,7 +243,7 @@ export const useStore = create<State>()(
             }
             return d;
           }),
-        })),
+        }));
       },
 
       updateSettings: (s) =>
