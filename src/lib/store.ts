@@ -115,6 +115,8 @@ export const useStore = create<State>()(
       rides: [],
       codes: [],
       settings: defaultSettings,
+      role: "admin",
+      setRole: (r) => set({ role: r }),
 
       addDriver: (d) =>
         set((s) => ({
