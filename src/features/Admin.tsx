@@ -8,8 +8,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 
 export function Admin() {
-  const { settings, updateSettings, drivers, codes, resetMonthlyCounters, checkAndBlockDrivers } = useStore();
+  const { settings, updateSettings, drivers, codes, resetMonthlyCounters, checkAndBlockDrivers, role } = useStore();
   const blocked = drivers.filter((d) => d.blocked);
+
+  if (role !== "admin") {
+    return (
+      <div className="max-w-md mx-auto mt-16 text-center space-y-3">
+        <div className="text-6xl">🔒</div>
+        <h1 className="text-2xl font-bold">Accès restreint</h1>
+        <p className="text-muted-foreground">
+          L'interface d'administration est réservée aux administrateurs.
+        </p>
+      </div>
+    );
+  }
 
   const handleNum = (k: keyof typeof settings) => (e: React.ChangeEvent<HTMLInputElement>) =>
     updateSettings({ [k]: parseFloat(e.target.value) || 0 } as any);
