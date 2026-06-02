@@ -95,8 +95,8 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const defaultSettings: Settings = {
   pricePerKm: 100,
   pricePerMin: 5,
-  minFare: 250,
-  maxFare: 1500,
+  minFare: 750,     // ✅ Changed from 250 to 750
+  maxFare: 3000,    // ✅ Changed from 1500 to 3000
   waitSurchargePer5min: 50,
   peakHourPct: 0.1,
   nightPct: 0.2,
@@ -292,6 +292,7 @@ export function computeFare(
     peakMultiplier = 1 + settings.peakHourPct;
   if (hour >= 22 || hour < 6) peakMultiplier = 1 + settings.nightPct;
   let total = Math.round(subtotal * peakMultiplier);
+  // ✅ Ensure total is within bounds [minFare, maxFare]
   total = Math.max(settings.minFare, Math.min(settings.maxFare, total));
   return {
     baseFare: Math.round(baseFare),
