@@ -49,7 +49,7 @@ export function Layout() {
   const navigate = useNavigate();
   const role = useStore((s) => s.role);
   const setRole = useStore((s) => s.setRole);
-  const adminPin = useStore((s) => s.settings.adminPin);
+  const adminPin = useStore((s) => s.settings.adminPin) || "2468";
 
   const [pinOpen, setPinOpen] = useState(false);
   const [pinValue, setPinValue] = useState("");
