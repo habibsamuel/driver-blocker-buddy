@@ -62,6 +62,7 @@ type Settings = {
   subscription2: number; // 1000
   graceHours: number; // 48
   paymentNumber: string;
+  adminPin: string; // 4-6 digit PIN to unlock admin role
 };
 
 export type Role = "client" | "chauffeur" | "admin";
@@ -105,6 +106,7 @@ const defaultSettings: Settings = {
   subscription2: 1000,
   graceHours: 48,
   paymentNumber: "694 839 546",
+  adminPin: "2468",
 };
 
 export const useStore = create<State>()(
@@ -115,7 +117,7 @@ export const useStore = create<State>()(
       rides: [],
       codes: [],
       settings: defaultSettings,
-      role: "admin",
+      role: "client",
       setRole: (r) => set({ role: r }),
 
       addDriver: (d) =>

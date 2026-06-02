@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2, Lock, Unlock, KeyRound } from "lucide-react";
 import { toast } from "sonner";
+import { isValidName, isValidPhone, isValidUnlockCode } from "@/lib/validation";
 
 export function Chauffeurs() {
   const { drivers, settings, addDriver, deleteDriver, updateDriver, generateUnlockCode, redeemCode } = useStore();
@@ -23,8 +24,12 @@ export function Chauffeurs() {
   );
 
   const handleAdd = () => {
-    if (!form.name || !form.phone) { toast.error("Nom et téléphone requis"); return; }
-    addDriver(form);
+    const name = form.name.trim();
+    const phone = form.phone.trim();
+    const zone = form.zone.trim().slice(0, 60);
+    if (!isValidName(name)) { toast.error("Nom invalide (2-60 caractères, lettres)"); return; }
+    if (!isValidPhone(phone)) { toast.error("Téléphone invalide (8-15 chiffres)"); return; }
+    addDriver({ name, phone, zone });
     setForm({ name: "", phone: "", zone: "" });
     setOpen(false);
     toast.success("Chauffeur ajouté");
@@ -37,7 +42,9 @@ export function Chauffeurs() {
 
   const handleRedeem = () => {
     if (!redeemFor) return;
-    const r = redeemCode(redeemFor, codeInput.trim());
+    const code = codeInput.trim();
+    if (!isValidUnlockCode(code)) { toast.error("Code à 6 chiffres requis"); return; }
+    const r = redeemCode(redeemFor, code);
     if (r.ok) toast.success(r.msg); else toast.error(r.msg);
     setRedeemFor(null); setCodeInput("");
   };

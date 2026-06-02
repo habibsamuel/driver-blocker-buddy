@@ -55,7 +55,8 @@ export function Admin() {
             <div><Label>Palier 2 (clients)</Label><Input type="number" value={settings.threshold2} onChange={handleNum("threshold2")} /></div>
             <div><Label>Palier 2 (XAF)</Label><Input type="number" value={settings.subscription2} onChange={handleNum("subscription2")} /></div>
             <div><Label>Délai blocage (h)</Label><Input type="number" value={settings.graceHours} onChange={handleNum("graceHours")} /></div>
-            <div><Label>N° paiement</Label><Input value={settings.paymentNumber} onChange={(e)=>updateSettings({paymentNumber:e.target.value})} /></div>
+            <div><Label>N° paiement</Label><Input value={settings.paymentNumber} onChange={(e)=>updateSettings({paymentNumber:e.target.value.slice(0,30)})} /></div>
+            <div className="col-span-2"><Label>Code PIN admin (4-6 chiffres)</Label><Input type="password" inputMode="numeric" maxLength={6} value={settings.adminPin} onChange={(e)=>{const v=e.target.value.replace(/\D/g,"").slice(0,6); if(v.length>=4||v.length===0) updateSettings({adminPin:v||"2468"});}} /></div>
             <div className="col-span-2 flex gap-2 pt-2">
               <Button variant="outline" onClick={()=>{checkAndBlockDrivers();toast.success("Vérification effectuée");}}>Vérifier blocages</Button>
               <Button variant="destructive" onClick={()=>{resetMonthlyCounters();toast.success("Compteurs réinitialisés");}}>Reset mensuel</Button>
