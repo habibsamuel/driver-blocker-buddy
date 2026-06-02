@@ -26,11 +26,12 @@ import { Badge } from "@/components/ui/badge";
 import { useStore, type Role } from "@/lib/store";
 import { toast } from "sonner";
 
+// ✅ FIXED: Chauffeurs & Clients now ADMIN ONLY
 const allNav = [
   { to: "/", label: "Accueil", icon: LayoutDashboard, roles: ["client", "chauffeur", "admin"] as Role[] },
   { to: "/course", label: "Réserver une course", icon: Play, roles: ["client", "chauffeur", "admin"] as Role[] },
-  { to: "/chauffeurs", label: "Chauffeurs", icon: Users, roles: ["client", "admin"] as Role[] },
-  { to: "/clients", label: "Clients", icon: UserCircle, roles: ["chauffeur", "admin"] as Role[] },
+  { to: "/chauffeurs", label: "Chauffeurs", icon: Users, roles: ["admin"] as Role[] }, // ✅ ADMIN ONLY
+  { to: "/clients", label: "Clients", icon: UserCircle, roles: ["admin"] as Role[] }, // ✅ ADMIN ONLY
   { to: "/paiements", label: "Paiements", icon: Wallet, roles: ["chauffeur", "admin"] as Role[] },
   { to: "/admin", label: "Administration", icon: SettingsIcon, roles: ["admin"] as Role[] },
 ];
