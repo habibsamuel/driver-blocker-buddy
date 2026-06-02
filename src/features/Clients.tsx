@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { isValidName, isValidPhone, sanitizeText } from "@/lib/validation";
 
 export function Clients() {
   const { clients, rides, addClient, deleteClient } = useStore();
@@ -20,8 +21,12 @@ export function Clients() {
   );
 
   const handleAdd = () => {
-    if (!form.name) { toast.error("Nom requis"); return; }
-    addClient(form);
+    const name = form.name.trim();
+    const phone = form.phone.trim();
+    const quartier = sanitizeText(form.quartier, 60);
+    if (!isValidName(name)) { toast.error("Nom invalide (2-60 caractères)"); return; }
+    if (phone && !isValidPhone(phone)) { toast.error("Téléphone invalide"); return; }
+    addClient({ name, phone, quartier });
     setForm({ name: "", phone: "", quartier: "" });
     setOpen(false);
     toast.success("Client ajouté");
