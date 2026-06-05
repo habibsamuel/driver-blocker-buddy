@@ -90,19 +90,20 @@ type State = {
   seedDemo: () => void;
 };
 
+const _crypto: Crypto = (globalThis as { crypto: Crypto }).crypto;
+
 const uid = () => {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID().replace(/-/g, "").slice(0, 10);
-  }
+  if ("randomUUID" in _crypto) return _crypto.randomUUID().replace(/-/g, "").slice(0, 10);
   const arr = new Uint8Array(8);
-  crypto.getRandomValues(arr);
+  _crypto.getRandomValues(arr);
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("").slice(0, 10);
 };
 
 const secureCode6 = () => {
   const arr = new Uint32Array(1);
-  crypto.getRandomValues(arr);
+  _crypto.getRandomValues(arr);
   return ((arr[0] % 900000) + 100000).toString();
+};
 };
 
 const defaultSettings: Settings = {
