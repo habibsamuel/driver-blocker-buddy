@@ -206,7 +206,7 @@ export const useStore = create<State>()(
       generateUnlockCode: (driverId) => {
         const driver = get().drivers.find((d) => d.id === driverId);
         if (!driver) return null;
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const code = secureCode6();
         const now = new Date();
         const expires = new Date(now.getTime() + 24 * 3600 * 1000);
         const c: UnlockCode = {
