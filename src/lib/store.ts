@@ -104,7 +104,6 @@ const secureCode6 = () => {
   _crypto.getRandomValues(arr);
   return ((arr[0] % 900000) + 100000).toString();
 };
-};
 
 const defaultSettings: Settings = {
   pricePerKm: 100,
