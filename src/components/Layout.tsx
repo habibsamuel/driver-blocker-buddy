@@ -242,3 +242,34 @@ export function Layout() {
     </div>
   );
 }
+
+function AuthHeader() {
+  const { user, roles, isOnlineDriver, setOnlineDriver, signOut } = useAuth();
+  if (!user) {
+    return (
+      <Link to="/auth">
+        <Button size="sm" variant="outline" className="text-xs">Connexion</Button>
+      </Link>
+    );
+  }
+  const isDriver = roles.includes("chauffeur");
+  return (
+    <div className="flex items-center gap-2">
+      {isDriver && (
+        <div className="hidden sm:flex items-center gap-2 bg-secondary-foreground/10 rounded-full px-3 py-1">
+          <span className="text-[10px] uppercase tracking-wider">{isOnlineDriver ? "En ligne" : "Hors ligne"}</span>
+          <Switch
+            checked={isOnlineDriver}
+            onCheckedChange={(v) => {
+              setOnlineDriver(v);
+              if (v) toast.success("Vous êtes en ligne — partage GPS activé");
+            }}
+          />
+        </div>
+      )}
+      <Button size="sm" variant="ghost" onClick={signOut} className="text-xs">
+        <LogOut className="h-3 w-3" />
+      </Button>
+    </div>
+  );
+}
