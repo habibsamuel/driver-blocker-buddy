@@ -90,7 +90,24 @@ type State = {
   seedDemo: () => void;
 };
 
-const uid = () => Math.random().toString(36).slice(2, 10);
+interface RngCrypto {
+  randomUUID?: () => string;
+  getRandomValues: <T extends ArrayBufferView>(arr: T) => T;
+}
+const _crypto = (globalThis as unknown as { crypto: RngCrypto }).crypto;
+
+const uid = () => {
+  if (_crypto.randomUUID) return _crypto.randomUUID().replace(/-/g, "").slice(0, 10);
+  const arr = new Uint8Array(8);
+  _crypto.getRandomValues(arr);
+  return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("").slice(0, 10);
+};
+
+const secureCode6 = () => {
+  const arr = new Uint32Array(1);
+  _crypto.getRandomValues(arr);
+  return ((arr[0] % 900000) + 100000).toString();
+};
 
 const defaultSettings: Settings = {
   pricePerKm: 100,
@@ -189,7 +206,7 @@ export const useStore = create<State>()(
       generateUnlockCode: (driverId) => {
         const driver = get().drivers.find((d) => d.id === driverId);
         if (!driver) return null;
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const code = secureCode6();
         const now = new Date();
         const expires = new Date(now.getTime() + 24 * 3600 * 1000);
         const c: UnlockCode = {
