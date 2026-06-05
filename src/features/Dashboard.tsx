@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { MapView, type DriverPin } from "@/components/MapView";
+import { MapView } from "@/components/MapView";
+import { useDriverPositions } from "@/hooks/useDriverPositions";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { useAuth } from "@/hooks/useAuth";
+import { useDriverBroadcast } from "@/hooks/useDriverBroadcast";
 import {
   Search,
   MapPin,
@@ -19,33 +23,34 @@ import {
 
 export function Dashboard() {
   const { drivers, clients, rides, checkAndBlockDrivers, seedDemo } = useStore();
+  const { user, roles, isOnlineDriver } = useAuth();
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     checkAndBlockDrivers();
   }, [checkAndBlockDrivers]);
 
-  const pins: DriverPin[] = useMemo(
-    () =>
-      drivers.map((d) => ({
-        id: d.id,
-        name: d.name,
-        blocked: d.blocked,
-        active: !d.blocked,
-      })),
-    [drivers],
-  );
+  // Real-time positions from DB
+  const liveDrivers = useDriverPositions();
+  // Geolocate this device when signed in
+  const { position: myPos } = useGeolocation(!!user);
+  // Broadcast position if I'm a chauffeur and online
+  useDriverBroadcast({
+    enabled: isOnlineDriver && roles.includes("chauffeur"),
+    userId: user?.id ?? null,
+    position: myPos,
+  });
 
   const totalRevenue = rides.filter((r) => r.paid).reduce((s, r) => s + r.total, 0);
   const ongoing = rides.filter((r) => !r.paid).length;
-  const active = drivers.filter((d) => !d.blocked).length;
+  const active = liveDrivers.length;
   const blocked = drivers.filter((d) => d.blocked);
 
   return (
     <div className="space-y-4">
       {/* Map + search overlay (Yango style) */}
       <div className="relative h-[420px] sm:h-[480px] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-yellow-400/20">
-        <MapView drivers={pins} className="absolute inset-0" />
+        <MapView drivers={liveDrivers} me={myPos ? { lat: myPos.lat, lng: myPos.lng } : null} className="absolute inset-0" />
 
         {/* Top search overlay */}
         <div className="absolute top-3 left-3 right-3 z-10">

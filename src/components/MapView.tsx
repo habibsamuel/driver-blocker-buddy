@@ -1,16 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import type { LiveDriver } from "@/hooks/useDriverPositions";
 
 // Yaoundé center
 const YAOUNDE = { lat: 3.848, lng: 11.5021 };
-
-// Pseudo-random spread around city for driver positions (deterministic by id)
-function hashSpread(id: string) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  const dx = ((h % 1000) / 1000 - 0.5) * 0.08;
-  const dy = (((h >> 10) % 1000) / 1000 - 0.5) * 0.08;
-  return { lat: YAOUNDE.lat + dy, lng: YAOUNDE.lng + dx };
-}
 
 declare global {
   interface Window {
@@ -43,7 +35,6 @@ function loadMapsScript(): Promise<void> {
   return scriptLoading;
 }
 
-// Dark Yango-like map style
 const DARK_STYLE = [
   { elementType: "geometry", stylers: [{ color: "#1a1a1a" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#1a1a1a" }] },
@@ -57,17 +48,19 @@ const DARK_STYLE = [
   { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#333" }] },
 ];
 
-export type DriverPin = {
-  id: string;
-  name: string;
-  blocked: boolean;
-  active: boolean;
-};
-
-export function MapView({ drivers, className }: { drivers: DriverPin[]; className?: string }) {
+export function MapView({
+  drivers,
+  me,
+  className,
+}: {
+  drivers: LiveDriver[];
+  me?: { lat: number; lng: number } | null;
+  className?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const meMarkerRef = useRef<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -77,8 +70,8 @@ export function MapView({ drivers, className }: { drivers: DriverPin[]; classNam
       .then(() => {
         if (cancelled || !ref.current) return;
         mapRef.current = new window.google.maps.Map(ref.current, {
-          center: YAOUNDE,
-          zoom: 13,
+          center: me ?? YAOUNDE,
+          zoom: 14,
           disableDefaultUI: true,
           zoomControl: true,
           gestureHandling: "greedy",
@@ -92,22 +85,26 @@ export function MapView({ drivers, className }: { drivers: DriverPin[]; classNam
     };
   }, []);
 
+  // Recenter on me when first available
+  useEffect(() => {
+    if (!ready || !mapRef.current || !me) return;
+    if (!meMarkerRef.current) mapRef.current.panTo(me);
+  }, [ready, me?.lat, me?.lng]);
+
+  // Driver markers
   useEffect(() => {
     if (!ready || !mapRef.current || !window.google) return;
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
-
     drivers.forEach((d) => {
-      const pos = hashSpread(d.id);
-      const color = d.blocked ? "#ef4444" : d.active ? "#FFCC00" : "#6b7280";
       const marker = new window.google.maps.Marker({
-        position: pos,
+        position: { lat: d.lat, lng: d.lng },
         map: mapRef.current,
-        title: d.name,
+        title: d.name ?? "Chauffeur",
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
           scale: 10,
-          fillColor: color,
+          fillColor: "#FFCC00",
           fillOpacity: 1,
           strokeColor: "#000",
           strokeWeight: 2,
@@ -117,6 +114,33 @@ export function MapView({ drivers, className }: { drivers: DriverPin[]; classNam
       markersRef.current.push(marker);
     });
   }, [drivers, ready]);
+
+  // Me marker
+  useEffect(() => {
+    if (!ready || !mapRef.current || !window.google) return;
+    if (!me) {
+      meMarkerRef.current?.setMap(null);
+      meMarkerRef.current = null;
+      return;
+    }
+    if (!meMarkerRef.current) {
+      meMarkerRef.current = new window.google.maps.Marker({
+        position: me,
+        map: mapRef.current,
+        title: "Ma position",
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          fillColor: "#3b82f6",
+          fillOpacity: 1,
+          strokeColor: "#fff",
+          strokeWeight: 3,
+        },
+      });
+    } else {
+      meMarkerRef.current.setPosition(me);
+    }
+  }, [me?.lat, me?.lng, ready]);
 
   if (error) {
     return (
