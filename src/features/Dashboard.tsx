@@ -50,7 +50,7 @@ export function Dashboard() {
     <div className="space-y-4">
       {/* Map + search overlay (Yango style) */}
       <div className="relative h-[420px] sm:h-[480px] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-yellow-400/20">
-        <MapView drivers={pins} className="absolute inset-0" />
+        <MapView drivers={liveDrivers} me={myPos ? { lat: myPos.lat, lng: myPos.lng } : null} className="absolute inset-0" />
 
         {/* Top search overlay */}
         <div className="absolute top-3 left-3 right-3 z-10">
