@@ -90,10 +90,14 @@ type State = {
   seedDemo: () => void;
 };
 
-const _crypto: Crypto = (globalThis as { crypto: Crypto }).crypto;
+interface RngCrypto {
+  randomUUID?: () => string;
+  getRandomValues: <T extends ArrayBufferView>(arr: T) => T;
+}
+const _crypto = (globalThis as unknown as { crypto: RngCrypto }).crypto;
 
 const uid = () => {
-  if ("randomUUID" in _crypto) return _crypto.randomUUID().replace(/-/g, "").slice(0, 10);
+  if (_crypto.randomUUID) return _crypto.randomUUID().replace(/-/g, "").slice(0, 10);
   const arr = new Uint8Array(8);
   _crypto.getRandomValues(arr);
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("").slice(0, 10);
