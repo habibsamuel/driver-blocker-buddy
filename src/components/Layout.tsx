@@ -24,6 +24,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useStore, type Role } from "@/lib/store";
+import { useAuth } from "@/hooks/useAuth";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 // ✅ FIXED: Chauffeurs & Clients now ADMIN ONLY
@@ -125,6 +127,7 @@ export function Layout() {
           </Link>
 
           <div className="flex items-center gap-2">
+            <AuthHeader />
             {role === "admin" && (
               <Badge className="hidden sm:flex bg-primary text-primary-foreground gap-1">
                 <Lock className="h-3 w-3" /> Admin
