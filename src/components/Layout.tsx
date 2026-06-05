@@ -171,12 +171,13 @@ export function Layout() {
                     {role === r && <Badge className="ml-auto bg-primary text-primary-foreground">actif</Badge>}
                   </DropdownMenuItem>
                 ))}
-                {role === "admin" ? (
+                {role === "admin" && (
                   <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleLogoutAdmin}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Quitter mode admin
                   </DropdownMenuItem>
-                ) : (
+                )}
+                {role === "chauffeur" && (
                   <DropdownMenuItem className="cursor-pointer" onClick={() => handleRoleSwitch("admin")}>
                     <Lock className="h-4 w-4 mr-2" />
                     Mode administrateur…
