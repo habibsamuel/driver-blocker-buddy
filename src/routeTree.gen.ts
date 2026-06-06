@@ -11,8 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SecuriteRouteImport } from './routes/securite'
 import { Route as PaiementsRouteImport } from './routes/paiements'
-import { Route as InscriptionChauffeurRouteImport } from './routes/inscription-chauffeur'
 import { Route as HistoriqueRouteImport } from './routes/historique'
+import { Route as InscriptionChauffeurRouteImport } from './routes/inscription-chauffeur'
 import { Route as CourseRouteImport } from './routes/course'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as ChauffeursRouteImport } from './routes/chauffeurs'
@@ -20,56 +20,16 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
-const SecuriteRoute = SecuriteRouteImport.update({
-  id: '/securite',
-  path: '/securite',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaiementsRoute = PaiementsRouteImport.update({
-  id: '/paiements',
-  path: '/paiements',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InscriptionChauffeurRoute = InscriptionChauffeurRouteImport.update({
-  id: '/inscription-chauffeur',
-  path: '/inscription-chauffeur',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoriqueRoute = HistoriqueRouteImport.update({
-  id: '/historique',
-  path: '/historique',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CourseRoute = CourseRouteImport.update({
-  id: '/course',
-  path: '/course',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ClientsRoute = ClientsRouteImport.update({
-  id: '/clients',
-  path: '/clients',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChauffeursRoute = ChauffeursRouteImport.update({
-  id: '/chauffeurs',
-  path: '/chauffeurs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const SecuriteRoute = SecuriteRouteImport.update({ id: '/securite', path: '/securite', getParentRoute: () => rootRouteImport } as any)
+const PaiementsRoute = PaiementsRouteImport.update({ id: '/paiements', path: '/paiements', getParentRoute: () => rootRouteImport } as any)
+const HistoriqueRoute = HistoriqueRouteImport.update({ id: '/historique', path: '/historique', getParentRoute: () => rootRouteImport } as any)
+const InscriptionChauffeurRoute = InscriptionChauffeurRouteImport.update({ id: '/inscription-chauffeur', path: '/inscription-chauffeur', getParentRoute: () => rootRouteImport } as any)
+const CourseRoute = CourseRouteImport.update({ id: '/course', path: '/course', getParentRoute: () => rootRouteImport } as any)
+const ClientsRoute = ClientsRouteImport.update({ id: '/clients', path: '/clients', getParentRoute: () => rootRouteImport } as any)
+const ChauffeursRoute = ChauffeursRouteImport.update({ id: '/chauffeurs', path: '/chauffeurs', getParentRoute: () => rootRouteImport } as any)
+const AuthRoute = AuthRouteImport.update({ id: '/auth', path: '/auth', getParentRoute: () => rootRouteImport } as any)
+const AdminRoute = AdminRouteImport.update({ id: '/admin', path: '/admin', getParentRoute: () => rootRouteImport } as any)
+const IndexRoute = IndexRouteImport.update({ id: '/', path: '/', getParentRoute: () => rootRouteImport } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -78,8 +38,8 @@ export interface FileRoutesByFullPath {
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
   '/course': typeof CourseRoute
-  '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
+  '/historique': typeof HistoriqueRoute
   '/paiements': typeof PaiementsRoute
   '/securite': typeof SecuriteRoute
 }
@@ -90,8 +50,8 @@ export interface FileRoutesByTo {
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
   '/course': typeof CourseRoute
-  '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
+  '/historique': typeof HistoriqueRoute
   '/paiements': typeof PaiementsRoute
   '/securite': typeof SecuriteRoute
 }
@@ -103,8 +63,8 @@ export interface FileRoutesById {
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
   '/course': typeof CourseRoute
-  '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
+  '/historique': typeof HistoriqueRoute
   '/paiements': typeof PaiementsRoute
   '/securite': typeof SecuriteRoute
 }
@@ -117,8 +77,8 @@ export interface FileRouteTypes {
     | '/chauffeurs'
     | '/clients'
     | '/course'
-    | '/historique'
     | '/inscription-chauffeur'
+    | '/historique'
     | '/paiements'
     | '/securite'
   fileRoutesByTo: FileRoutesByTo
@@ -129,8 +89,8 @@ export interface FileRouteTypes {
     | '/chauffeurs'
     | '/clients'
     | '/course'
-    | '/historique'
     | '/inscription-chauffeur'
+    | '/historique'
     | '/paiements'
     | '/securite'
   id:
@@ -141,8 +101,8 @@ export interface FileRouteTypes {
     | '/chauffeurs'
     | '/clients'
     | '/course'
-    | '/historique'
     | '/inscription-chauffeur'
+    | '/historique'
     | '/paiements'
     | '/securite'
   fileRoutesById: FileRoutesById
@@ -154,99 +114,41 @@ export interface RootRouteChildren {
   ChauffeursRoute: typeof ChauffeursRoute
   ClientsRoute: typeof ClientsRoute
   CourseRoute: typeof CourseRoute
-  HistoriqueRoute: typeof HistoriqueRoute
   InscriptionChauffeurRoute: typeof InscriptionChauffeurRoute
+  HistoriqueRoute: typeof HistoriqueRoute
   PaiementsRoute: typeof PaiementsRoute
   SecuriteRoute: typeof SecuriteRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/securite': {
-      id: '/securite'
-      path: '/securite'
-      fullPath: '/securite'
-      preLoaderRoute: typeof SecuriteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/paiements': {
-      id: '/paiements'
-      path: '/paiements'
-      fullPath: '/paiements'
-      preLoaderRoute: typeof PaiementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inscription-chauffeur': {
-      id: '/inscription-chauffeur'
-      path: '/inscription-chauffeur'
-      fullPath: '/inscription-chauffeur'
-      preLoaderRoute: typeof InscriptionChauffeurRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historique': {
-      id: '/historique'
-      path: '/historique'
-      fullPath: '/historique'
-      preLoaderRoute: typeof HistoriqueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/course': {
-      id: '/course'
-      path: '/course'
-      fullPath: '/course'
-      preLoaderRoute: typeof CourseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/clients': {
-      id: '/clients'
-      path: '/clients'
-      fullPath: '/clients'
-      preLoaderRoute: typeof ClientsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chauffeurs': {
-      id: '/chauffeurs'
-      path: '/chauffeurs'
-      fullPath: '/chauffeurs'
-      preLoaderRoute: typeof ChauffeursRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    '/securite': { id: '/securite'; path: '/securite'; fullPath: '/securite'; preLoaderRoute: typeof SecuriteRouteImport; parentRoute: typeof rootRouteImport }
+    '/paiements': { id: '/paiements'; path: '/paiements'; fullPath: '/paiements'; preLoaderRoute: typeof PaiementsRouteImport; parentRoute: typeof rootRouteImport }
+    '/historique': { id: '/historique'; path: '/historique'; fullPath: '/historique'; preLoaderRoute: typeof HistoriqueRouteImport; parentRoute: typeof rootRouteImport }
+    '/inscription-chauffeur': { id: '/inscription-chauffeur'; path: '/inscription-chauffeur'; fullPath: '/inscription-chauffeur'; preLoaderRoute: typeof InscriptionChauffeurRouteImport; parentRoute: typeof rootRouteImport }
+    '/course': { id: '/course'; path: '/course'; fullPath: '/course'; preLoaderRoute: typeof CourseRouteImport; parentRoute: typeof rootRouteImport }
+    '/clients': { id: '/clients'; path: '/clients'; fullPath: '/clients'; preLoaderRoute: typeof ClientsRouteImport; parentRoute: typeof rootRouteImport }
+    '/chauffeurs': { id: '/chauffeurs'; path: '/chauffeurs'; fullPath: '/chauffeurs'; preLoaderRoute: typeof ChauffeursRouteImport; parentRoute: typeof rootRouteImport }
+    '/auth': { id: '/auth'; path: '/auth'; fullPath: '/auth'; preLoaderRoute: typeof AuthRouteImport; parentRoute: typeof rootRouteImport }
+    '/admin': { id: '/admin'; path: '/admin'; fullPath: '/admin'; preLoaderRoute: typeof AdminRouteImport; parentRoute: typeof rootRouteImport }
+    '/': { id: '/'; path: '/'; fullPath: '/'; preLoaderRoute: typeof IndexRouteImport; parentRoute: typeof rootRouteImport }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
-  AuthRoute: AuthRoute,
-  ChauffeursRoute: ChauffeursRoute,
-  ClientsRoute: ClientsRoute,
-  CourseRoute: CourseRoute,
-  HistoriqueRoute: HistoriqueRoute,
-  InscriptionChauffeurRoute: InscriptionChauffeurRoute,
-  PaiementsRoute: PaiementsRoute,
-  SecuriteRoute: SecuriteRoute,
+  IndexRoute, AdminRoute, AuthRoute, ChauffeursRoute, ClientsRoute, CourseRoute,
+  InscriptionChauffeurRoute, HistoriqueRoute, PaiementsRoute, SecuriteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
