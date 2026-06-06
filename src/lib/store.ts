@@ -106,7 +106,7 @@ type State = {
   trustedContact: string; // phone of trusted contact for safety
   setTrustedContact: (v: string) => void;
   setRole: (r: Role) => void;
-  addDriver: (d: Omit<Driver, "id" | "clientsThisMonth" | "subscriptionPaid" | "blocked" | "thresholdReachedAt" | "createdAt" | "rating" | "ratingsCount"> & { vehicleClass?: VehicleClass }) => void;
+  addDriver: (d: Omit<Driver, "id" | "clientsThisMonth" | "subscriptionPaid" | "blocked" | "thresholdReachedAt" | "createdAt" | "rating" | "ratingsCount" | "vehicleClass"> & { vehicleClass?: VehicleClass }) => void;
   updateDriver: (id: string, patch: Partial<Driver>) => void;
   deleteDriver: (id: string) => void;
   addClient: (c: Omit<Client, "id" | "createdAt">) => Client;
@@ -195,10 +195,10 @@ export const useStore = create<State>()(
           drivers: [
             ...s.drivers,
             {
-              vehicleClass: "eco",
+              ...d,
+              vehicleClass: d.vehicleClass ?? "eco",
               rating: 0,
               ratingsCount: 0,
-              ...d,
               id: uid(),
               clientsThisMonth: 0,
               subscriptionPaid: false,
