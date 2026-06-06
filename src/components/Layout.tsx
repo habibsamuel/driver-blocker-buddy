@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, UserCircle, Wallet, Settings as SettingsIcon, Play, Menu, ChevronDown, Lock, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, Wallet, Settings as SettingsIcon, Play, Menu, ChevronDown, Lock, LogOut, History, Shield, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";
@@ -28,12 +28,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
-// ✅ FIXED: Chauffeurs & Clients now ADMIN ONLY
 const allNav = [
   { to: "/", label: "Accueil", icon: LayoutDashboard, roles: ["client", "chauffeur", "admin"] as Role[] },
   { to: "/course", label: "Réserver une course", icon: Play, roles: ["client", "chauffeur", "admin"] as Role[] },
-  { to: "/chauffeurs", label: "Chauffeurs", icon: Users, roles: ["admin"] as Role[] }, // ✅ ADMIN ONLY
-  { to: "/clients", label: "Clients", icon: UserCircle, roles: ["admin"] as Role[] }, // ✅ ADMIN ONLY
+  { to: "/historique", label: "Historique", icon: History, roles: ["client", "chauffeur", "admin"] as Role[] },
+  { to: "/securite", label: "Sécurité", icon: Shield, roles: ["client", "chauffeur", "admin"] as Role[] },
+  { to: "/inscription-chauffeur", label: "Devenir chauffeur", icon: UserPlus, roles: ["client"] as Role[] },
+  { to: "/chauffeurs", label: "Chauffeurs", icon: Users, roles: ["admin"] as Role[] },
+  { to: "/clients", label: "Clients", icon: UserCircle, roles: ["admin"] as Role[] },
   { to: "/paiements", label: "Paiements", icon: Wallet, roles: ["chauffeur", "admin"] as Role[] },
   { to: "/admin", label: "Administration", icon: SettingsIcon, roles: ["admin"] as Role[] },
 ];
