@@ -28,7 +28,8 @@ export function Dashboard() {
 
   useEffect(() => {
     checkAndBlockDrivers();
-  }, [checkAndBlockDrivers]);
+    if (drivers.length === 0) seedDemo();
+  }, [checkAndBlockDrivers, drivers.length, seedDemo]);
 
   // Real-time positions from DB
   const liveDrivers = useDriverPositions();
