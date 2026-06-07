@@ -181,9 +181,24 @@ export function Course() {
               <div className="space-y-2"><Label>Départ</Label><Input value={from} onChange={(e)=>setFrom(e.target.value)} placeholder="Bastos" /></div>
               <div className="space-y-2"><Label>Arrivée</Label><Input value={to} onChange={(e)=>setTo(e.target.value)} placeholder="Mvan" /></div>
             </div>
+            <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+              {estimating ? (
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Calcul de l'itinéraire…
+                </span>
+              ) : estimateError ? (
+                <span className="text-destructive">{estimateError}</span>
+              ) : distance && duration ? (
+                <span className="text-foreground">
+                  📍 Distance estimée : <b>{distance} km</b> · ⏱ Durée : <b>{duration} min</b>
+                </span>
+              ) : (
+                <span className="text-muted-foreground">
+                  Saisissez le départ et l'arrivée pour calculer automatiquement la distance.
+                </span>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2"><Label>Distance (km) *</Label><Input type="number" value={distance} onChange={(e)=>setDistance(e.target.value)} min="0" step="0.1" /></div>
-              <div className="space-y-2"><Label>Durée (min) *</Label><Input type="number" value={duration} onChange={(e)=>setDuration(e.target.value)} min="0" step="1" /></div>
               <div className="space-y-2"><Label>Attente (min)</Label><Input type="number" value={wait} onChange={(e)=>setWait(e.target.value)} min="0" step="1" /></div>
               <div className="space-y-2"><Label>Heure (0-23)</Label><Input type="number" value={hour} onChange={(e)=>setHour(e.target.value)} min="0" max="23" step="1" /></div>
             </div>
