@@ -71,6 +71,19 @@ export function Chauffeurs() {
               <div><Label>Nom complet</Label><Input value={form.name} onChange={(e)=>setForm({...form,name:e.target.value})} /></div>
               <div><Label>Téléphone</Label><Input value={form.phone} onChange={(e)=>setForm({...form,phone:e.target.value})} /></div>
               <div><Label>Zone</Label><Input value={form.zone} onChange={(e)=>setForm({...form,zone:e.target.value})} /></div>
+              <div>
+                <Label>Code d'accès (4 chiffres) *</Label>
+                <Input
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="••••"
+                  value={form.accessPin}
+                  onChange={(e)=>setForm({...form, accessPin: e.target.value.replace(/\D/g, "").slice(0,4)})}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Le chauffeur devra saisir ce code pour accéder à son espace.
+                </p>
+              </div>
             </div>
             <DialogFooter><Button onClick={handleAdd}>Enregistrer</Button></DialogFooter>
           </DialogContent>
