@@ -14,7 +14,8 @@ export function InscriptionChauffeur() {
   const navigate = useNavigate();
   const { addDriver, settings } = useStore();
   const [form, setForm] = useState({
-    name: "", phone: "", zone: "", vehicle: "", plate: "", vehicleClass: "eco" as VehicleClass,
+    name: "", phone: "", zone: "", vehicle: "", plate: "",
+    vehicleClass: "eco" as VehicleClass, accessPin: "", accessPinConfirm: "",
   });
 
   const submit = () => {
@@ -23,6 +24,8 @@ export function InscriptionChauffeur() {
     if (!form.zone.trim()) return toast.error("Zone requise");
     if (!form.vehicle.trim()) return toast.error("Véhicule requis");
     if (!form.plate.trim()) return toast.error("Plaque requise");
+    if (!/^\d{4}$/.test(form.accessPin)) return toast.error("Choisissez un code d'accès à 4 chiffres");
+    if (form.accessPin !== form.accessPinConfirm) return toast.error("Les codes d'accès ne correspondent pas");
     addDriver({
       name: form.name.trim(),
       phone: form.phone.trim(),
@@ -30,8 +33,9 @@ export function InscriptionChauffeur() {
       vehicle: form.vehicle.trim(),
       plate: form.plate.trim().toUpperCase(),
       vehicleClass: form.vehicleClass,
+      accessPin: form.accessPin,
     });
-    toast.success("Inscription envoyée — vous serez contacté pour validation");
+    toast.success("Inscription envoyée — gardez votre code d'accès secret");
     navigate({ to: "/" });
   };
 
@@ -66,6 +70,31 @@ export function InscriptionChauffeur() {
                 <SelectItem value="confort">Confort (berline climatisée) — ×{settings.classMultipliers.confort}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Code d'accès (4 chiffres) *</Label>
+              <Input
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="••••"
+                value={form.accessPin}
+                onChange={(e) => setForm({ ...form, accessPin: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+              />
+            </div>
+            <div>
+              <Label>Confirmer le code *</Label>
+              <Input
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="••••"
+                value={form.accessPinConfirm}
+                onChange={(e) => setForm({ ...form, accessPinConfirm: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+              />
+            </div>
+            <p className="col-span-2 text-xs text-muted-foreground">
+              Ce code sera demandé à chaque fois que vous accédez à votre espace chauffeur. Gardez-le secret.
+            </p>
           </div>
           <div className="bg-muted rounded-lg p-3 text-xs space-y-1">
             <p><b>Conditions :</b></p>

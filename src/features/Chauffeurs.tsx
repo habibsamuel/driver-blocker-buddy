@@ -15,7 +15,7 @@ export function Chauffeurs() {
   const { drivers, settings, addDriver, deleteDriver, updateDriver, generateUnlockCode, redeemCode } = useStore();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [form, setForm] = useState({ name: "", phone: "", zone: "" });
+  const [form, setForm] = useState({ name: "", phone: "", zone: "", accessPin: "" });
   const [redeemFor, setRedeemFor] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
 
@@ -27,10 +27,12 @@ export function Chauffeurs() {
     const name = form.name.trim();
     const phone = form.phone.trim();
     const zone = form.zone.trim().slice(0, 60);
+    const accessPin = form.accessPin.trim();
     if (!isValidName(name)) { toast.error("Nom invalide (2-60 caractères, lettres)"); return; }
     if (!isValidPhone(phone)) { toast.error("Téléphone invalide (8-15 chiffres)"); return; }
-    addDriver({ name, phone, zone });
-    setForm({ name: "", phone: "", zone: "" });
+    if (!/^\d{4}$/.test(accessPin)) { toast.error("Le code d'accès doit comporter exactement 4 chiffres"); return; }
+    addDriver({ name, phone, zone, accessPin });
+    setForm({ name: "", phone: "", zone: "", accessPin: "" });
     setOpen(false);
     toast.success("Chauffeur ajouté");
   };
@@ -69,6 +71,19 @@ export function Chauffeurs() {
               <div><Label>Nom complet</Label><Input value={form.name} onChange={(e)=>setForm({...form,name:e.target.value})} /></div>
               <div><Label>Téléphone</Label><Input value={form.phone} onChange={(e)=>setForm({...form,phone:e.target.value})} /></div>
               <div><Label>Zone</Label><Input value={form.zone} onChange={(e)=>setForm({...form,zone:e.target.value})} /></div>
+              <div>
+                <Label>Code d'accès (4 chiffres) *</Label>
+                <Input
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="••••"
+                  value={form.accessPin}
+                  onChange={(e)=>setForm({...form, accessPin: e.target.value.replace(/\D/g, "").slice(0,4)})}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Le chauffeur devra saisir ce code pour accéder à son espace.
+                </p>
+              </div>
             </div>
             <DialogFooter><Button onClick={handleAdd}>Enregistrer</Button></DialogFooter>
           </DialogContent>

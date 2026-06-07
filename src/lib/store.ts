@@ -11,6 +11,7 @@ export type Driver = {
   vehicle?: string;          // model
   plate?: string;            // license plate
   vehicleClass: VehicleClass;
+  accessPin: string;         // 4-digit code defined at signup, required to access chauffeur area
   rating: number;            // 0..5 average
   ratingsCount: number;
   clientsThisMonth: number;
@@ -343,6 +344,7 @@ export const useStore = create<State>()(
       seedDemo: () => {
         const mk = (name: string, phone: string, zone: string, vehicle: string, plate: string, vc: VehicleClass, rating: number, ratings: number, clients = 0): Driver => ({
           id: uid(), name, phone, zone, vehicle, plate, vehicleClass: vc,
+          accessPin: securePin4(),
           rating, ratingsCount: ratings,
           clientsThisMonth: clients, subscriptionPaid: clients >= 20,
           blocked: false, thresholdReachedAt: clients >= 10 ? new Date().toISOString() : null,
