@@ -71,6 +71,31 @@ export function InscriptionChauffeur() {
               </SelectContent>
             </Select>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Code d'accès (4 chiffres) *</Label>
+              <Input
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="••••"
+                value={form.accessPin}
+                onChange={(e) => setForm({ ...form, accessPin: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+              />
+            </div>
+            <div>
+              <Label>Confirmer le code *</Label>
+              <Input
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="••••"
+                value={form.accessPinConfirm}
+                onChange={(e) => setForm({ ...form, accessPinConfirm: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+              />
+            </div>
+            <p className="col-span-2 text-xs text-muted-foreground">
+              Ce code sera demandé à chaque fois que vous accédez à votre espace chauffeur. Gardez-le secret.
+            </p>
+          </div>
           <div className="bg-muted rounded-lg p-3 text-xs space-y-1">
             <p><b>Conditions :</b></p>
             <ul className="list-disc list-inside text-muted-foreground">
