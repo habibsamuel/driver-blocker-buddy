@@ -110,7 +110,7 @@ export function Course() {
       duration: 10000,
       description: "Communiquez ce PIN au chauffeur pour démarrer.",
     });
-    setFrom(""); setTo(""); setDistance("3"); setDuration("8"); setWait(""); setPromo("");
+    setFrom(""); setTo(""); setDistance(""); setDuration(""); setWait(""); setPromo("");
   };
 
   return (
