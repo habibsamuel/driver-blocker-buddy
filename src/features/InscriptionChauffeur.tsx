@@ -14,7 +14,8 @@ export function InscriptionChauffeur() {
   const navigate = useNavigate();
   const { addDriver, settings } = useStore();
   const [form, setForm] = useState({
-    name: "", phone: "", zone: "", vehicle: "", plate: "", vehicleClass: "eco" as VehicleClass,
+    name: "", phone: "", zone: "", vehicle: "", plate: "",
+    vehicleClass: "eco" as VehicleClass, accessPin: "", accessPinConfirm: "",
   });
 
   const submit = () => {
@@ -23,6 +24,8 @@ export function InscriptionChauffeur() {
     if (!form.zone.trim()) return toast.error("Zone requise");
     if (!form.vehicle.trim()) return toast.error("Véhicule requis");
     if (!form.plate.trim()) return toast.error("Plaque requise");
+    if (!/^\d{4}$/.test(form.accessPin)) return toast.error("Choisissez un code d'accès à 4 chiffres");
+    if (form.accessPin !== form.accessPinConfirm) return toast.error("Les codes d'accès ne correspondent pas");
     addDriver({
       name: form.name.trim(),
       phone: form.phone.trim(),
@@ -30,8 +33,9 @@ export function InscriptionChauffeur() {
       vehicle: form.vehicle.trim(),
       plate: form.plate.trim().toUpperCase(),
       vehicleClass: form.vehicleClass,
+      accessPin: form.accessPin,
     });
-    toast.success("Inscription envoyée — vous serez contacté pour validation");
+    toast.success("Inscription envoyée — gardez votre code d'accès secret");
     navigate({ to: "/" });
   };
 
