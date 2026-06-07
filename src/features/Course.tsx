@@ -19,16 +19,46 @@ const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
 
 export function Course() {
   const { drivers, clients, settings, addRide, applyPromo } = useStore();
+  const estimate = useServerFn(estimateRoute);
   const [driverId, setDriverId] = useState("");
   const [clientId, setClientId] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [distance, setDistance] = useState("3");
-  const [duration, setDuration] = useState("8");
+  const [distance, setDistance] = useState("");
+  const [duration, setDuration] = useState("");
   const [wait, setWait] = useState("0");
   const [hour, setHour] = useState(String(new Date().getHours()));
   const [vehicleClass, setVehicleClass] = useState<VehicleClass>("eco");
   const [promo, setPromo] = useState("");
+  const [estimating, setEstimating] = useState(false);
+  const [estimateError, setEstimateError] = useState<string | null>(null);
+
+  // Auto-estimation distance/durée via Google Maps quand départ & arrivée sont saisis
+  useEffect(() => {
+    const f = from.trim();
+    const t = to.trim();
+    if (f.length < 2 || t.length < 2) {
+      setDistance(""); setDuration(""); setEstimateError(null);
+      return;
+    }
+    const ctrl = new AbortController();
+    setEstimating(true); setEstimateError(null);
+    const timer = setTimeout(async () => {
+      try {
+        const r = await estimate({ data: { from: f, to: t } });
+        if (ctrl.signal.aborted) return;
+        setDistance(String(r.distanceKm));
+        setDuration(String(r.durationMin));
+      } catch (e: any) {
+        if (ctrl.signal.aborted) return;
+        setEstimateError("Itinéraire introuvable — vérifiez les adresses");
+        setDistance(""); setDuration("");
+      } finally {
+        if (!ctrl.signal.aborted) setEstimating(false);
+      }
+    }, 600);
+    return () => { ctrl.abort(); clearTimeout(timer); };
+  }, [from, to, estimate]);
 
   const available = drivers.filter((d) => !d.blocked && d.vehicleClass === vehicleClass);
 
