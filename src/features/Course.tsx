@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useStore, computeFare, type VehicleClass } from "@/lib/store";
+import { estimateRoute } from "@/lib/route.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Car, Crown, Bike, Tag } from "lucide-react";
+import { Car, Crown, Bike, Tag, Loader2 } from "lucide-react";
 
 const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
   { id: "moto", label: "Bend-Skin", sub: "Moto-taxi · le plus rapide", icon: Bike },
@@ -17,16 +19,46 @@ const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
 
 export function Course() {
   const { drivers, clients, settings, addRide, applyPromo } = useStore();
+  const estimate = useServerFn(estimateRoute);
   const [driverId, setDriverId] = useState("");
   const [clientId, setClientId] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [distance, setDistance] = useState("3");
-  const [duration, setDuration] = useState("8");
+  const [distance, setDistance] = useState("");
+  const [duration, setDuration] = useState("");
   const [wait, setWait] = useState("0");
   const [hour, setHour] = useState(String(new Date().getHours()));
   const [vehicleClass, setVehicleClass] = useState<VehicleClass>("eco");
   const [promo, setPromo] = useState("");
+  const [estimating, setEstimating] = useState(false);
+  const [estimateError, setEstimateError] = useState<string | null>(null);
+
+  // Auto-estimation distance/durée via Google Maps quand départ & arrivée sont saisis
+  useEffect(() => {
+    const f = from.trim();
+    const t = to.trim();
+    if (f.length < 2 || t.length < 2) {
+      setDistance(""); setDuration(""); setEstimateError(null);
+      return;
+    }
+    const ctrl = new AbortController();
+    setEstimating(true); setEstimateError(null);
+    const timer = setTimeout(async () => {
+      try {
+        const r = await estimate({ data: { from: f, to: t } });
+        if (ctrl.signal.aborted) return;
+        setDistance(String(r.distanceKm));
+        setDuration(String(r.durationMin));
+      } catch (e: any) {
+        if (ctrl.signal.aborted) return;
+        setEstimateError("Itinéraire introuvable — vérifiez les adresses");
+        setDistance(""); setDuration("");
+      } finally {
+        if (!ctrl.signal.aborted) setEstimating(false);
+      }
+    }, 600);
+    return () => { ctrl.abort(); clearTimeout(timer); };
+  }, [from, to, estimate]);
 
   const available = drivers.filter((d) => !d.blocked && d.vehicleClass === vehicleClass);
 
@@ -78,7 +110,7 @@ export function Course() {
       duration: 10000,
       description: "Communiquez ce PIN au chauffeur pour démarrer.",
     });
-    setFrom(""); setTo(""); setDistance("3"); setDuration("8"); setWait(""); setPromo("");
+    setFrom(""); setTo(""); setDistance(""); setDuration(""); setWait(""); setPromo("");
   };
 
   return (
@@ -149,9 +181,24 @@ export function Course() {
               <div className="space-y-2"><Label>Départ</Label><Input value={from} onChange={(e)=>setFrom(e.target.value)} placeholder="Bastos" /></div>
               <div className="space-y-2"><Label>Arrivée</Label><Input value={to} onChange={(e)=>setTo(e.target.value)} placeholder="Mvan" /></div>
             </div>
+            <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+              {estimating ? (
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Calcul de l'itinéraire…
+                </span>
+              ) : estimateError ? (
+                <span className="text-destructive">{estimateError}</span>
+              ) : distance && duration ? (
+                <span className="text-foreground">
+                  📍 Distance estimée : <b>{distance} km</b> · ⏱ Durée : <b>{duration} min</b>
+                </span>
+              ) : (
+                <span className="text-muted-foreground">
+                  Saisissez le départ et l'arrivée pour calculer automatiquement la distance.
+                </span>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2"><Label>Distance (km) *</Label><Input type="number" value={distance} onChange={(e)=>setDistance(e.target.value)} min="0" step="0.1" /></div>
-              <div className="space-y-2"><Label>Durée (min) *</Label><Input type="number" value={duration} onChange={(e)=>setDuration(e.target.value)} min="0" step="1" /></div>
               <div className="space-y-2"><Label>Attente (min)</Label><Input type="number" value={wait} onChange={(e)=>setWait(e.target.value)} min="0" step="1" /></div>
               <div className="space-y-2"><Label>Heure (0-23)</Label><Input type="number" value={hour} onChange={(e)=>setHour(e.target.value)} min="0" max="23" step="1" /></div>
             </div>
@@ -188,8 +235,8 @@ export function Course() {
               </p>
               <Badge variant="outline" className="mt-2">Paiement cash uniquement</Badge>
             </div>
-            <Button className="w-full" size="lg" onClick={handleSubmit} disabled={!driverId || !clientId || !from || !to}>
-              Réserver — {finalTotal} XAF
+            <Button className="w-full" size="lg" onClick={handleSubmit} disabled={!driverId || !clientId || !from || !to || !distance || !duration || estimating}>
+              {estimating ? "Calcul en cours…" : `Réserver — ${finalTotal} XAF`}
             </Button>
           </CardContent>
         </Card>
