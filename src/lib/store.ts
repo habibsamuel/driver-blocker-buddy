@@ -11,6 +11,7 @@ export type Driver = {
   vehicle?: string;          // model
   plate?: string;            // license plate
   vehicleClass: VehicleClass;
+  accessPin: string;         // 4-digit code defined at signup, required to access chauffeur area
   rating: number;            // 0..5 average
   ratingsCount: number;
   clientsThisMonth: number;
