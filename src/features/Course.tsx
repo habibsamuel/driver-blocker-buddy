@@ -235,8 +235,8 @@ export function Course() {
               </p>
               <Badge variant="outline" className="mt-2">Paiement cash uniquement</Badge>
             </div>
-            <Button className="w-full" size="lg" onClick={handleSubmit} disabled={!driverId || !clientId || !from || !to}>
-              Réserver — {finalTotal} XAF
+            <Button className="w-full" size="lg" onClick={handleSubmit} disabled={!driverId || !clientId || !from || !to || !distance || !duration || estimating}>
+              {estimating ? "Calcul en cours…" : `Réserver — ${finalTotal} XAF`}
             </Button>
           </CardContent>
         </Card>
