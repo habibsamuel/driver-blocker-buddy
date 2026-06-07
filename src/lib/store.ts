@@ -344,6 +344,7 @@ export const useStore = create<State>()(
       seedDemo: () => {
         const mk = (name: string, phone: string, zone: string, vehicle: string, plate: string, vc: VehicleClass, rating: number, ratings: number, clients = 0): Driver => ({
           id: uid(), name, phone, zone, vehicle, plate, vehicleClass: vc,
+          accessPin: securePin4(),
           rating, ratingsCount: ratings,
           clientsThisMonth: clients, subscriptionPaid: clients >= 20,
           blocked: false, thresholdReachedAt: clients >= 10 ? new Date().toISOString() : null,
