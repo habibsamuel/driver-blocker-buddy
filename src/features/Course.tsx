@@ -86,7 +86,10 @@ export function Course() {
     () => (promo.trim() ? applyPromo(promo, fare.total) : { ok: false, discount: 0, msg: "" }),
     [promo, fare.total, applyPromo],
   );
-  const finalTotal = Math.max(settings.minFare, fare.total - (promoResult.ok ? promoResult.discount : 0));
+  const finalTotal = Math.min(
+    settings.maxFare,
+    Math.max(settings.minFare, fare.total - (promoResult.ok ? promoResult.discount : 0)),
+  );
 
   if (!user) {
     return (
