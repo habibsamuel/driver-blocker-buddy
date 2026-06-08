@@ -250,7 +250,7 @@ function AuthHeader() {
   if (!user) {
     return (
       <Link to="/auth">
-        <Button size="sm" variant="outline" className="text-xs">Connexion</Button>
+        <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">Connexion</Button>
       </Link>
     );
   }
