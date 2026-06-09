@@ -27,6 +27,7 @@ import { useStore, type Role } from "@/lib/store";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { Onboarding } from "@/components/Onboarding";
 
 const allNav = [
   { to: "/", label: "Accueil", icon: LayoutDashboard, roles: ["client", "chauffeur", "admin"] as Role[] },
@@ -240,6 +241,7 @@ export function Layout() {
         </DialogContent>
       </Dialog>
 
+      <Onboarding />
       <Toaster richColors position="top-right" />
     </div>
   );

@@ -4,17 +4,20 @@ import { useServerFn } from "@tanstack/react-start";
 import { useStore, computeFare, type VehicleClass } from "@/lib/store";
 import { estimateRoute } from "@/lib/route.functions";
 import { useAuth } from "@/hooks/useAuth";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { useDriverPositions } from "@/hooks/useDriverPositions";
 import { supabase } from "@/integrations/supabase/client";
+import { MapView } from "@/components/MapView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, Phone, ShieldCheck, LogIn } from "lucide-react";
+import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, Phone, ShieldCheck, LogIn, Locate } from "lucide-react";
 
 const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
-  { id: "moto", label: "Bend-Skin", sub: "Moto-taxi · le plus rapide", icon: Bike },
+  { id: "moto", label: "Bend-Skin", sub: "Moto-taxi · rapide", icon: Bike },
   { id: "eco", label: "Éco", sub: "Voiture standard", icon: Car },
   { id: "confort", label: "Confort", sub: "Berline climatisée", icon: Crown },
 ];
@@ -23,11 +26,10 @@ export function Course() {
   const { drivers, settings, addRide, applyPromo, addClient, clients } = useStore();
   const { user } = useAuth();
   const estimate = useServerFn(estimateRoute);
+  const { position, error: geoError } = useGeolocation(true);
+  const liveDrivers = useDriverPositions();
 
-  // Profil client (auto depuis compte connecté)
   const [profile, setProfile] = useState<{ name: string; phone: string; quartier: string } | null>(null);
-
-  const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
@@ -41,7 +43,6 @@ export function Course() {
     plate?: string; vehicle?: string; total: number;
   }>(null);
 
-  // Charger profil depuis Supabase
   useEffect(() => {
     if (!user) return;
     supabase.from("profiles").select("name, phone, quartier").eq("user_id", user.id).maybeSingle()
@@ -51,25 +52,27 @@ export function Course() {
       });
   }, [user]);
 
-  // Auto-estimation
+  // Auto-estimation : origin = position GPS, destination = saisie
   useEffect(() => {
-    const f = from.trim(), t = to.trim();
-    if (f.length < 2 || t.length < 2) { setDistance(""); setDuration(""); setEstimateError(null); return; }
+    const t = to.trim();
+    if (t.length < 2 || !position) { setDistance(""); setDuration(""); setEstimateError(null); return; }
     const ctrl = new AbortController();
     setEstimating(true); setEstimateError(null);
     const timer = setTimeout(async () => {
       try {
-        const r = await estimate({ data: { from: f, to: t } });
+        const r = await estimate({
+          data: { originLat: position.lat, originLng: position.lng, to: t },
+        });
         if (ctrl.signal.aborted) return;
         setDistance(String(r.distanceKm)); setDuration(String(r.durationMin));
       } catch {
         if (ctrl.signal.aborted) return;
-        setEstimateError("Itinéraire introuvable — vérifiez les adresses");
+        setEstimateError("Destination introuvable — précisez le quartier");
         setDistance(""); setDuration("");
       } finally { if (!ctrl.signal.aborted) setEstimating(false); }
     }, 600);
     return () => { ctrl.abort(); clearTimeout(timer); };
-  }, [from, to, estimate]);
+  }, [to, position?.lat, position?.lng, estimate]);
 
   const hour = new Date().getHours();
   const available = useMemo(
@@ -100,7 +103,7 @@ export function Course() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Pour réserver une course, connectez-vous à votre compte. Nous utilisons vos informations de profil automatiquement.
+              Pour réserver une course, créez un compte ou connectez-vous. Vos infos seront utilisées automatiquement.
             </p>
             <Link to="/auth"><Button className="w-full">Se connecter / S'inscrire</Button></Link>
           </CardContent>
@@ -110,24 +113,25 @@ export function Course() {
   }
 
   const handleBook = async () => {
-    if (!from.trim() || !to.trim()) { toast.error("Indiquez départ et arrivée"); return; }
+    if (!to.trim()) { toast.error("Indiquez votre destination"); return; }
+    if (!position) { toast.error("Activez la géolocalisation pour réserver"); return; }
     const dist = parseFloat(distance), dur = parseFloat(duration);
-    if (!dist || !dur) { toast.error("Itinéraire non calculé"); return; }
+    if (!dist || !dur) { toast.error("Itinéraire en cours de calcul…"); return; }
     if (available.length === 0) { toast.error("Aucun chauffeur disponible dans cette catégorie"); return; }
 
     setBooking(true);
     try {
-      // Trouver/créer le client local lié au compte
       const name = profile?.name || "Client";
       const phone = profile?.phone || "";
       let client = clients.find((c) => c.phone && phone && c.phone === phone);
       if (!client) client = addClient({ name, phone, quartier: profile?.quartier || "" });
 
-      // Attribution automatique : meilleur chauffeur disponible
       const driver = available[0];
 
       const ride = addRide({
-        driverId: driver.id, clientId: client.id, from: from.trim(), to: to.trim(),
+        driverId: driver.id, clientId: client.id,
+        from: `Position actuelle (${position.lat.toFixed(4)}, ${position.lng.toFixed(4)})`,
+        to: to.trim(),
         distanceKm: dist, durationMin: dur, waitMin: 0,
         baseFare: fare.baseFare, timeSurcharge: fare.timeSurcharge, waitSurcharge: fare.waitSurcharge,
         peakMultiplier: fare.peakMultiplier, vehicleClass, classMultiplier: fare.classMultiplier,
@@ -147,19 +151,22 @@ export function Course() {
   };
 
   const reset = () => {
-    setConfirmed(null); setFrom(""); setTo(""); setDistance(""); setDuration(""); setPromo("");
+    setConfirmed(null); setTo(""); setDistance(""); setDuration(""); setPromo("");
   };
 
   if (confirmed) {
     return (
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-xl mx-auto space-y-4">
         <div className="text-center">
           <div className="inline-flex h-16 w-16 rounded-full bg-primary/20 items-center justify-center mb-3">
             <ShieldCheck className="h-8 w-8 text-primary" />
           </div>
           <h1 className="text-2xl font-bold">Course confirmée 🚖</h1>
-          <p className="text-muted-foreground text-sm">Votre chauffeur est en route</p>
+          <p className="text-muted-foreground text-sm">Suivez l'arrivée de votre chauffeur</p>
         </div>
+
+        <MapView drivers={liveDrivers} me={position ? { lat: position.lat, lng: position.lng } : null} className="h-64" />
+
         <Card>
           <CardHeader><CardTitle>Votre chauffeur</CardTitle></CardHeader>
           <CardContent className="space-y-3">
@@ -192,33 +199,46 @@ export function Course() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-4">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Où allez-vous ?</h1>
-        <p className="text-muted-foreground">Indiquez votre trajet, nous trouvons le meilleur chauffeur</p>
+        <p className="text-muted-foreground">Nous vous localisons — indiquez juste la destination</p>
       </div>
 
-      {/* Étape 1 : trajet */}
+      {/* Carte en direct */}
+      <MapView drivers={liveDrivers} me={position ? { lat: position.lat, lng: position.lng } : null} className="h-56" />
+
+      {/* Statut GPS */}
+      <div className="rounded-lg border bg-muted/40 p-3 text-sm flex items-center gap-2">
+        <Locate className={`h-4 w-4 ${position ? "text-green-500" : "text-muted-foreground animate-pulse"}`} />
+        {position ? (
+          <span className="text-muted-foreground">📍 Position détectée — {liveDrivers.length} chauffeur(s) en ligne autour de vous</span>
+        ) : geoError ? (
+          <span className="text-destructive">Activez la géolocalisation pour continuer ({geoError})</span>
+        ) : (
+          <span className="text-muted-foreground">Localisation en cours…</span>
+        )}
+      </div>
+
+      {/* Étape 1 : destination */}
       <Card>
-        <CardHeader><CardTitle className="text-base">1. Votre trajet</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">1. Votre destination</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
-            <Label className="flex items-center gap-1"><MapPin className="h-3 w-3 text-primary" /> Lieu de départ</Label>
-            <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Ex: Bastos, Yaoundé" />
-          </div>
-          <div className="space-y-2">
-            <Label className="flex items-center gap-1"><Navigation className="h-3 w-3 text-primary" /> Destination</Label>
-            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Ex: Aéroport Nsimalen" />
+            <Label className="flex items-center gap-1"><Navigation className="h-3 w-3 text-primary" /> Où allez-vous ?</Label>
+            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Ex: Aéroport Nsimalen, Bastos, Mvog-Mbi…" />
           </div>
           <div className="rounded-lg border bg-muted/40 p-3 text-sm">
-            {estimating ? (
+            {!position ? (
+              <span className="text-muted-foreground">En attente de votre position GPS…</span>
+            ) : estimating ? (
               <span className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Calcul de l'itinéraire…</span>
             ) : estimateError ? (
               <span className="text-destructive">{estimateError}</span>
             ) : distance && duration ? (
-              <span>📍 <b>{distance} km</b> · ⏱ <b>{duration} min</b></span>
+              <span>📍 <b>{distance} km</b> · ⏱ <b>{duration} min</b> depuis votre position</span>
             ) : (
-              <span className="text-muted-foreground">Saisissez le départ et l'arrivée…</span>
+              <span className="text-muted-foreground">Saisissez votre destination…</span>
             )}
           </div>
         </CardContent>
@@ -267,13 +287,13 @@ export function Course() {
               <span className="text-sm text-muted-foreground">Total estimé</span>
               <span className="text-3xl font-bold text-primary">{distance && duration ? finalTotal : "—"} XAF</span>
             </div>
-            <Badge variant="outline" className="mt-2">💵 Paiement en liquide au chauffeur</Badge>
+            <Badge variant="outline" className="mt-2"><MapPin className="h-3 w-3 mr-1" /> 💵 Paiement en liquide au chauffeur</Badge>
           </div>
           <Button
             className="w-full" size="lg" onClick={handleBook}
-            disabled={!from || !to || !distance || !duration || estimating || booking}
+            disabled={!to || !distance || !duration || estimating || booking || !position}
           >
-            {booking ? "Réservation…" : estimating ? "Calcul en cours…" : `Commander — ${finalTotal} XAF`}
+            {booking ? "Réservation…" : estimating ? "Calcul en cours…" : !position ? "Localisation…" : `Commander — ${finalTotal} XAF`}
           </Button>
           {profile && (
             <p className="text-[11px] text-muted-foreground text-center">
