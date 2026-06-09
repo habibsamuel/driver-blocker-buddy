@@ -27,27 +27,35 @@ function AuthPage() {
   }
 
   const handleSignIn = async () => {
+    if (!email.trim() || !password) { toast.error("Email et mot de passe requis"); return; }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
-    if (error) toast.error(error.message);
-    else {
+    if (error) {
+      if (error.message.includes("Invalid login")) toast.error("Email ou mot de passe incorrect");
+      else toast.error(error.message);
+    } else {
       toast.success("Connexion réussie");
       navigate({ to: "/" });
     }
   };
 
   const handleSignUp = async () => {
+    if (!name.trim()) { toast.error("Indiquez votre nom"); return; }
+    if (!email.trim() || !email.includes("@")) { toast.error("Email invalide"); return; }
+    if (password.length < 6) { toast.error("Mot de passe : 6 caractères minimum"); return; }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
-      options: { data: { name, phone }, emailRedirectTo: window.location.origin },
+      options: { data: { name: name.trim(), phone: phone.trim() }, emailRedirectTo: window.location.origin },
     });
     setLoading(false);
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Compte créé !");
+    if (error) {
+      if (error.message.toLowerCase().includes("already")) toast.error("Cet email est déjà inscrit — connectez-vous");
+      else toast.error(error.message);
+    } else {
+      toast.success("Compte créé ! Bienvenue sur Taxi Proxi 🚖");
       navigate({ to: "/" });
     }
   };
@@ -63,27 +71,34 @@ function AuthPage() {
         <CardHeader className="text-center">
           <div className="text-4xl mb-2">🚖</div>
           <CardTitle className="text-2xl text-primary">TAXI PROXI</CardTitle>
-          <p className="text-sm text-muted-foreground">Connectez-vous pour continuer</p>
+          <p className="text-sm text-muted-foreground">Votre taxi à Yaoundé en quelques clics</p>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin">
+          <Tabs defaultValue="signup">
             <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="signin">Connexion</TabsTrigger>
               <TabsTrigger value="signup">Inscription</TabsTrigger>
+              <TabsTrigger value="signin">Connexion</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="signup" className="space-y-3 mt-4">
+              <div><Label>Nom complet *</Label><Input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Jean Dupont" /></div>
+              <div><Label>Téléphone</Label><Input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="6XX XXX XXX" /></div>
+              <div><Label>Email *</Label><Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@email.com" /></div>
+              <div><Label>Mot de passe * (6+ caractères)</Label><Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></div>
+              <Button className="w-full bg-primary text-primary-foreground" disabled={loading} onClick={handleSignUp}>
+                {loading ? "Création…" : "Créer mon compte"}
+              </Button>
+              <p className="text-[11px] text-center text-muted-foreground">
+                Pas besoin de confirmer votre email — vous êtes connecté directement.
+              </p>
+            </TabsContent>
 
             <TabsContent value="signin" className="space-y-3 mt-4">
               <div><Label>Email</Label><Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} /></div>
               <div><Label>Mot de passe</Label><Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></div>
-              <Button className="w-full bg-primary text-primary-foreground" disabled={loading} onClick={handleSignIn}>Se connecter</Button>
-            </TabsContent>
-
-            <TabsContent value="signup" className="space-y-3 mt-4">
-              <div><Label>Nom complet</Label><Input value={name} onChange={(e)=>setName(e.target.value)} /></div>
-              <div><Label>Téléphone</Label><Input value={phone} onChange={(e)=>setPhone(e.target.value)} /></div>
-              <div><Label>Email</Label><Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} /></div>
-              <div><Label>Mot de passe</Label><Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></div>
-              <Button className="w-full bg-primary text-primary-foreground" disabled={loading} onClick={handleSignUp}>Créer un compte</Button>
+              <Button className="w-full bg-primary text-primary-foreground" disabled={loading} onClick={handleSignIn}>
+                {loading ? "Connexion…" : "Se connecter"}
+              </Button>
             </TabsContent>
           </Tabs>
 
