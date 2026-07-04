@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,10 +21,9 @@ function AuthPage() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (user) {
-    navigate({ to: "/" });
-    return null;
-  }
+  useEffect(() => {
+    if (user) navigate({ to: "/" });
+  }, [user, navigate]);
 
   const handleSignIn = async () => {
     if (!email.trim() || !password) { toast.error("Email et mot de passe requis"); return; }

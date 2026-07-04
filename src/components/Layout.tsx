@@ -73,6 +73,7 @@ export function Layout() {
   const current = nav.find((n) => n.to === path) ?? nav[0];
 
   useEffect(() => {
+    if (path === "/auth") return;
     if (!allNav.find((n) => n.to === path)?.roles.includes(role)) {
       navigate({ to: "/" });
     }
