@@ -28,6 +28,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Onboarding } from "@/components/Onboarding";
+import { InstallButton } from "@/components/InstallButton";
 
 const allNav = [
   { to: "/", label: "Accueil", icon: LayoutDashboard, roles: ["client", "chauffeur", "admin"] as Role[] },
@@ -131,6 +132,7 @@ export function Layout() {
           </Link>
 
           <div className="flex items-center gap-2">
+            <InstallButton />
             <AuthHeader />
             {role === "admin" && (
               <Badge className="hidden sm:flex bg-primary text-primary-foreground gap-1">
