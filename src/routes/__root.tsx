@@ -77,7 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "TAXI PROXI — Taxi & covoiturage à Yaoundé" },
       { name: "description", content: "Réservez votre taxi à Yaoundé en quelques secondes : Bend-Skin, Éco, Confort. Paiement cash, géolocalisation temps réel, code PIN sécurisé." },
       { name: "author", content: "DEUS Corporation" },
-      { name: "theme-color", content: "#FFD400" },
+      { name: "theme-color", content: "#484423" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Taxi Proxi" },
