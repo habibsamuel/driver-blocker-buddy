@@ -45,10 +45,15 @@ function AuthPage() {
     if (!email.trim() || !email.includes("@")) { toast.error("Email invalide"); return; }
     if (password.length < 6) { toast.error("Mot de passe : 6 caractères minimum"); return; }
     setLoading(true);
+    const cleanCode = referralCode.trim().toUpperCase();
+    if (cleanCode) {
+      const { data: ok } = await supabase.rpc("referral_code_exists", { _code: cleanCode });
+      if (!ok) { setLoading(false); toast.error("Code de parrainage invalide"); return; }
+    }
     const { error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { data: { name: name.trim(), phone: phone.trim() }, emailRedirectTo: window.location.origin },
+      options: { data: { name: name.trim(), phone: phone.trim(), referral_code: cleanCode }, emailRedirectTo: window.location.origin },
     });
     setLoading(false);
     if (error) {
