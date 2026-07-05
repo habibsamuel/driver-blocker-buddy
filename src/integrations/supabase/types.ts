@@ -47,6 +47,9 @@ export type Database = {
           name: string
           phone: string
           quartier: string
+          referral_code: string | null
+          referral_credit: number
+          referred_by: string | null
           updated_at: string
           user_id: string
         }
@@ -55,6 +58,9 @@ export type Database = {
           name?: string
           phone?: string
           quartier?: string
+          referral_code?: string | null
+          referral_credit?: number
+          referred_by?: string | null
           updated_at?: string
           user_id: string
         }
@@ -63,8 +69,38 @@ export type Database = {
           name?: string
           phone?: string
           quartier?: string
+          referral_code?: string | null
+          referral_credit?: number
+          referred_by?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          code_used: string
+          created_at: string
+          id: string
+          referee_id: string
+          referrer_id: string
+          reward_amount: number
+        }
+        Insert: {
+          code_used: string
+          created_at?: string
+          id?: string
+          referee_id: string
+          referrer_id: string
+          reward_amount?: number
+        }
+        Update: {
+          code_used?: string
+          created_at?: string
+          id?: string
+          referee_id?: string
+          referrer_id?: string
+          reward_amount?: number
         }
         Relationships: []
       }
@@ -94,6 +130,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -101,6 +138,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      referral_code_exists: { Args: { _code: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "chauffeur" | "client"
