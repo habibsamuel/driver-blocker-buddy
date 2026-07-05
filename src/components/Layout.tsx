@@ -75,7 +75,9 @@ export function Layout() {
 
   useEffect(() => {
     if (path === "/auth") return;
-    if (!allNav.find((n) => n.to === path)?.roles.includes(role)) {
+    const entry = allNav.find((n) => n.to === path);
+    // Only guard admin-only routes; other routes are open (auth handled elsewhere)
+    if (entry && entry.roles.length === 1 && entry.roles[0] === "admin" && role !== "admin") {
       navigate({ to: "/" });
     }
   }, [role, path, navigate]);
