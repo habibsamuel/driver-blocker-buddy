@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, UserCircle, Wallet, Settings as SettingsIcon, Play, Menu, ChevronDown, Lock, LogOut, History, Shield, UserPlus } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, Wallet, Settings as SettingsIcon, Play, Menu, ChevronDown, Lock, LogOut, History, Shield, UserPlus, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";
@@ -35,6 +35,7 @@ const allNav = [
   { to: "/course", label: "Réserver une course", icon: Play, roles: ["client", "chauffeur", "admin"] as Role[] },
   { to: "/historique", label: "Historique", icon: History, roles: ["client", "chauffeur", "admin"] as Role[] },
   { to: "/securite", label: "Sécurité", icon: Shield, roles: ["client", "chauffeur", "admin"] as Role[] },
+  { to: "/parrainage", label: "Parrainage", icon: Gift, roles: ["client", "chauffeur", "admin"] as Role[] },
   { to: "/inscription-chauffeur", label: "Devenir chauffeur", icon: UserPlus, roles: ["client"] as Role[] },
   { to: "/chauffeurs", label: "Chauffeurs", icon: Users, roles: ["admin"] as Role[] },
   { to: "/clients", label: "Clients", icon: UserCircle, roles: ["admin"] as Role[] },

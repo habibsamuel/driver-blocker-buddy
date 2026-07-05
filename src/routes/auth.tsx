@@ -19,6 +19,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -44,10 +45,15 @@ function AuthPage() {
     if (!email.trim() || !email.includes("@")) { toast.error("Email invalide"); return; }
     if (password.length < 6) { toast.error("Mot de passe : 6 caractères minimum"); return; }
     setLoading(true);
+    const cleanCode = referralCode.trim().toUpperCase();
+    if (cleanCode) {
+      const { data: ok } = await supabase.rpc("referral_code_exists", { _code: cleanCode });
+      if (!ok) { setLoading(false); toast.error("Code de parrainage invalide"); return; }
+    }
     const { error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { data: { name: name.trim(), phone: phone.trim() }, emailRedirectTo: window.location.origin },
+      options: { data: { name: name.trim(), phone: phone.trim(), referral_code: cleanCode }, emailRedirectTo: window.location.origin },
     });
     setLoading(false);
     if (error) {
@@ -84,6 +90,16 @@ function AuthPage() {
               <div><Label>Téléphone</Label><Input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="6XX XXX XXX" /></div>
               <div><Label>Email *</Label><Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@email.com" /></div>
               <div><Label>Mot de passe * (6+ caractères)</Label><Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></div>
+              <div>
+                <Label>Code de parrainage (optionnel) 🎁</Label>
+                <Input
+                  value={referralCode}
+                  onChange={(e)=>setReferralCode(e.target.value.toUpperCase())}
+                  placeholder="TAXI-XXXXXX"
+                  className="uppercase tracking-widest"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">Un ami vous a invité ? Gagnez 500 XAF chacun.</p>
+              </div>
               <Button className="w-full bg-primary text-primary-foreground" disabled={loading} onClick={handleSignUp}>
                 {loading ? "Création…" : "Créer mon compte"}
               </Button>
