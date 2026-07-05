@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, UserCircle, Wallet, Settings as SettingsIcon, Play, Menu, ChevronDown, Lock, LogOut, History, Shield, UserPlus } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, Wallet, Settings as SettingsIcon, Play, Menu, ChevronDown, Lock, LogOut, History, Shield, UserPlus, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";

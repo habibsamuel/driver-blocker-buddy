@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SecuriteRouteImport } from './routes/securite'
+import { Route as ParrainageRouteImport } from './routes/parrainage'
 import { Route as PaiementsRouteImport } from './routes/paiements'
 import { Route as InscriptionChauffeurRouteImport } from './routes/inscription-chauffeur'
 import { Route as HistoriqueRouteImport } from './routes/historique'
@@ -23,6 +24,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SecuriteRoute = SecuriteRouteImport.update({
   id: '/securite',
   path: '/securite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParrainageRoute = ParrainageRouteImport.update({
+  id: '/parrainage',
+  path: '/parrainage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaiementsRoute = PaiementsRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/paiements': typeof PaiementsRoute
+  '/parrainage': typeof ParrainageRoute
   '/securite': typeof SecuriteRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/paiements': typeof PaiementsRoute
+  '/parrainage': typeof ParrainageRoute
   '/securite': typeof SecuriteRoute
 }
 export interface FileRoutesById {
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/paiements': typeof PaiementsRoute
+  '/parrainage': typeof ParrainageRoute
   '/securite': typeof SecuriteRoute
 }
 export interface FileRouteTypes {
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/historique'
     | '/inscription-chauffeur'
     | '/paiements'
+    | '/parrainage'
     | '/securite'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/historique'
     | '/inscription-chauffeur'
     | '/paiements'
+    | '/parrainage'
     | '/securite'
   id:
     | '__root__'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/historique'
     | '/inscription-chauffeur'
     | '/paiements'
+    | '/parrainage'
     | '/securite'
   fileRoutesById: FileRoutesById
 }
@@ -157,6 +169,7 @@ export interface RootRouteChildren {
   HistoriqueRoute: typeof HistoriqueRoute
   InscriptionChauffeurRoute: typeof InscriptionChauffeurRoute
   PaiementsRoute: typeof PaiementsRoute
+  ParrainageRoute: typeof ParrainageRoute
   SecuriteRoute: typeof SecuriteRoute
 }
 
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/securite'
       fullPath: '/securite'
       preLoaderRoute: typeof SecuriteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parrainage': {
+      id: '/parrainage'
+      path: '/parrainage'
+      fullPath: '/parrainage'
+      preLoaderRoute: typeof ParrainageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/paiements': {
@@ -245,6 +265,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoriqueRoute: HistoriqueRoute,
   InscriptionChauffeurRoute: InscriptionChauffeurRoute,
   PaiementsRoute: PaiementsRoute,
+  ParrainageRoute: ParrainageRoute,
   SecuriteRoute: SecuriteRoute,
 }
 export const routeTree = rootRouteImport
