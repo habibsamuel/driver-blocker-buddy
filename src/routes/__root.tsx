@@ -90,6 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "TAXI PROXI — Taxi & covoiturage à Yaoundé" },
       { name: "twitter:description", content: "Réservez votre taxi à Yaoundé : Bend-Skin, Éco, Confort. Paiement cash." },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7ad3105d-0a70-4ad9-b6df-bf7bdbe30644" },
+      { property: "og:site_name", content: "Taxi Proxi" },
     ],
     links: [
       { rel: "preconnect", href: "https://cdn.gpteng.co", crossOrigin: "anonymous" },
@@ -99,6 +100,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon.png" },
       { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Taxi Proxi",
+          url: "https://taxiproxicamer.lovable.app",
+          logo: "https://taxiproxicamer.lovable.app/icon-512.png",
+          sameAs: [],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Taxi Proxi",
+          url: "https://taxiproxicamer.lovable.app",
+        }),
+      },
     ],
   }),
   shellComponent: RootShell,

@@ -10,7 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
-export const Route = createFileRoute("/auth")({ component: AuthPage });
+export const Route = createFileRoute("/auth")({
+  component: AuthPage,
+  head: () => ({
+    meta: [
+      { title: "Connexion — Taxi Proxi" },
+      { name: "description", content: "Connectez-vous ou créez votre compte Taxi Proxi pour réserver un taxi à Yaoundé." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+});
 
 function AuthPage() {
   const navigate = useNavigate();

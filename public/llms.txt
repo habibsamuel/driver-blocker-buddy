@@ -1,0 +1,11 @@
+# Taxi Proxi
+
+> Application de réservation de taxi et covoiturage à Yaoundé (Cameroun) : Bend-Skin, Éco et Confort, avec géolocalisation en temps réel, code PIN sécurisé et paiement cash ou mobile money.
+
+## Pages
+
+- [Accueil](/): Présentation de Taxi Proxi et réservation rapide à Yaoundé.
+- [Réserver une course](/course): Commande d'un taxi (Bend-Skin, Éco, Confort) en quelques secondes.
+- [Devenir chauffeur](/inscription-chauffeur): Inscription des chauffeurs partenaires à Yaoundé.
+- [Parrainage](/parrainage): Programme d'invitation avec 500 XAF offerts par filleul.
+- [Sécurité](/securite): Fonctionnalités de sûreté — code PIN par course, partage de trajet, urgence.
