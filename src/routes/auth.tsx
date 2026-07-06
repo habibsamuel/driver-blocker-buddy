@@ -46,10 +46,8 @@ function AuthPage() {
     if (password.length < 6) { toast.error("Mot de passe : 6 caractères minimum"); return; }
     setLoading(true);
     const cleanCode = referralCode.trim().toUpperCase();
-    if (cleanCode) {
-      const { data: ok } = await supabase.rpc("referral_code_exists", { _code: cleanCode });
-      if (!ok) { setLoading(false); toast.error("Code de parrainage invalide"); return; }
-    }
+    // La validité du code est vérifiée côté serveur par le trigger handle_new_user.
+    // Un code invalide est simplement ignoré (aucun parrain crédité).
     const { error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
