@@ -11,6 +11,39 @@ const Dashboard = lazy(() =>
 
 export const Route = createFileRoute("/")({
   component: Home,
+  head: () => ({
+    meta: [
+      { title: "Taxi Proxi — Réservez votre taxi à Yaoundé" },
+      {
+        name: "description",
+        content:
+          "Taxi Proxi : réservez un taxi à Yaoundé (Bend-Skin, Éco, Confort) en quelques secondes. Géolocalisation temps réel, code PIN sécurisé, paiement cash.",
+      },
+      { property: "og:title", content: "Taxi Proxi — Réservez votre taxi à Yaoundé" },
+      {
+        property: "og:description",
+        content:
+          "Réservez un taxi à Yaoundé en quelques secondes. Géolocalisation temps réel et code PIN.",
+      },
+      { property: "og:url", content: "https://taxiproxicamer.lovable.app/" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "https://taxiproxicamer.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Taxi Proxi",
+          serviceType: "Réservation de taxi et covoiturage",
+          areaServed: { "@type": "City", name: "Yaoundé" },
+          provider: { "@type": "Organization", name: "Taxi Proxi" },
+          url: "https://taxiproxicamer.lovable.app/",
+        }),
+      },
+    ],
+  }),
 });
 
 function Home() {
