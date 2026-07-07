@@ -137,7 +137,9 @@ export function InscriptionChauffeur() {
               <li>Paiement en cash uniquement (post-course)</li>
             </ul>
           </div>
-          <Button onClick={submit} className="w-full" size="lg">Envoyer ma candidature</Button>
+          <Button onClick={submit} disabled={submitting} className="w-full" size="lg">
+            {submitting ? "Envoi…" : "Envoyer ma candidature"}
+          </Button>
         </CardContent>
       </Card>
     </div>
