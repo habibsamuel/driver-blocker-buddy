@@ -91,6 +91,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "Réservez votre taxi à Yaoundé : Bend-Skin, Éco, Confort. Paiement cash." },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7ad3105d-0a70-4ad9-b6df-bf7bdbe30644" },
       { property: "og:site_name", content: "Taxi Proxi" },
+      { name: "google-site-verification", content: "ga9Llh59iOpUkrtYpehXg95BU8eKfaJzQkUNuDACNQo" },
     ],
     links: [
       { rel: "preconnect", href: "https://cdn.gpteng.co", crossOrigin: "anonymous" },
