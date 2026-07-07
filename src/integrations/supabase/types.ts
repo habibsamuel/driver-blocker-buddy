@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      driver_documents: {
+        Row: {
+          document_type: Database["public"]["Enums"]["driver_document_type"]
+          driver_id: string
+          file_url: string
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["driver_document_status"]
+          uploaded_at: string
+        }
+        Insert: {
+          document_type: Database["public"]["Enums"]["driver_document_type"]
+          driver_id: string
+          file_url: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["driver_document_status"]
+          uploaded_at?: string
+        }
+        Update: {
+          document_type?: Database["public"]["Enums"]["driver_document_type"]
+          driver_id?: string
+          file_url?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["driver_document_status"]
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_documents_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       driver_positions: {
         Row: {
           driver_id: string
@@ -38,6 +82,54 @@ export type Database = {
           lat?: number
           lng?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      drivers: {
+        Row: {
+          access_pin_hash: string | null
+          blocked: boolean
+          created_at: string
+          is_online: boolean
+          name: string
+          phone: string
+          plate: string
+          updated_at: string
+          user_id: string
+          vehicle: string
+          vehicle_class: Database["public"]["Enums"]["driver_vehicle_class"]
+          verification_status: Database["public"]["Enums"]["driver_verification_status"]
+          zone: string
+        }
+        Insert: {
+          access_pin_hash?: string | null
+          blocked?: boolean
+          created_at?: string
+          is_online?: boolean
+          name?: string
+          phone?: string
+          plate?: string
+          updated_at?: string
+          user_id: string
+          vehicle?: string
+          vehicle_class?: Database["public"]["Enums"]["driver_vehicle_class"]
+          verification_status?: Database["public"]["Enums"]["driver_verification_status"]
+          zone?: string
+        }
+        Update: {
+          access_pin_hash?: string | null
+          blocked?: boolean
+          created_at?: string
+          is_online?: boolean
+          name?: string
+          phone?: string
+          plate?: string
+          updated_at?: string
+          user_id?: string
+          vehicle?: string
+          vehicle_class?: Database["public"]["Enums"]["driver_vehicle_class"]
+          verification_status?: Database["public"]["Enums"]["driver_verification_status"]
+          zone?: string
         }
         Relationships: []
       }
@@ -142,6 +234,19 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "chauffeur" | "client"
+      driver_document_status: "en_attente" | "approuve" | "rejete"
+      driver_document_type:
+        | "cni"
+        | "permis_conduire"
+        | "carte_grise"
+        | "assurance"
+        | "photo_vehicule"
+      driver_vehicle_class: "moto" | "eco" | "confort"
+      driver_verification_status:
+        | "incomplet"
+        | "en_attente"
+        | "verifie"
+        | "rejete"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -270,6 +375,21 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "chauffeur", "client"],
+      driver_document_status: ["en_attente", "approuve", "rejete"],
+      driver_document_type: [
+        "cni",
+        "permis_conduire",
+        "carte_grise",
+        "assurance",
+        "photo_vehicule",
+      ],
+      driver_vehicle_class: ["moto", "eco", "confort"],
+      driver_verification_status: [
+        "incomplet",
+        "en_attente",
+        "verifie",
+        "rejete",
+      ],
     },
   },
 } as const

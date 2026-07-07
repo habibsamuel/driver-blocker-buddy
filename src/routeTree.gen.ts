@@ -15,6 +15,7 @@ import { Route as ParrainageRouteImport } from './routes/parrainage'
 import { Route as PaiementsRouteImport } from './routes/paiements'
 import { Route as InscriptionChauffeurRouteImport } from './routes/inscription-chauffeur'
 import { Route as HistoriqueRouteImport } from './routes/historique'
+import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as CourseRouteImport } from './routes/course'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as ChauffeursRouteImport } from './routes/chauffeurs'
@@ -50,6 +51,11 @@ const InscriptionChauffeurRoute = InscriptionChauffeurRouteImport.update({
 const HistoriqueRoute = HistoriqueRouteImport.update({
   id: '/historique',
   path: '/historique',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentsRoute = DocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CourseRoute = CourseRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
   '/course': typeof CourseRoute
+  '/documents': typeof DocumentsRoute
   '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/paiements': typeof PaiementsRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
   '/course': typeof CourseRoute
+  '/documents': typeof DocumentsRoute
   '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/paiements': typeof PaiementsRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
   '/course': typeof CourseRoute
+  '/documents': typeof DocumentsRoute
   '/historique': typeof HistoriqueRoute
   '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/paiements': typeof PaiementsRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/chauffeurs'
     | '/clients'
     | '/course'
+    | '/documents'
     | '/historique'
     | '/inscription-chauffeur'
     | '/paiements'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/chauffeurs'
     | '/clients'
     | '/course'
+    | '/documents'
     | '/historique'
     | '/inscription-chauffeur'
     | '/paiements'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/chauffeurs'
     | '/clients'
     | '/course'
+    | '/documents'
     | '/historique'
     | '/inscription-chauffeur'
     | '/paiements'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   ChauffeursRoute: typeof ChauffeursRoute
   ClientsRoute: typeof ClientsRoute
   CourseRoute: typeof CourseRoute
+  DocumentsRoute: typeof DocumentsRoute
   HistoriqueRoute: typeof HistoriqueRoute
   InscriptionChauffeurRoute: typeof InscriptionChauffeurRoute
   PaiementsRoute: typeof PaiementsRoute
@@ -228,6 +241,13 @@ declare module '@tanstack/react-router' {
       path: '/historique'
       fullPath: '/historique'
       preLoaderRoute: typeof HistoriqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documents': {
+      id: '/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof DocumentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/course': {
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChauffeursRoute: ChauffeursRoute,
   ClientsRoute: ClientsRoute,
   CourseRoute: CourseRoute,
+  DocumentsRoute: DocumentsRoute,
   HistoriqueRoute: HistoriqueRoute,
   InscriptionChauffeurRoute: InscriptionChauffeurRoute,
   PaiementsRoute: PaiementsRoute,

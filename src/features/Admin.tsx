@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import { AdminVerifications } from "@/features/AdminVerifications";
 
 export function Admin() {
   const { settings, updateSettings, drivers, codes, resetMonthlyCounters, checkAndBlockDrivers, role } = useStore();
@@ -64,6 +65,8 @@ export function Admin() {
           </CardContent>
         </Card>
       </div>
+
+      <AdminVerifications />
 
       <Card>
         <CardHeader><CardTitle>Chauffeurs bloqués ({blocked.length})</CardTitle></CardHeader>
