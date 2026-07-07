@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useStore, type VehicleClass } from "@/lib/store";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,12 +15,14 @@ import { Car } from "lucide-react";
 export function InscriptionChauffeur() {
   const navigate = useNavigate();
   const { addDriver, settings } = useStore();
+  const { user } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: "", phone: "", zone: "", vehicle: "", plate: "",
     vehicleClass: "eco" as VehicleClass, accessPin: "", accessPinConfirm: "",
   });
 
-  const submit = () => {
+  const submit = async () => {
     if (!isValidName(form.name)) return toast.error("Nom invalide");
     if (!isValidPhone(form.phone)) return toast.error("Téléphone invalide");
     if (!form.zone.trim()) return toast.error("Zone requise");
@@ -26,17 +30,45 @@ export function InscriptionChauffeur() {
     if (!form.plate.trim()) return toast.error("Plaque requise");
     if (!/^\d{4}$/.test(form.accessPin)) return toast.error("Choisissez un code d'accès à 4 chiffres");
     if (form.accessPin !== form.accessPinConfirm) return toast.error("Les codes d'accès ne correspondent pas");
-    addDriver({
-      name: form.name.trim(),
-      phone: form.phone.trim(),
-      zone: form.zone.trim(),
-      vehicle: form.vehicle.trim(),
-      plate: form.plate.trim().toUpperCase(),
-      vehicleClass: form.vehicleClass,
-      accessPin: form.accessPin,
-    });
-    toast.success("Inscription envoyée — gardez votre code d'accès secret");
-    navigate({ to: "/" });
+
+    setSubmitting(true);
+    try {
+      // Legacy local store (existing app flow)
+      addDriver({
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        zone: form.zone.trim(),
+        vehicle: form.vehicle.trim(),
+        plate: form.plate.trim().toUpperCase(),
+        vehicleClass: form.vehicleClass,
+        accessPin: form.accessPin,
+      });
+
+      if (!user) {
+        toast.info("Créez un compte pour envoyer vos documents et être vérifié.");
+        navigate({ to: "/auth" });
+        return;
+      }
+
+      // Create / upsert the Supabase drivers row for document verification
+      const { error } = await supabase.from("drivers").upsert({
+        user_id: user.id,
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        zone: form.zone.trim(),
+        vehicle: form.vehicle.trim(),
+        plate: form.plate.trim().toUpperCase(),
+        vehicle_class: form.vehicleClass,
+      });
+      if (error) throw error;
+
+      toast.success("Inscription enregistrée — envoyez maintenant vos documents");
+      navigate({ to: "/documents" });
+    } catch (e) {
+      toast.error((e as Error).message || "Échec de l'inscription");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
