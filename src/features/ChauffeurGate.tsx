@@ -11,9 +11,17 @@ const SESSION_KEY = "chauffeur_unlocked_id";
 
 export function ChauffeurGate({ children }: { children: ReactNode }) {
   const { drivers } = useStore();
-  const [unlockedId, setUnlockedId] = useState<string | null>(() =>
-    typeof window !== "undefined" ? sessionStorage.getItem(SESSION_KEY) : null,
-  );
+  const [unlockedId, setUnlockedId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    // Migration : ancien stockage en sessionStorage → localStorage
+    const legacy = sessionStorage.getItem(SESSION_KEY);
+    if (legacy) {
+      localStorage.setItem(SESSION_KEY, legacy);
+      sessionStorage.removeItem(SESSION_KEY);
+      return legacy;
+    }
+    return localStorage.getItem(SESSION_KEY);
+  });
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [tries, setTries] = useState(0);
@@ -26,7 +34,7 @@ export function ChauffeurGate({ children }: { children: ReactNode }) {
             size="sm"
             variant="outline"
             onClick={() => {
-              sessionStorage.removeItem(SESSION_KEY);
+              localStorage.removeItem(SESSION_KEY);
               setUnlockedId(null);
             }}
           >
@@ -52,7 +60,7 @@ export function ChauffeurGate({ children }: { children: ReactNode }) {
       toast.error("Téléphone ou code d'accès incorrect");
       return;
     }
-    sessionStorage.setItem(SESSION_KEY, driver.id);
+    localStorage.setItem(SESSION_KEY, driver.id);
     setUnlockedId(driver.id);
     toast.success(`Bienvenue ${driver.name}`);
   };
