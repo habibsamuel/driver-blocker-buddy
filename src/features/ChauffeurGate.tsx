@@ -34,7 +34,7 @@ export function ChauffeurGate({ children }: { children: ReactNode }) {
             size="sm"
             variant="outline"
             onClick={() => {
-              sessionStorage.removeItem(SESSION_KEY);
+              localStorage.removeItem(SESSION_KEY);
               setUnlockedId(null);
             }}
           >
