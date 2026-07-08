@@ -15,10 +15,32 @@ type DocRow = Database["public"]["Tables"]["driver_documents"]["Row"];
 
 export function DriverDocuments() {
   const { user, loading } = useAuth();
+  const { drivers, addDriver } = useStore();
   const [driver, setDriver] = useState<DriverRow | null>(null);
   const [docs, setDocs] = useState<DocRow[]>([]);
   const [busy, setBusy] = useState<DocumentType | null>(null);
   const [previews, setPreviews] = useState<Partial<Record<DocumentType, string>>>({});
+
+  // Once the Supabase row is verified, activate the driver in the local fleet.
+  useEffect(() => {
+    if (!user || !driver) return;
+    if (driver.verification_status !== "verifie") return;
+    const already = drivers.some((d) => d.phone === driver.phone && d.plate === driver.plate);
+    if (already) return;
+    let pin = "";
+    try { pin = localStorage.getItem(`chauffeur_pin_${user.id}`) ?? ""; } catch { /* ignore */ }
+    addDriver({
+      name: driver.name,
+      phone: driver.phone,
+      zone: driver.zone,
+      vehicle: driver.vehicle,
+      plate: driver.plate,
+      vehicleClass: driver.vehicle_class,
+      accessPin: pin,
+    });
+    toast.success("Bienvenue ! Votre compte chauffeur est désormais actif.");
+  }, [driver?.verification_status, user?.id]);
+
 
   const load = async () => {
     if (!user) return;
