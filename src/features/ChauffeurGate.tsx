@@ -11,9 +11,17 @@ const SESSION_KEY = "chauffeur_unlocked_id";
 
 export function ChauffeurGate({ children }: { children: ReactNode }) {
   const { drivers } = useStore();
-  const [unlockedId, setUnlockedId] = useState<string | null>(() =>
-    typeof window !== "undefined" ? sessionStorage.getItem(SESSION_KEY) : null,
-  );
+  const [unlockedId, setUnlockedId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    // Migration : ancien stockage en sessionStorage → localStorage
+    const legacy = sessionStorage.getItem(SESSION_KEY);
+    if (legacy) {
+      localStorage.setItem(SESSION_KEY, legacy);
+      sessionStorage.removeItem(SESSION_KEY);
+      return legacy;
+    }
+    return localStorage.getItem(SESSION_KEY);
+  });
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [tries, setTries] = useState(0);
