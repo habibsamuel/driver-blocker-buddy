@@ -60,7 +60,7 @@ export function ChauffeurGate({ children }: { children: ReactNode }) {
       toast.error("Téléphone ou code d'accès incorrect");
       return;
     }
-    sessionStorage.setItem(SESSION_KEY, driver.id);
+    localStorage.setItem(SESSION_KEY, driver.id);
     setUnlockedId(driver.id);
     toast.success(`Bienvenue ${driver.name}`);
   };
