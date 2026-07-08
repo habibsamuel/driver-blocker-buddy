@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useStore } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +15,32 @@ type DocRow = Database["public"]["Tables"]["driver_documents"]["Row"];
 
 export function DriverDocuments() {
   const { user, loading } = useAuth();
+  const { drivers, addDriver } = useStore();
   const [driver, setDriver] = useState<DriverRow | null>(null);
   const [docs, setDocs] = useState<DocRow[]>([]);
   const [busy, setBusy] = useState<DocumentType | null>(null);
   const [previews, setPreviews] = useState<Partial<Record<DocumentType, string>>>({});
+
+  // Once the Supabase row is verified, activate the driver in the local fleet.
+  useEffect(() => {
+    if (!user || !driver) return;
+    if (driver.verification_status !== "verifie") return;
+    const already = drivers.some((d) => d.phone === driver.phone && d.plate === driver.plate);
+    if (already) return;
+    let pin = "";
+    try { pin = localStorage.getItem(`chauffeur_pin_${user.id}`) ?? ""; } catch { /* ignore */ }
+    addDriver({
+      name: driver.name,
+      phone: driver.phone,
+      zone: driver.zone,
+      vehicle: driver.vehicle,
+      plate: driver.plate,
+      vehicleClass: driver.vehicle_class,
+      accessPin: pin,
+    });
+    toast.success("Bienvenue ! Votre compte chauffeur est désormais actif.");
+  }, [driver?.verification_status, user?.id]);
+
 
   const load = async () => {
     if (!user) return;
@@ -122,13 +145,40 @@ export function DriverDocuments() {
         </p>
       </div>
 
-      {allApproved && (
+      {driver.verification_status === "verifie" ? (
         <Card className="border-green-500/50 bg-green-500/5">
           <CardContent className="pt-6 flex items-center gap-3">
             <CheckCircle2 className="h-6 w-6 text-green-600" />
             <div>
-              <p className="font-semibold">Tous vos documents sont approuvés.</p>
-              <p className="text-sm text-muted-foreground">Vous pouvez désormais recevoir des courses.</p>
+              <p className="font-semibold">Compte chauffeur activé.</p>
+              <p className="text-sm text-muted-foreground">
+                Tous vos documents sont approuvés. Vous pouvez maintenant accéder à votre espace chauffeur et recevoir des courses.
+              </p>
+              <Button asChild size="sm" className="mt-2"><a href="/chauffeurs">Aller à mon espace</a></Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : allApproved ? (
+        <Card className="border-amber-500/50 bg-amber-500/5">
+          <CardContent className="pt-6 flex items-center gap-3">
+            <Clock className="h-6 w-6 text-amber-600" />
+            <div>
+              <p className="font-semibold">Documents envoyés — en cours de vérification.</p>
+              <p className="text-sm text-muted-foreground">
+                Un administrateur va examiner vos pièces. Vous serez activé dès approbation.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-primary/40 bg-primary/5">
+          <CardContent className="pt-6 flex items-center gap-3">
+            <Camera className="h-6 w-6 text-primary" />
+            <div>
+              <p className="font-semibold">Scannez les 5 documents ci-dessous.</p>
+              <p className="text-sm text-muted-foreground">
+                Votre compte chauffeur ne sera activé qu'une fois toutes les pièces approuvées.
+              </p>
             </div>
           </CardContent>
         </Card>

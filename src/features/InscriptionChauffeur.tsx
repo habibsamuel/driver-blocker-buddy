@@ -14,7 +14,7 @@ import { Car } from "lucide-react";
 
 export function InscriptionChauffeur() {
   const navigate = useNavigate();
-  const { addDriver, settings } = useStore();
+  const { settings } = useStore();
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -23,6 +23,11 @@ export function InscriptionChauffeur() {
   });
 
   const submit = async () => {
+    if (!user) {
+      toast.info("Créez d'abord un compte pour envoyer vos documents");
+      navigate({ to: "/auth" });
+      return;
+    }
     if (!isValidName(form.name)) return toast.error("Nom invalide");
     if (!isValidPhone(form.phone)) return toast.error("Téléphone invalide");
     if (!form.zone.trim()) return toast.error("Zone requise");
@@ -33,24 +38,12 @@ export function InscriptionChauffeur() {
 
     setSubmitting(true);
     try {
-      // Legacy local store (existing app flow)
-      addDriver({
-        name: form.name.trim(),
-        phone: form.phone.trim(),
-        zone: form.zone.trim(),
-        vehicle: form.vehicle.trim(),
-        plate: form.plate.trim().toUpperCase(),
-        vehicleClass: form.vehicleClass,
-        accessPin: form.accessPin,
-      });
+      // Save the access PIN locally (used by ChauffeurGate). Not persisted server-side.
+      try { localStorage.setItem(`chauffeur_pin_${user.id}`, form.accessPin); } catch { /* ignore */ }
 
-      if (!user) {
-        toast.info("Créez un compte pour envoyer vos documents et être vérifié.");
-        navigate({ to: "/auth" });
-        return;
-      }
-
-      // Create / upsert the Supabase drivers row for document verification
+      // Create / upsert the Supabase drivers row (pending verification).
+      // The account is NOT active — the driver becomes usable only once
+      // the 5 documents are approved (verification_status = 'verifie').
       const { error } = await supabase.from("drivers").upsert({
         user_id: user.id,
         name: form.name.trim(),
@@ -62,7 +55,7 @@ export function InscriptionChauffeur() {
       });
       if (error) throw error;
 
-      toast.success("Inscription enregistrée — envoyez maintenant vos documents");
+      toast.success("Candidature enregistrée — scannez vos documents pour être validé");
       navigate({ to: "/documents" });
     } catch (e) {
       toast.error((e as Error).message || "Échec de l'inscription");
