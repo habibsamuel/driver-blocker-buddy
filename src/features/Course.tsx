@@ -25,6 +25,7 @@ const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
 
 export function Course() {
   const { drivers, settings, addRide, applyPromo, addClient, clients } = useStore();
+  const { rules: pricingRules, error: pricingError } = usePricingRules();
   const { user } = useAuth();
   const estimate = useServerFn(estimateRoute);
   const { position, error: geoError } = useGeolocation(true);
