@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useStore, computeFare, type VehicleClass } from "@/lib/store";
+import { useStore, type VehicleClass } from "@/lib/store";
 import { estimateRoute } from "@/lib/route.functions";
+import { usePricingRules, vehicleClassToCategory, computeDynamicFare } from "@/lib/pricing";
 import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useDriverPositions } from "@/hooks/useDriverPositions";
@@ -23,7 +24,8 @@ const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
 ];
 
 export function Course() {
-  const { drivers, settings, addRide, applyPromo, addClient, clients } = useStore();
+  const { drivers, addRide, applyPromo, addClient, clients } = useStore();
+  const { rules: pricingRules, error: pricingError } = usePricingRules();
   const { user } = useAuth();
   const estimate = useServerFn(estimateRoute);
   const { position, error: geoError } = useGeolocation(true);
@@ -74,25 +76,27 @@ export function Course() {
     return () => { ctrl.abort(); clearTimeout(timer); };
   }, [to, position?.lat, position?.lng, estimate]);
 
-  const hour = new Date().getHours();
   const available = useMemo(
     () => drivers.filter((d) => !d.blocked && d.vehicleClass === vehicleClass).sort((a, b) => b.rating - a.rating),
     [drivers, vehicleClass],
   );
 
-  const fare = useMemo(
-    () => computeFare(parseFloat(distance) || 0, parseFloat(duration) || 0, 0, hour, settings, vehicleClass),
-    [distance, duration, hour, settings, vehicleClass],
-  );
+  const distKm = parseFloat(distance) || 0;
+  const durMin = parseFloat(duration) || 0;
+  const currentRule = pricingRules?.[vehicleClassToCategory(vehicleClass)] ?? null;
+
+  const baseTotal = useMemo(() => {
+    if (!currentRule || !distKm || !durMin) return 0;
+    return computeDynamicFare(distKm, durMin, currentRule);
+  }, [currentRule, distKm, durMin]);
 
   const promoResult = useMemo(
-    () => (promo.trim() ? applyPromo(promo, fare.total) : { ok: false, discount: 0, msg: "" }),
-    [promo, fare.total, applyPromo],
+    () => (promo.trim() ? applyPromo(promo, baseTotal) : { ok: false, discount: 0, msg: "" }),
+    [promo, baseTotal, applyPromo],
   );
-  const finalTotal = Math.min(
-    settings.maxFare,
-    Math.max(settings.minFare, fare.total - (promoResult.ok ? promoResult.discount : 0)),
-  );
+  const finalTotal = baseTotal > 0
+    ? Math.ceil(Math.max(currentRule?.minimum_fare ?? 0, baseTotal - (promoResult.ok ? promoResult.discount : 0)) / 50) * 50
+    : 0;
 
   if (!user) {
     return (
@@ -133,8 +137,10 @@ export function Course() {
         from: `Position actuelle (${position.lat.toFixed(4)}, ${position.lng.toFixed(4)})`,
         to: to.trim(),
         distanceKm: dist, durationMin: dur, waitMin: 0,
-        baseFare: fare.baseFare, timeSurcharge: fare.timeSurcharge, waitSurcharge: fare.waitSurcharge,
-        peakMultiplier: fare.peakMultiplier, vehicleClass, classMultiplier: fare.classMultiplier,
+        baseFare: currentRule ? Math.round(dist * currentRule.price_per_km) : 0,
+        timeSurcharge: currentRule ? Math.round(dur * currentRule.price_per_min) : 0,
+        waitSurcharge: 0,
+        peakMultiplier: 1, vehicleClass, classMultiplier: 1,
         promoCode: promoResult.ok ? promo.trim().toUpperCase() : undefined,
         promoDiscount: promoResult.ok ? promoResult.discount : undefined,
         total: finalTotal,
@@ -282,16 +288,38 @@ export function Course() {
               <p className={`text-xs ${promoResult.ok ? "text-green-600" : "text-destructive"}`}>{promoResult.msg}</p>
             )}
           </div>
-          <div className="border-t pt-3">
+          <div className="border-t pt-3 space-y-2">
+            {distance && duration && (
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-md bg-muted/40 p-2">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Distance</p>
+                  <p className="font-semibold">{distance} km</p>
+                </div>
+                <div className="rounded-md bg-muted/40 p-2">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Durée</p>
+                  <p className="font-semibold">{duration} min</p>
+                </div>
+              </div>
+            )}
             <div className="flex items-baseline justify-between">
-              <span className="text-sm text-muted-foreground">Total estimé</span>
-              <span className="text-3xl font-bold text-primary">{distance && duration ? finalTotal : "—"} XAF</span>
+              <span className="text-sm text-muted-foreground">Prix total</span>
+              <span className="text-3xl font-bold text-primary">
+                {pricingError ? "—" : !pricingRules ? "…" : distance && duration ? finalTotal : "—"} XAF
+              </span>
             </div>
-            <Badge variant="outline" className="mt-2"><MapPin className="h-3 w-3 mr-1" /> 💵 Paiement en liquide au chauffeur</Badge>
+            {distance && duration && pricingRules && (
+              <p className="text-[11px] text-green-600 font-medium">
+                ✓ Prix fixe garanti, aucune surprise à l'arrivée
+              </p>
+            )}
+            {pricingError && (
+              <p className="text-[11px] text-destructive">Tarifs indisponibles — réessayez plus tard</p>
+            )}
+            <Badge variant="outline" className="mt-1"><MapPin className="h-3 w-3 mr-1" /> 💵 Paiement en liquide au chauffeur</Badge>
           </div>
           <Button
             className="w-full" size="lg" onClick={handleBook}
-            disabled={!to || !distance || !duration || estimating || booking || !position}
+            disabled={!to || !distance || !duration || estimating || booking || !position || !pricingRules || finalTotal === 0}
           >
             {booking ? "Réservation…" : estimating ? "Calcul en cours…" : !position ? "Localisation…" : `Commander — ${finalTotal} XAF`}
           </Button>

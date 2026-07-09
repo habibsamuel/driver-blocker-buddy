@@ -133,6 +133,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_rules: {
+        Row: {
+          id: string
+          minimum_fare: number
+          price_per_km: number
+          price_per_min: number
+          updated_at: string
+          vehicle_category: Database["public"]["Enums"]["pricing_vehicle_category"]
+        }
+        Insert: {
+          id?: string
+          minimum_fare: number
+          price_per_km: number
+          price_per_min: number
+          updated_at?: string
+          vehicle_category: Database["public"]["Enums"]["pricing_vehicle_category"]
+        }
+        Update: {
+          id?: string
+          minimum_fare?: number
+          price_per_km?: number
+          price_per_min?: number
+          updated_at?: string
+          vehicle_category?: Database["public"]["Enums"]["pricing_vehicle_category"]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -247,6 +274,7 @@ export type Database = {
         | "en_attente"
         | "verifie"
         | "rejete"
+      pricing_vehicle_category: "bend_skin" | "eco" | "confort"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -390,6 +418,7 @@ export const Constants = {
         "verifie",
         "rejete",
       ],
+      pricing_vehicle_category: ["bend_skin", "eco", "confort"],
     },
   },
 } as const
