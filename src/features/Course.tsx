@@ -288,12 +288,34 @@ export function Course() {
               <p className={`text-xs ${promoResult.ok ? "text-green-600" : "text-destructive"}`}>{promoResult.msg}</p>
             )}
           </div>
-          <div className="border-t pt-3">
+          <div className="border-t pt-3 space-y-2">
+            {distance && duration && (
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-md bg-muted/40 p-2">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Distance</p>
+                  <p className="font-semibold">{distance} km</p>
+                </div>
+                <div className="rounded-md bg-muted/40 p-2">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Durée</p>
+                  <p className="font-semibold">{duration} min</p>
+                </div>
+              </div>
+            )}
             <div className="flex items-baseline justify-between">
-              <span className="text-sm text-muted-foreground">Total estimé</span>
-              <span className="text-3xl font-bold text-primary">{distance && duration ? finalTotal : "—"} XAF</span>
+              <span className="text-sm text-muted-foreground">Prix total</span>
+              <span className="text-3xl font-bold text-primary">
+                {pricingError ? "—" : !pricingRules ? "…" : distance && duration ? finalTotal : "—"} XAF
+              </span>
             </div>
-            <Badge variant="outline" className="mt-2"><MapPin className="h-3 w-3 mr-1" /> 💵 Paiement en liquide au chauffeur</Badge>
+            {distance && duration && pricingRules && (
+              <p className="text-[11px] text-green-600 font-medium">
+                ✓ Prix fixe garanti, aucune surprise à l'arrivée
+              </p>
+            )}
+            {pricingError && (
+              <p className="text-[11px] text-destructive">Tarifs indisponibles — réessayez plus tard</p>
+            )}
+            <Badge variant="outline" className="mt-1"><MapPin className="h-3 w-3 mr-1" /> 💵 Paiement en liquide au chauffeur</Badge>
           </div>
           <Button
             className="w-full" size="lg" onClick={handleBook}
