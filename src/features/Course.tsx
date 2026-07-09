@@ -319,7 +319,7 @@ export function Course() {
           </div>
           <Button
             className="w-full" size="lg" onClick={handleBook}
-            disabled={!to || !distance || !duration || estimating || booking || !position}
+            disabled={!to || !distance || !duration || estimating || booking || !position || !pricingRules || finalTotal === 0}
           >
             {booking ? "Réservation…" : estimating ? "Calcul en cours…" : !position ? "Localisation…" : `Commander — ${finalTotal} XAF`}
           </Button>
