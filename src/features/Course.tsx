@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useStore, computeFare, type VehicleClass } from "@/lib/store";
+import { useStore, type VehicleClass } from "@/lib/store";
 import { estimateRoute } from "@/lib/route.functions";
+import { usePricingRules, vehicleClassToCategory, computeDynamicFare } from "@/lib/pricing";
 import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useDriverPositions } from "@/hooks/useDriverPositions";
