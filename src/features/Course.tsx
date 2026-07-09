@@ -82,19 +82,22 @@ export function Course() {
     [drivers, vehicleClass],
   );
 
-  const fare = useMemo(
-    () => computeFare(parseFloat(distance) || 0, parseFloat(duration) || 0, 0, hour, settings, vehicleClass),
-    [distance, duration, hour, settings, vehicleClass],
-  );
+  const distKm = parseFloat(distance) || 0;
+  const durMin = parseFloat(duration) || 0;
+  const currentRule = pricingRules?.[vehicleClassToCategory(vehicleClass)] ?? null;
+
+  const baseTotal = useMemo(() => {
+    if (!currentRule || !distKm || !durMin) return 0;
+    return computeDynamicFare(distKm, durMin, currentRule);
+  }, [currentRule, distKm, durMin]);
 
   const promoResult = useMemo(
-    () => (promo.trim() ? applyPromo(promo, fare.total) : { ok: false, discount: 0, msg: "" }),
-    [promo, fare.total, applyPromo],
+    () => (promo.trim() ? applyPromo(promo, baseTotal) : { ok: false, discount: 0, msg: "" }),
+    [promo, baseTotal, applyPromo],
   );
-  const finalTotal = Math.min(
-    settings.maxFare,
-    Math.max(settings.minFare, fare.total - (promoResult.ok ? promoResult.discount : 0)),
-  );
+  const finalTotal = baseTotal > 0
+    ? Math.ceil(Math.max(currentRule?.minimum_fare ?? 0, baseTotal - (promoResult.ok ? promoResult.discount : 0)) / 50) * 50
+    : 0;
 
   if (!user) {
     return (
