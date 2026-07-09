@@ -76,7 +76,6 @@ export function Course() {
     return () => { ctrl.abort(); clearTimeout(timer); };
   }, [to, position?.lat, position?.lng, estimate]);
 
-  const hour = new Date().getHours();
   const available = useMemo(
     () => drivers.filter((d) => !d.blocked && d.vehicleClass === vehicleClass).sort((a, b) => b.rating - a.rating),
     [drivers, vehicleClass],
