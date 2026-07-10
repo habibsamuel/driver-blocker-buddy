@@ -40,6 +40,7 @@ const allNav = [
   { to: "/chauffeurs", label: "Chauffeurs", icon: Users, roles: ["admin"] as Role[] },
   { to: "/clients", label: "Clients", icon: UserCircle, roles: ["admin"] as Role[] },
   { to: "/paiements", label: "Paiements", icon: Wallet, roles: ["chauffeur", "admin"] as Role[] },
+  { to: "/abonnement-chauffeur", label: "Mon abonnement", icon: CreditCard, roles: ["chauffeur"] as Role[] },
   { to: "/admin", label: "Administration", icon: SettingsIcon, roles: ["admin"] as Role[] },
 ];
 
