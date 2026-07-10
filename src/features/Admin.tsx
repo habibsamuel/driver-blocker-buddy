@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { AdminVerifications } from "@/features/AdminVerifications";
+import { AdminSubscriptionPayments } from "@/features/AdminSubscriptionPayments";
 
 export function Admin() {
   const { settings, updateSettings, drivers, codes, resetMonthlyCounters, checkAndBlockDrivers, role } = useStore();
