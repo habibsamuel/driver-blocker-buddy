@@ -85,15 +85,58 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_subscriptions: {
+        Row: {
+          created_at: string
+          driver_id: string
+          end_date: string
+          id: string
+          plan_id: string
+          start_date: string
+          status: Database["public"]["Enums"]["driver_subscription_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          end_date: string
+          id?: string
+          plan_id: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["driver_subscription_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          end_date?: string
+          id?: string
+          plan_id?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["driver_subscription_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drivers: {
         Row: {
           access_pin_hash: string | null
           blocked: boolean
           created_at: string
+          free_rides_remaining: number
           is_online: boolean
           name: string
           phone: string
           plate: string
+          subscription_status: Database["public"]["Enums"]["driver_sub_state"]
           updated_at: string
           user_id: string
           vehicle: string
@@ -105,10 +148,12 @@ export type Database = {
           access_pin_hash?: string | null
           blocked?: boolean
           created_at?: string
+          free_rides_remaining?: number
           is_online?: boolean
           name?: string
           phone?: string
           plate?: string
+          subscription_status?: Database["public"]["Enums"]["driver_sub_state"]
           updated_at?: string
           user_id: string
           vehicle?: string
@@ -120,16 +165,42 @@ export type Database = {
           access_pin_hash?: string | null
           blocked?: boolean
           created_at?: string
+          free_rides_remaining?: number
           is_online?: boolean
           name?: string
           phone?: string
           plate?: string
+          subscription_status?: Database["public"]["Enums"]["driver_sub_state"]
           updated_at?: string
           user_id?: string
           vehicle?: string
           vehicle_class?: Database["public"]["Enums"]["driver_vehicle_class"]
           verification_status?: Database["public"]["Enums"]["driver_verification_status"]
           zone?: string
+        }
+        Relationships: []
+      }
+      payment_settings: {
+        Row: {
+          created_at: string
+          id: string
+          instructions: string
+          orange_money_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instructions?: string
+          orange_money_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instructions?: string
+          orange_money_number?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -223,6 +294,95 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_payments: {
+        Row: {
+          amount_xaf: number
+          created_at: string
+          driver_id: string
+          id: string
+          payment_method: string
+          plan_id: string
+          proof_screenshot_url: string | null
+          status: Database["public"]["Enums"]["subscription_payment_status"]
+          submitted_at: string
+          transaction_reference: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount_xaf: number
+          created_at?: string
+          driver_id: string
+          id?: string
+          payment_method?: string
+          plan_id: string
+          proof_screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["subscription_payment_status"]
+          submitted_at?: string
+          transaction_reference: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount_xaf?: number
+          created_at?: string
+          driver_id?: string
+          id?: string
+          payment_method?: string
+          plan_id?: string
+          proof_screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["subscription_payment_status"]
+          submitted_at?: string
+          transaction_reference?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          duration_days: number
+          id: string
+          name: string
+          price_xaf: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          duration_days?: number
+          id?: string
+          name: string
+          price_xaf: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          duration_days?: number
+          id?: string
+          name?: string
+          price_xaf?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -249,6 +409,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_subscription_payment: {
+        Args: { _payment_id: string }
+        Returns: string
+      }
+      consume_free_ride: { Args: { _driver_id: string }; Returns: number }
+      expire_driver_subscriptions: { Args: never; Returns: undefined }
       generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -258,6 +424,10 @@ export type Database = {
         Returns: boolean
       }
       referral_code_exists: { Args: { _code: string }; Returns: boolean }
+      reject_subscription_payment: {
+        Args: { _payment_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "chauffeur" | "client"
@@ -268,6 +438,11 @@ export type Database = {
         | "carte_grise"
         | "assurance"
         | "photo_vehicule"
+      driver_sub_state: "essai_gratuit" | "active" | "expiree"
+      driver_subscription_status:
+        | "active"
+        | "expiree"
+        | "en_attente_verification"
       driver_vehicle_class: "moto" | "eco" | "confort"
       driver_verification_status:
         | "incomplet"
@@ -275,6 +450,7 @@ export type Database = {
         | "verifie"
         | "rejete"
       pricing_vehicle_category: "bend_skin" | "eco" | "confort"
+      subscription_payment_status: "en_attente" | "approuve" | "rejete"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -411,6 +587,12 @@ export const Constants = {
         "assurance",
         "photo_vehicule",
       ],
+      driver_sub_state: ["essai_gratuit", "active", "expiree"],
+      driver_subscription_status: [
+        "active",
+        "expiree",
+        "en_attente_verification",
+      ],
       driver_vehicle_class: ["moto", "eco", "confort"],
       driver_verification_status: [
         "incomplet",
@@ -419,6 +601,7 @@ export const Constants = {
         "rejete",
       ],
       pricing_vehicle_category: ["bend_skin", "eco", "confort"],
+      subscription_payment_status: ["en_attente", "approuve", "rejete"],
     },
   },
 } as const
