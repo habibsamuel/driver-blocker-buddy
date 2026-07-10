@@ -21,6 +21,7 @@ import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as ChauffeursRouteImport } from './routes/chauffeurs'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AbonnementChauffeurRouteImport } from './routes/abonnement-chauffeur'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -83,6 +84,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AbonnementChauffeurRoute = AbonnementChauffeurRouteImport.update({
+  id: '/abonnement-chauffeur',
+  path: '/abonnement-chauffeur',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -91,6 +97,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/abonnement-chauffeur': typeof AbonnementChauffeurRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/chauffeurs': typeof ChauffeursRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/abonnement-chauffeur': typeof AbonnementChauffeurRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/chauffeurs': typeof ChauffeursRoute
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/abonnement-chauffeur': typeof AbonnementChauffeurRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/chauffeurs': typeof ChauffeursRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/abonnement-chauffeur'
     | '/admin'
     | '/auth'
     | '/chauffeurs'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/abonnement-chauffeur'
     | '/admin'
     | '/auth'
     | '/chauffeurs'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/abonnement-chauffeur'
     | '/admin'
     | '/auth'
     | '/chauffeurs'
@@ -185,6 +197,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AbonnementChauffeurRoute: typeof AbonnementChauffeurRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   ChauffeursRoute: typeof ChauffeursRoute
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/abonnement-chauffeur': {
+      id: '/abonnement-chauffeur'
+      path: '/abonnement-chauffeur'
+      fullPath: '/abonnement-chauffeur'
+      preLoaderRoute: typeof AbonnementChauffeurRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -297,6 +317,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AbonnementChauffeurRoute: AbonnementChauffeurRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   ChauffeursRoute: ChauffeursRoute,
