@@ -69,6 +69,8 @@ export function Admin() {
 
       <AdminVerifications />
 
+      <AdminSubscriptionPayments />
+
       <Card>
         <CardHeader><CardTitle>Chauffeurs bloqués ({blocked.length})</CardTitle></CardHeader>
         <CardContent>
