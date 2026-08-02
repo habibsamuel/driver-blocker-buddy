@@ -113,8 +113,13 @@ function AuthPage() {
 
             <TabsContent value="signup" className="space-y-3 mt-4">
               <div><Label>Nom complet *</Label><Input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Jean Dupont" /></div>
-              <div><Label>Téléphone</Label><Input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="6XX XXX XXX" /></div>
-              <div><Label>Email *</Label><Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@email.com" /></div>
+              <div><Label>Téléphone *</Label><Input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="6XX XXX XXX" /></div>
+              <div>
+                <Label>Email (facultatif)</Label>
+                <Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@email.com" />
+                <p className="text-[10px] text-muted-foreground mt-1">Pas d'email ? Laissez vide : votre numéro servira d'identifiant.</p>
+              </div>
+
               <div><Label>Mot de passe * (6+ caractères)</Label><Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></div>
               <div>
                 <Label>Code de parrainage (optionnel) 🎁</Label>
