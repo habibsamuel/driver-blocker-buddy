@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://qshlhdstpdpndokqrywd.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "driver-block-manager",
+      "version": "0.1.0",
+      "title": "Driver Block Manager"
+    },
+    "tools": [
+      {
+        "name": "get_my_profile",
+        "title": "Mon profil",
+        "description": "Récupère le profil Taxi Proxi de l'utilisateur connecté (nom, téléphone, code de parrainage, crédit).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_referrals",
+        "title": "Mes parrainages",
+        "description": "Liste les personnes parrainées par l'utilisateur connecté et les récompenses gagnées.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_driver_status",
+        "title": "Mon statut chauffeur",
+        "description": "Récupère le dossier chauffeur de l'utilisateur connecté : statut de vérification, abonnement, courses gratuites restantes et documents fournis.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "estimate_fare",
+        "title": "Estimer un tarif",
+        "description": "Calcule le tarif Taxi Proxi (XAF) à partir d'une distance en km et d'une durée en minutes, selon la catégorie de véhicule et les tarifs officiels.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "distance_km": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Distance du trajet en kilomètres."
+            },
+            "duration_min": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Durée estimée du trajet en minutes."
+            },
+            "vehicle_category": {
+              "type": "string",
+              "enum": [
+                "bend_skin",
+                "eco",
+                "confort"
+              ],
+              "description": "Catégorie de véhicule : bend_skin (moto), eco ou confort."
+            }
+          },
+          "required": [
+            "distance_km",
+            "duration_min",
+            "vehicle_category"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_online_drivers",
+        "title": "Chauffeurs en ligne",
+        "description": "Liste les chauffeurs Taxi Proxi actuellement en ligne avec leur dernière position connue.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

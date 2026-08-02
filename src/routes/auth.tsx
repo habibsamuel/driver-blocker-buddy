@@ -12,6 +12,9 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
+  validateSearch: (s: Record<string, unknown>): { next?: string } =>
+    typeof s.next === "string" && s.next.startsWith("/") ? { next: s.next } : {},
+
   head: () => ({
     meta: [
       { title: "Connexion — Taxi Proxi" },
@@ -23,6 +26,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,9 +35,17 @@ function AuthPage() {
   const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Destination après connexion : la page demandée (ex. consentement OAuth) sinon l'accueil.
+  const goNext = () => {
+    if (next) window.location.replace(next);
+    else navigate({ to: "/" });
+  };
+
   useEffect(() => {
-    if (user) navigate({ to: "/" });
-  }, [user, navigate]);
+    if (user) goNext();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, next]);
+
 
   // Un identifiant sans "@" est traité comme un numéro de téléphone :
   // on dérive une adresse technique déterministe pour l'auth.
@@ -56,7 +68,7 @@ function AuthPage() {
       else toast.error(error.message);
     } else {
       toast.success("Connexion réussie");
-      navigate({ to: "/" });
+      goNext();
     }
   };
 
@@ -78,7 +90,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signUp({
       email: authEmail,
       password,
-      options: { data: { name: name.trim(), phone: phone.trim(), referral_code: cleanCode }, emailRedirectTo: window.location.origin },
+      options: { data: { name: name.trim(), phone: phone.trim(), referral_code: cleanCode }, emailRedirectTo: next ? window.location.origin + next : window.location.origin },
     });
     setLoading(false);
     if (error) {
@@ -86,13 +98,13 @@ function AuthPage() {
       else toast.error(error.message);
     } else {
       toast.success("Compte créé ! Bienvenue sur Taxi Proxi 🚖");
-      navigate({ to: "/" });
+      goNext();
     }
   };
 
 
   const handleGoogle = async () => {
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: next ? window.location.origin + next : window.location.origin });
     if (res.error) toast.error(res.error.message);
   };
 
