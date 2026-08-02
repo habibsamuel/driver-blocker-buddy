@@ -68,7 +68,7 @@ function AuthPage() {
       else toast.error(error.message);
     } else {
       toast.success("Connexion réussie");
-      navigate({ to: "/" });
+      goNext();
     }
   };
 
@@ -90,7 +90,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signUp({
       email: authEmail,
       password,
-      options: { data: { name: name.trim(), phone: phone.trim(), referral_code: cleanCode }, emailRedirectTo: window.location.origin },
+      options: { data: { name: name.trim(), phone: phone.trim(), referral_code: cleanCode }, emailRedirectTo: next ? window.location.origin + next : window.location.origin },
     });
     setLoading(false);
     if (error) {
@@ -98,13 +98,13 @@ function AuthPage() {
       else toast.error(error.message);
     } else {
       toast.success("Compte créé ! Bienvenue sur Taxi Proxi 🚖");
-      navigate({ to: "/" });
+      goNext();
     }
   };
 
 
   const handleGoogle = async () => {
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: next ? window.location.origin + next : window.location.origin });
     if (res.error) toast.error(res.error.message);
   };
 
