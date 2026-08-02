@@ -35,13 +35,24 @@ function AuthPage() {
     if (user) navigate({ to: "/" });
   }, [user, navigate]);
 
+  // Un identifiant sans "@" est traité comme un numéro de téléphone :
+  // on dérive une adresse technique déterministe pour l'auth.
+  const phoneToEmail = (raw: string) => {
+    const digits = raw.replace(/\D/g, "");
+    return `${digits}@taxiproxi.local`;
+  };
+  const resolveIdentifier = (raw: string) => {
+    const v = raw.trim();
+    return v.includes("@") ? v.toLowerCase() : phoneToEmail(v);
+  };
+
   const handleSignIn = async () => {
-    if (!email.trim() || !password) { toast.error("Email et mot de passe requis"); return; }
+    if (!email.trim() || !password) { toast.error("Email ou téléphone et mot de passe requis"); return; }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    const { error } = await supabase.auth.signInWithPassword({ email: resolveIdentifier(email), password });
     setLoading(false);
     if (error) {
-      if (error.message.includes("Invalid login")) toast.error("Email ou mot de passe incorrect");
+      if (error.message.includes("Invalid login")) toast.error("Identifiant ou mot de passe incorrect");
       else toast.error(error.message);
     } else {
       toast.success("Connexion réussie");
@@ -51,26 +62,34 @@ function AuthPage() {
 
   const handleSignUp = async () => {
     if (!name.trim()) { toast.error("Indiquez votre nom"); return; }
-    if (!email.trim() || !email.includes("@")) { toast.error("Email invalide"); return; }
+    const hasEmail = email.trim().length > 0;
+    if (hasEmail && !email.includes("@")) { toast.error("Email invalide"); return; }
+    const digits = phone.replace(/\D/g, "");
+    if (!hasEmail && digits.length < 8) {
+      toast.error("Sans email, indiquez un numéro de téléphone valide");
+      return;
+    }
     if (password.length < 6) { toast.error("Mot de passe : 6 caractères minimum"); return; }
     setLoading(true);
     const cleanCode = referralCode.trim().toUpperCase();
+    const authEmail = hasEmail ? email.trim().toLowerCase() : phoneToEmail(phone);
     // La validité du code est vérifiée côté serveur par le trigger handle_new_user.
     // Un code invalide est simplement ignoré (aucun parrain crédité).
     const { error } = await supabase.auth.signUp({
-      email: email.trim(),
+      email: authEmail,
       password,
       options: { data: { name: name.trim(), phone: phone.trim(), referral_code: cleanCode }, emailRedirectTo: window.location.origin },
     });
     setLoading(false);
     if (error) {
-      if (error.message.toLowerCase().includes("already")) toast.error("Cet email est déjà inscrit — connectez-vous");
+      if (error.message.toLowerCase().includes("already")) toast.error("Ce compte existe déjà — connectez-vous");
       else toast.error(error.message);
     } else {
       toast.success("Compte créé ! Bienvenue sur Taxi Proxi 🚖");
       navigate({ to: "/" });
     }
   };
+
 
   const handleGoogle = async () => {
     const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
@@ -94,8 +113,13 @@ function AuthPage() {
 
             <TabsContent value="signup" className="space-y-3 mt-4">
               <div><Label>Nom complet *</Label><Input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Jean Dupont" /></div>
-              <div><Label>Téléphone</Label><Input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="6XX XXX XXX" /></div>
-              <div><Label>Email *</Label><Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@email.com" /></div>
+              <div><Label>Téléphone *</Label><Input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="6XX XXX XXX" /></div>
+              <div>
+                <Label>Email (facultatif)</Label>
+                <Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@email.com" />
+                <p className="text-[10px] text-muted-foreground mt-1">Pas d'email ? Laissez vide : votre numéro servira d'identifiant.</p>
+              </div>
+
               <div><Label>Mot de passe * (6+ caractères)</Label><Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></div>
               <div>
                 <Label>Code de parrainage (optionnel) 🎁</Label>
@@ -116,7 +140,7 @@ function AuthPage() {
             </TabsContent>
 
             <TabsContent value="signin" className="space-y-3 mt-4">
-              <div><Label>Email</Label><Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} /></div>
+              <div><Label>Email ou téléphone</Label><Input type="text" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@email.com ou 6XX XXX XXX" /></div>
               <div><Label>Mot de passe</Label><Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></div>
               <Button className="w-full bg-primary text-primary-foreground" disabled={loading} onClick={handleSignIn}>
                 {loading ? "Connexion…" : "Se connecter"}
