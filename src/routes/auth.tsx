@@ -140,7 +140,7 @@ function AuthPage() {
             </TabsContent>
 
             <TabsContent value="signin" className="space-y-3 mt-4">
-              <div><Label>Email</Label><Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} /></div>
+              <div><Label>Email ou téléphone</Label><Input type="text" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@email.com ou 6XX XXX XXX" /></div>
               <div><Label>Mot de passe</Label><Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></div>
               <Button className="w-full bg-primary text-primary-foreground" disabled={loading} onClick={handleSignIn}>
                 {loading ? "Connexion…" : "Se connecter"}
