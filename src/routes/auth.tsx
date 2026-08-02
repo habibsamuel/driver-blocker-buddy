@@ -12,6 +12,9 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") ? s.next : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Connexion — Taxi Proxi" },
@@ -23,6 +26,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,9 +35,17 @@ function AuthPage() {
   const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Destination après connexion : la page demandée (ex. consentement OAuth) sinon l'accueil.
+  const goNext = () => {
+    if (next) window.location.replace(next);
+    else navigate({ to: "/" });
+  };
+
   useEffect(() => {
-    if (user) navigate({ to: "/" });
-  }, [user, navigate]);
+    if (user) goNext();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, next]);
+
 
   // Un identifiant sans "@" est traité comme un numéro de téléphone :
   // on dérive une adresse technique déterministe pour l'auth.
