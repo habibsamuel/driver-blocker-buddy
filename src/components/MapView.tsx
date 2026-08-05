@@ -114,11 +114,61 @@ export function MapView({
     };
   }, []);
 
-  // Recenter on me when first available
+  // Recenter on me when first available (skip while a trip route is framed)
   useEffect(() => {
-    if (!ready || !mapRef.current || !me) return;
+    if (!ready || !mapRef.current || !me || routePolyline) return;
     if (!meMarkerRef.current) mapRef.current.panTo(me);
-  }, [ready, me?.lat, me?.lng]);
+  }, [ready, me?.lat, me?.lng, routePolyline]);
+
+  // Active trip route: green polyline + auto framing
+  useEffect(() => {
+    if (!ready || !mapRef.current || !window.google) return;
+    routeRef.current?.setMap(null);
+    routeRef.current = null;
+    routeMarkersRef.current.forEach((m) => m.setMap(null));
+    routeMarkersRef.current = [];
+    if (!routePolyline) return;
+
+    const path = decodePolyline(routePolyline);
+    if (path.length < 2) return;
+
+    routeRef.current = new window.google.maps.Polyline({
+      path,
+      map: mapRef.current,
+      strokeColor: "#22c55e",
+      strokeOpacity: 0.95,
+      strokeWeight: 7,
+      geodesic: true,
+      zIndex: 5,
+    });
+
+    const endpoints: [{ lat: number; lng: number }, string, string][] = [
+      [path[0], "Départ", "#22c55e"],
+      [path[path.length - 1], "Destination", "#ef4444"],
+    ];
+    endpoints.forEach(([position, title, color]) => {
+      routeMarkersRef.current.push(
+        new window.google.maps.Marker({
+          position,
+          map: mapRef.current,
+          title,
+          zIndex: 6,
+          icon: {
+            path: window.google.maps.SymbolPath.CIRCLE,
+            scale: 7,
+            fillColor: color,
+            fillOpacity: 1,
+            strokeColor: "#fff",
+            strokeWeight: 2,
+          },
+        }),
+      );
+    });
+
+    const bounds = new window.google.maps.LatLngBounds();
+    path.forEach((p) => bounds.extend(p));
+    mapRef.current.fitBounds(bounds, { top: 48, right: 32, bottom: 32, left: 32 });
+  }, [routePolyline, ready]);
 
   // Driver markers
   useEffect(() => {
