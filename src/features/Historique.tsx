@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { MapView } from "@/components/MapView";
+import { useDriverPositions } from "@/hooks/useDriverPositions";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { Star, Share2, Play, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -15,6 +18,8 @@ export function Historique() {
   const [rateFor, setRateFor] = useState<string | null>(null);
   const [stars, setStars] = useState(5);
   const [comment, setComment] = useState("");
+  const liveDrivers = useDriverPositions();
+  const { position } = useGeolocation(true);
 
   const sorted = [...rides].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
 
@@ -71,6 +76,19 @@ export function Historique() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
+                {r.routePolyline && (r.status === "pending" || r.status === "ongoing") && (
+                  <div className="space-y-1">
+                    <MapView
+                      drivers={liveDrivers}
+                      me={position ? { lat: position.lat, lng: position.lng } : null}
+                      routePolyline={r.routePolyline}
+                      className="h-56"
+                    />
+                    <p className="text-[11px] text-muted-foreground">
+                      Itinéraire complet du trajet (tracé en vert) — visible par le client et le chauffeur
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div><span className="text-muted-foreground">Chauffeur:</span> <b>{d?.name ?? "—"}</b></div>
                   <div><span className="text-muted-foreground">Client:</span> <b>{c?.name ?? "—"}</b></div>
