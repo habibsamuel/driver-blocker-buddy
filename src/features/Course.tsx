@@ -37,12 +37,13 @@ export function Course() {
   const [duration, setDuration] = useState("");
   const [vehicleClass, setVehicleClass] = useState<VehicleClass>("eco");
   const [promo, setPromo] = useState("");
+  const [routePolyline, setRoutePolyline] = useState<string | null>(null);
   const [estimating, setEstimating] = useState(false);
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
   const [confirmed, setConfirmed] = useState<null | {
     rideId: string; startPin: string; driverName: string; driverPhone: string;
-    plate?: string; vehicle?: string; total: number;
+    plate?: string; vehicle?: string; total: number; routePolyline?: string | null;
   }>(null);
 
   useEffect(() => {
@@ -57,7 +58,7 @@ export function Course() {
   // Auto-estimation : origin = position GPS, destination = saisie
   useEffect(() => {
     const t = to.trim();
-    if (t.length < 2 || !position) { setDistance(""); setDuration(""); setEstimateError(null); return; }
+    if (t.length < 2 || !position) { setDistance(""); setDuration(""); setRoutePolyline(null); setEstimateError(null); return; }
     const ctrl = new AbortController();
     setEstimating(true); setEstimateError(null);
     const timer = setTimeout(async () => {
@@ -67,10 +68,11 @@ export function Course() {
         });
         if (ctrl.signal.aborted) return;
         setDistance(String(r.distanceKm)); setDuration(String(r.durationMin));
+        setRoutePolyline(r.polyline ?? null);
       } catch {
         if (ctrl.signal.aborted) return;
         setEstimateError("Destination introuvable — précisez le quartier");
-        setDistance(""); setDuration("");
+        setDistance(""); setDuration(""); setRoutePolyline(null);
       } finally { if (!ctrl.signal.aborted) setEstimating(false); }
     }, 600);
     return () => { ctrl.abort(); clearTimeout(timer); };
@@ -144,6 +146,7 @@ export function Course() {
         promoCode: promoResult.ok ? promo.trim().toUpperCase() : undefined,
         promoDiscount: promoResult.ok ? promoResult.discount : undefined,
         total: finalTotal,
+        routePolyline: routePolyline ?? undefined,
       });
       if (!ride) { toast.error("Chauffeur indisponible"); return; }
 
@@ -151,13 +154,14 @@ export function Course() {
         rideId: ride.id, startPin: ride.startPin,
         driverName: driver.name, driverPhone: driver.phone,
         plate: driver.plate, vehicle: driver.vehicle, total: finalTotal,
+        routePolyline,
       });
       toast.success("Course confirmée — un chauffeur arrive !");
     } finally { setBooking(false); }
   };
 
   const reset = () => {
-    setConfirmed(null); setTo(""); setDistance(""); setDuration(""); setPromo("");
+    setConfirmed(null); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
   };
 
   if (confirmed) {
@@ -171,7 +175,12 @@ export function Course() {
           <p className="text-muted-foreground text-sm">Suivez l'arrivée de votre chauffeur</p>
         </div>
 
-        <MapView drivers={liveDrivers} me={position ? { lat: position.lat, lng: position.lng } : null} className="h-64" />
+        <MapView
+          drivers={liveDrivers}
+          me={position ? { lat: position.lat, lng: position.lng } : null}
+          routePolyline={confirmed.routePolyline}
+          className="h-64"
+        />
 
         <Card>
           <CardHeader><CardTitle>Votre chauffeur</CardTitle></CardHeader>
@@ -212,7 +221,12 @@ export function Course() {
       </div>
 
       {/* Carte en direct */}
-      <MapView drivers={liveDrivers} me={position ? { lat: position.lat, lng: position.lng } : null} className="h-56" />
+      <MapView
+        drivers={liveDrivers}
+        me={position ? { lat: position.lat, lng: position.lng } : null}
+        routePolyline={routePolyline}
+        className="h-56"
+      />
 
       {/* Statut GPS */}
       <div className="rounded-lg border bg-muted/40 p-3 text-sm flex items-center gap-2">

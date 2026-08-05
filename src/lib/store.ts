@@ -53,6 +53,7 @@ export type Ride = {
   status: RideStatus;
   startPin: string;          // 4-digit code shown to client; driver enters to start
   shareToken: string;        // for trip-sharing URL
+  routePolyline?: string;    // encoded Google polyline of the trip (shown to client + driver)
   driverRating?: number;     // 1..5 given by client
   ratingComment?: string;
   createdAt: string;

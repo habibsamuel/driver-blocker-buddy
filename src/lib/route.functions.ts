@@ -33,7 +33,8 @@ export const estimateRoute = createServerFn({ method: "POST" })
           Authorization: `Bearer ${apiKey}`,
           "X-Connection-Api-Key": connKey,
           "Content-Type": "application/json",
-          "X-Goog-FieldMask": "routes.distanceMeters,routes.duration",
+          "X-Goog-FieldMask":
+            "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline",
         },
         body: JSON.stringify({
           origin,
@@ -48,7 +49,11 @@ export const estimateRoute = createServerFn({ method: "POST" })
       throw new Error(`Routes API ${res.status}: ${body.slice(0, 200)}`);
     }
     const json = (await res.json()) as {
-      routes?: { distanceMeters?: number; duration?: string }[];
+      routes?: {
+        distanceMeters?: number;
+        duration?: string;
+        polyline?: { encodedPolyline?: string };
+      }[];
     };
     const route = json.routes?.[0];
     if (!route?.distanceMeters) throw new Error("Itinéraire introuvable");
@@ -56,5 +61,5 @@ export const estimateRoute = createServerFn({ method: "POST" })
     const durationMin = route.duration
       ? Math.max(1, Math.round(parseInt(route.duration.replace("s", ""), 10) / 60))
       : Math.max(1, Math.round(distanceKm * 2.5));
-    return { distanceKm, durationMin };
+    return { distanceKm, durationMin, polyline: route.polyline?.encodedPolyline ?? null };
   });
