@@ -33,7 +33,8 @@ export const estimateRoute = createServerFn({ method: "POST" })
           Authorization: `Bearer ${apiKey}`,
           "X-Connection-Api-Key": connKey,
           "Content-Type": "application/json",
-          "X-Goog-FieldMask": "routes.distanceMeters,routes.duration",
+          "X-Goog-FieldMask":
+            "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline",
         },
         body: JSON.stringify({
           origin,
