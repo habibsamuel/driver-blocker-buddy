@@ -187,7 +187,7 @@ export function Course() {
         <MapView
           drivers={liveDrivers}
           me={position ? { lat: position.lat, lng: position.lng } : null}
-          routePolyline={confirmed.routePolyline}
+          routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
           className="h-64"
         />
 
