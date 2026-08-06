@@ -6,6 +6,7 @@ import { estimateRoute } from "@/lib/route.functions";
 import { usePricingRules, vehicleClassToCategory, computeDynamicFare } from "@/lib/pricing";
 import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useLiveRoute } from "@/hooks/useLiveRoute";
 import { useDriverPositions } from "@/hooks/useDriverPositions";
 import { supabase } from "@/integrations/supabase/client";
 import { MapView } from "@/components/MapView";
@@ -54,6 +55,14 @@ export function Course() {
         else setProfile({ name: user.email?.split("@")[0] || "Client", phone: "", quartier: "" });
       });
   }, [user]);
+
+  // Pendant la course : l'itinéraire est recalculé dès que la position GPS bouge
+  const liveRoute = useLiveRoute({
+    destination: confirmed ? to : null,
+    position,
+    fallback: confirmed?.routePolyline ?? null,
+    enabled: !!confirmed,
+  });
 
   // Auto-estimation : origin = position GPS, destination = saisie
   useEffect(() => {
@@ -178,7 +187,7 @@ export function Course() {
         <MapView
           drivers={liveDrivers}
           me={position ? { lat: position.lat, lng: position.lng } : null}
-          routePolyline={confirmed.routePolyline}
+          routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
           className="h-64"
         />
 
