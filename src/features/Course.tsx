@@ -65,6 +65,10 @@ export function Course() {
     enabled: !!confirmed,
   });
 
+  // Course en cours suivie côté client (progression étape par étape)
+  const confirmedRide = confirmed ? rides.find((r) => r.id === confirmed.rideId) : undefined;
+
+
   // Auto-estimation : origin = position GPS, destination = saisie
   useEffect(() => {
     const t = to.trim();
