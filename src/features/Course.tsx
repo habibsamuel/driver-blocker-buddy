@@ -10,6 +10,7 @@ import { useLiveRoute } from "@/hooks/useLiveRoute";
 import { useDriverPositions } from "@/hooks/useDriverPositions";
 import { supabase } from "@/integrations/supabase/client";
 import { MapView } from "@/components/MapView";
+import { RideProgress } from "@/components/RideProgress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
