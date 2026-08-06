@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { MapView } from "@/components/MapView";
+import { ActiveRouteMap } from "@/components/ActiveRouteMap";
 import { useDriverPositions } from "@/hooks/useDriverPositions";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { Star, Share2, Play, CheckCircle2, XCircle } from "lucide-react";
