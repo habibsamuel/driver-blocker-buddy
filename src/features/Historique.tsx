@@ -76,19 +76,10 @@ export function Historique() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
-                {r.routePolyline && (r.status === "pending" || r.status === "ongoing") && (
-                  <div className="space-y-1">
-                    <MapView
-                      drivers={liveDrivers}
-                      me={position ? { lat: position.lat, lng: position.lng } : null}
-                      routePolyline={r.routePolyline}
-                      className="h-56"
-                    />
-                    <p className="text-[11px] text-muted-foreground">
-                      Itinéraire complet du trajet (tracé en vert) — visible par le client et le chauffeur
-                    </p>
-                  </div>
+                {(r.status === "pending" || r.status === "ongoing") && (
+                  <ActiveRouteMap destination={r.to} fallbackPolyline={r.routePolyline} />
                 )}
+
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div><span className="text-muted-foreground">Chauffeur:</span> <b>{d?.name ?? "—"}</b></div>
                   <div><span className="text-muted-foreground">Client:</span> <b>{c?.name ?? "—"}</b></div>
