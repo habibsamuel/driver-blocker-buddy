@@ -31,6 +31,23 @@ export type Client = {
 
 export type RideStatus = "pending" | "ongoing" | "completed" | "cancelled";
 
+/** Étapes de progression d'une course, du plus tôt au plus tard. */
+export type RidePhase =
+  | "recherche"            // recherche / attribution du chauffeur
+  | "chauffeur_en_route"   // le chauffeur vient vers le client
+  | "chauffeur_arrive"     // chauffeur sur place, attend le PIN
+  | "en_course"            // trajet en cours vers la destination
+  | "arrive";              // arrivé à destination
+
+export const RIDE_PHASES: { key: RidePhase; label: string; hint: string }[] = [
+  { key: "recherche", label: "Attribution", hint: "Recherche du chauffeur le plus proche" },
+  { key: "chauffeur_en_route", label: "Chauffeur en route", hint: "Le chauffeur vient vous chercher" },
+  { key: "chauffeur_arrive", label: "Chauffeur arrivé", hint: "Communiquez votre code PIN" },
+  { key: "en_course", label: "En course", hint: "Trajet vers la destination" },
+  { key: "arrive", label: "Arrivé", hint: "Paiement en liquide et notation" },
+];
+
+
 export type Ride = {
   id: string;
   driverId: string;
