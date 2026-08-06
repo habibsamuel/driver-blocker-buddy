@@ -73,7 +73,13 @@ export function Historique() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 {(r.status === "pending" || r.status === "ongoing") && (
-                  <ActiveRouteMap destination={r.to} fallbackPolyline={r.routePolyline} />
+                  <ActiveRouteMap
+                    destination={r.to}
+                    fallbackPolyline={r.routePolyline}
+                    ride={r}
+                    canAdvance={role === "chauffeur" || role === "admin"}
+                  />
+
                 )}
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
