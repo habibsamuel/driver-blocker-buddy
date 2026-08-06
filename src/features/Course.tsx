@@ -191,6 +191,9 @@ export function Course() {
           className="h-64"
         />
 
+        {confirmedRide && <RideProgress ride={confirmedRide} remaining={liveRoute.info} />}
+
+
         <Card>
           <CardHeader><CardTitle>Votre chauffeur</CardTitle></CardHeader>
           <CardContent className="space-y-3">
