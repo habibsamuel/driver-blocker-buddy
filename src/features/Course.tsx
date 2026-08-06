@@ -6,6 +6,7 @@ import { estimateRoute } from "@/lib/route.functions";
 import { usePricingRules, vehicleClassToCategory, computeDynamicFare } from "@/lib/pricing";
 import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useLiveRoute } from "@/hooks/useLiveRoute";
 import { useDriverPositions } from "@/hooks/useDriverPositions";
 import { supabase } from "@/integrations/supabase/client";
 import { MapView } from "@/components/MapView";
