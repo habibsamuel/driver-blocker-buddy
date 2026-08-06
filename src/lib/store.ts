@@ -258,6 +258,8 @@ export const useStore = create<State>()(
           status: "pending",
           startPin: securePin4(),
           shareToken: uid(),
+          phase: "chauffeur_en_route",
+          phaseUpdatedAt: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         };
         set((s) => ({ rides: [ride, ...s.rides] }));
@@ -276,16 +278,31 @@ export const useStore = create<State>()(
         const ride = get().rides.find((r) => r.id === id);
         if (!ride) return { ok: false, msg: "Course introuvable" };
         if (ride.startPin !== pin) return { ok: false, msg: "PIN incorrect" };
-        set((s) => ({ rides: s.rides.map((r) => (r.id === id ? { ...r, status: "ongoing" } : r)) }));
+        const now = new Date().toISOString();
+        set((s) => ({
+          rides: s.rides.map((r) =>
+            r.id === id ? { ...r, status: "ongoing", phase: "en_course", phaseUpdatedAt: now, startedAt: now } : r,
+          ),
+        }));
         return { ok: true, msg: "Course démarrée" };
       },
+
+      setRidePhase: (id, phase) =>
+        set((s) => ({
+          rides: s.rides.map((r) =>
+            r.id === id ? { ...r, phase, phaseUpdatedAt: new Date().toISOString() } : r,
+          ),
+        })),
 
       completeRide: (id) =>
         set((s) => ({
           rides: s.rides.map((r) =>
-            r.id === id ? { ...r, status: "completed", completedAt: new Date().toISOString() } : r,
+            r.id === id
+              ? { ...r, status: "completed", phase: "arrive", phaseUpdatedAt: new Date().toISOString(), completedAt: new Date().toISOString() }
+              : r,
           ),
         })),
+
 
       cancelRide: (id) =>
         set((s) => ({ rides: s.rides.map((r) => (r.id === id ? { ...r, status: "cancelled" } : r)) })),
