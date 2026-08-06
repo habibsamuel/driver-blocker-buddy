@@ -31,6 +31,23 @@ export type Client = {
 
 export type RideStatus = "pending" | "ongoing" | "completed" | "cancelled";
 
+/** Étapes de progression d'une course, du plus tôt au plus tard. */
+export type RidePhase =
+  | "recherche"            // recherche / attribution du chauffeur
+  | "chauffeur_en_route"   // le chauffeur vient vers le client
+  | "chauffeur_arrive"     // chauffeur sur place, attend le PIN
+  | "en_course"            // trajet en cours vers la destination
+  | "arrive";              // arrivé à destination
+
+export const RIDE_PHASES: { key: RidePhase; label: string; hint: string }[] = [
+  { key: "recherche", label: "Attribution", hint: "Recherche du chauffeur le plus proche" },
+  { key: "chauffeur_en_route", label: "Chauffeur en route", hint: "Le chauffeur vient vous chercher" },
+  { key: "chauffeur_arrive", label: "Chauffeur arrivé", hint: "Communiquez votre code PIN" },
+  { key: "en_course", label: "En course", hint: "Trajet vers la destination" },
+  { key: "arrive", label: "Arrivé", hint: "Paiement en liquide et notation" },
+];
+
+
 export type Ride = {
   id: string;
   driverId: string;
@@ -54,6 +71,10 @@ export type Ride = {
   startPin: string;          // 4-digit code shown to client; driver enters to start
   shareToken: string;        // for trip-sharing URL
   routePolyline?: string;    // encoded Google polyline of the trip (shown to client + driver)
+  phase?: RidePhase;         // progression fine de la course
+  phaseUpdatedAt?: string;   // horodatage du dernier changement d'étape
+  startedAt?: string;        // début effectif du trajet (PIN validé)
+
   driverRating?: number;     // 1..5 given by client
   ratingComment?: string;
   createdAt: string;
@@ -115,6 +136,8 @@ type State = {
   deleteClient: (id: string) => void;
   addRide: (r: Omit<Ride, "id" | "createdAt" | "paid" | "status" | "startPin" | "shareToken">) => Ride | null;
   startRide: (id: string, pin: string) => { ok: boolean; msg: string };
+  setRidePhase: (id: string, phase: RidePhase) => void;
+
   completeRide: (id: string) => void;
   cancelRide: (id: string) => void;
   rateRide: (id: string, stars: number, comment?: string) => void;
@@ -235,6 +258,8 @@ export const useStore = create<State>()(
           status: "pending",
           startPin: securePin4(),
           shareToken: uid(),
+          phase: "chauffeur_en_route",
+          phaseUpdatedAt: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         };
         set((s) => ({ rides: [ride, ...s.rides] }));
@@ -253,16 +278,31 @@ export const useStore = create<State>()(
         const ride = get().rides.find((r) => r.id === id);
         if (!ride) return { ok: false, msg: "Course introuvable" };
         if (ride.startPin !== pin) return { ok: false, msg: "PIN incorrect" };
-        set((s) => ({ rides: s.rides.map((r) => (r.id === id ? { ...r, status: "ongoing" } : r)) }));
+        const now = new Date().toISOString();
+        set((s) => ({
+          rides: s.rides.map((r) =>
+            r.id === id ? { ...r, status: "ongoing", phase: "en_course", phaseUpdatedAt: now, startedAt: now } : r,
+          ),
+        }));
         return { ok: true, msg: "Course démarrée" };
       },
+
+      setRidePhase: (id, phase) =>
+        set((s) => ({
+          rides: s.rides.map((r) =>
+            r.id === id ? { ...r, phase, phaseUpdatedAt: new Date().toISOString() } : r,
+          ),
+        })),
 
       completeRide: (id) =>
         set((s) => ({
           rides: s.rides.map((r) =>
-            r.id === id ? { ...r, status: "completed", completedAt: new Date().toISOString() } : r,
+            r.id === id
+              ? { ...r, status: "completed", phase: "arrive", phaseUpdatedAt: new Date().toISOString(), completedAt: new Date().toISOString() }
+              : r,
           ),
         })),
+
 
       cancelRide: (id) =>
         set((s) => ({ rides: s.rides.map((r) => (r.id === id ? { ...r, status: "cancelled" } : r)) })),

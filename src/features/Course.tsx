@@ -10,6 +10,7 @@ import { useLiveRoute } from "@/hooks/useLiveRoute";
 import { useDriverPositions } from "@/hooks/useDriverPositions";
 import { supabase } from "@/integrations/supabase/client";
 import { MapView } from "@/components/MapView";
+import { RideProgress } from "@/components/RideProgress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,7 @@ const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
 ];
 
 export function Course() {
-  const { drivers, addRide, applyPromo, addClient, clients } = useStore();
+  const { drivers, addRide, applyPromo, addClient, clients, rides } = useStore();
   const { rules: pricingRules, error: pricingError } = usePricingRules();
   const { user } = useAuth();
   const estimate = useServerFn(estimateRoute);
@@ -63,6 +64,10 @@ export function Course() {
     fallback: confirmed?.routePolyline ?? null,
     enabled: !!confirmed,
   });
+
+  // Course en cours suivie côté client (progression étape par étape)
+  const confirmedRide = confirmed ? rides.find((r) => r.id === confirmed.rideId) : undefined;
+
 
   // Auto-estimation : origin = position GPS, destination = saisie
   useEffect(() => {
@@ -190,6 +195,9 @@ export function Course() {
           routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
           className="h-64"
         />
+
+        {confirmedRide && <RideProgress ride={confirmedRide} remaining={liveRoute.info} />}
+
 
         <Card>
           <CardHeader><CardTitle>Votre chauffeur</CardTitle></CardHeader>
