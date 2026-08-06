@@ -55,6 +55,14 @@ export function Course() {
       });
   }, [user]);
 
+  // Pendant la course : l'itinéraire est recalculé dès que la position GPS bouge
+  const liveRoute = useLiveRoute({
+    destination: confirmed ? to : null,
+    position,
+    fallback: confirmed?.routePolyline ?? null,
+    enabled: !!confirmed,
+  });
+
   // Auto-estimation : origin = position GPS, destination = saisie
   useEffect(() => {
     const t = to.trim();
