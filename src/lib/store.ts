@@ -71,6 +71,10 @@ export type Ride = {
   startPin: string;          // 4-digit code shown to client; driver enters to start
   shareToken: string;        // for trip-sharing URL
   routePolyline?: string;    // encoded Google polyline of the trip (shown to client + driver)
+  phase?: RidePhase;         // progression fine de la course
+  phaseUpdatedAt?: string;   // horodatage du dernier changement d'étape
+  startedAt?: string;        // début effectif du trajet (PIN validé)
+
   driverRating?: number;     // 1..5 given by client
   ratingComment?: string;
   createdAt: string;
