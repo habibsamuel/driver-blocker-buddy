@@ -136,6 +136,8 @@ type State = {
   deleteClient: (id: string) => void;
   addRide: (r: Omit<Ride, "id" | "createdAt" | "paid" | "status" | "startPin" | "shareToken">) => Ride | null;
   startRide: (id: string, pin: string) => { ok: boolean; msg: string };
+  setRidePhase: (id: string, phase: RidePhase) => void;
+
   completeRide: (id: string) => void;
   cancelRide: (id: string) => void;
   rateRide: (id: string, stars: number, comment?: string) => void;
