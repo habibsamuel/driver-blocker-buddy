@@ -222,11 +222,13 @@ export function Course() {
             <span className="font-bold text-lg text-primary">{confirmed.total} XAF</span>
           </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex-1" onClick={reset}>Nouvelle course</Button>
-          <Link to="/historique" className="flex-1"><Button className="w-full">Voir l'historique</Button></Link>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={reset}>Nouvelle course</Button>
+            <Link to="/historique" className="flex-1"><Button className="w-full">Voir l'historique</Button></Link>
+          </div>
         </div>
       </div>
+
     );
   }
 
