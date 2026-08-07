@@ -11,6 +11,8 @@ import { useDriverPositions } from "@/hooks/useDriverPositions";
 import { supabase } from "@/integrations/supabase/client";
 import { MapView } from "@/components/MapView";
 import { RideProgress } from "@/components/RideProgress";
+import { DestinationInput } from "@/components/DestinationInput";
+import { DriverInfoCard } from "@/components/DriverInfoCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +47,7 @@ export function Course() {
   const [booking, setBooking] = useState(false);
   const [confirmed, setConfirmed] = useState<null | {
     rideId: string; startPin: string; driverName: string; driverPhone: string;
-    plate?: string; vehicle?: string; total: number; routePolyline?: string | null;
+    plate?: string; vehicle?: string; rating?: number; total: number; routePolyline?: string | null;
   }>(null);
 
   useEffect(() => {
@@ -67,6 +69,22 @@ export function Course() {
 
   // Course en cours suivie côté client (progression étape par étape)
   const confirmedRide = confirmed ? rides.find((r) => r.id === confirmed.rideId) : undefined;
+
+  // ETA du chauffeur : distance du chauffeur en ligne le plus proche (~22 km/h en ville)
+  const etaMin = useMemo(() => {
+    if (!position || liveDrivers.length === 0) return null;
+    const km = Math.min(
+      ...liveDrivers.map((d) => {
+        const dLat = ((d.lat - position.lat) * Math.PI) / 180;
+        const dLng = ((d.lng - position.lng) * Math.PI) / 180;
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos((position.lat * Math.PI) / 180) * Math.cos((d.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+        return 2 * 6371 * Math.asin(Math.sqrt(a));
+      }),
+    );
+    return Math.max(1, Math.round((km / 22) * 60));
+  }, [position?.lat, position?.lng, liveDrivers]);
 
 
   // Auto-estimation : origin = position GPS, destination = saisie
@@ -167,7 +185,7 @@ export function Course() {
       setConfirmed({
         rideId: ride.id, startPin: ride.startPin,
         driverName: driver.name, driverPhone: driver.phone,
-        plate: driver.plate, vehicle: driver.vehicle, total: finalTotal,
+        plate: driver.plate, vehicle: driver.vehicle, rating: driver.rating, total: finalTotal,
         routePolyline,
       });
       toast.success("Course confirmée — un chauffeur arrive !");
