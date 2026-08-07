@@ -180,48 +180,48 @@ export function Course() {
 
   if (confirmed) {
     return (
-      <div className="max-w-xl mx-auto space-y-4">
-        <div className="text-center">
-          <div className="inline-flex h-16 w-16 rounded-full bg-primary/20 items-center justify-center mb-3">
-            <ShieldCheck className="h-8 w-8 text-primary" />
+      <div className="fixed inset-0 z-40 bg-background flex flex-col">
+        {/* Carte plein écran, colorée et lisible */}
+        <div className="relative flex-1 min-h-0">
+          <MapView
+            drivers={liveDrivers}
+            me={position ? { lat: position.lat, lng: position.lng } : null}
+            routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
+            className="h-full w-full"
+            theme="vivid"
+          />
+          <div className="absolute top-3 left-3 right-3 rounded-2xl bg-background/90 backdrop-blur px-4 py-2.5 shadow-lg flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
+            <div className="min-w-0">
+              <p className="font-bold text-sm leading-tight">Course confirmée 🚖</p>
+              <p className="text-[11px] text-muted-foreground truncate">Vers {to}</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold">Course confirmée 🚖</h1>
-          <p className="text-muted-foreground text-sm">Suivez l'arrivée de votre chauffeur</p>
         </div>
 
-        <MapView
-          drivers={liveDrivers}
-          me={position ? { lat: position.lat, lng: position.lng } : null}
-          routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
-          className="h-64"
-        />
+        {/* Fiche chauffeur en bas d'écran */}
+        <div className="max-h-[62vh] overflow-y-auto border-t bg-background p-3 space-y-3 pb-6">
+          {confirmedRide && <RideProgress ride={confirmedRide} remaining={liveRoute.info} />}
 
-        {confirmedRide && <RideProgress ride={confirmedRide} remaining={liveRoute.info} />}
+          <DriverInfoCard
+            name={confirmed.driverName}
+            phone={confirmed.driverPhone}
+            plate={confirmed.plate}
+            vehicle={confirmed.vehicle}
+            rating={confirmed.rating}
+            etaMin={etaMin}
+          />
 
+          <div className="rounded-2xl bg-primary/10 border-2 border-primary p-4 text-center">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Code PIN de départ</p>
+            <p className="text-4xl font-black tracking-[0.4em] text-primary">{confirmed.startPin}</p>
+            <p className="text-xs text-muted-foreground mt-1">Communiquez ce code au chauffeur à son arrivée</p>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Total à payer en liquide</span>
+            <span className="font-bold text-lg text-primary">{confirmed.total} XAF</span>
+          </div>
 
-        <Card>
-          <CardHeader><CardTitle>Votre chauffeur</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-bold text-lg">{confirmed.driverName}</p>
-                <p className="text-sm text-muted-foreground">{confirmed.vehicle} · {confirmed.plate}</p>
-              </div>
-              <a href={`tel:${confirmed.driverPhone}`}>
-                <Button size="sm" variant="outline"><Phone className="h-4 w-4 mr-1" /> Appeler</Button>
-              </a>
-            </div>
-            <div className="rounded-lg bg-primary/10 border-2 border-primary p-4 text-center">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">Code PIN de départ</p>
-              <p className="text-4xl font-black tracking-[0.4em] text-primary">{confirmed.startPin}</p>
-              <p className="text-xs text-muted-foreground mt-1">Communiquez ce code au chauffeur à son arrivée</p>
-            </div>
-            <div className="flex justify-between text-sm pt-2 border-t">
-              <span className="text-muted-foreground">Total à payer en liquide</span>
-              <span className="font-bold text-lg text-primary">{confirmed.total} XAF</span>
-            </div>
-          </CardContent>
-        </Card>
         <div className="flex gap-2">
           <Button variant="outline" className="flex-1" onClick={reset}>Nouvelle course</Button>
           <Link to="/historique" className="flex-1"><Button className="w-full">Voir l'historique</Button></Link>
