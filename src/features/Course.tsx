@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, Phone, ShieldCheck, LogIn, Locate } from "lucide-react";
+import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, Phone, ShieldCheck, LogIn, Locate, ChevronLeft } from "lucide-react";
 
 const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
   { id: "moto", label: "Bend-Skin", sub: "Moto-taxi · rapide", icon: Bike },
@@ -45,6 +45,7 @@ export function Course() {
   const [estimating, setEstimating] = useState(false);
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [confirmed, setConfirmed] = useState<null | {
     rideId: string; startPin: string; driverName: string; driverPhone: string;
     plate?: string; vehicle?: string; rating?: number; total: number; routePolyline?: string | null;
@@ -193,7 +194,7 @@ export function Course() {
   };
 
   const reset = () => {
-    setConfirmed(null); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
+    setConfirmed(null); setExpanded(false); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
   };
 
   if (confirmed) {
@@ -250,40 +251,19 @@ export function Course() {
     );
   }
 
-  return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Où allez-vous ?</h1>
-        <p className="text-muted-foreground">Nous vous localisons — indiquez juste la destination</p>
-      </div>
-
-      {/* Carte en direct */}
-      <MapView
-        drivers={liveDrivers}
-        me={position ? { lat: position.lat, lng: position.lng } : null}
-        routePolyline={routePolyline}
-        className="h-56"
-      />
-
-      {/* Statut GPS */}
-      <div className="rounded-lg border bg-muted/40 p-3 text-sm flex items-center gap-2">
-        <Locate className={`h-4 w-4 ${position ? "text-green-500" : "text-muted-foreground animate-pulse"}`} />
-        {position ? (
-          <span className="text-muted-foreground">📍 Position détectée — {liveDrivers.length} chauffeur(s) en ligne autour de vous</span>
-        ) : geoError ? (
-          <span className="text-destructive">Activez la géolocalisation pour continuer ({geoError})</span>
-        ) : (
-          <span className="text-muted-foreground">Localisation en cours…</span>
-        )}
-      </div>
-
+  const destinationCard = (
       {/* Étape 1 : destination */}
       <Card>
         <CardHeader><CardTitle className="text-base">1. Votre destination</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
             <Label className="flex items-center gap-1"><Navigation className="h-3 w-3 text-primary" /> Où allez-vous ?</Label>
-            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Ex: Aéroport Nsimalen, Bastos, Mvog-Mbi…" />
+            <DestinationInput
+              value={to}
+              onChange={setTo}
+              onSelect={() => setExpanded(true)}
+              position={position ? { lat: position.lat, lng: position.lng } : null}
+            />
           </div>
           <div className="rounded-lg border bg-muted/40 p-3 text-sm">
             {!position ? (
@@ -300,7 +280,10 @@ export function Course() {
           </div>
         </CardContent>
       </Card>
+  );
 
+  const bookingSteps = (
+    <>
       {/* Étape 2 : catégorie */}
       <Card>
         <CardHeader><CardTitle className="text-base">2. Type de véhicule</CardTitle></CardHeader>
@@ -381,6 +364,77 @@ export function Course() {
           )}
         </CardContent>
       </Card>
+    </>
+  );
+
+  // Dès qu'une destination est choisie : carte plein écran, colorée et lisible
+  if (expanded) {
+    return (
+      <div className="fixed inset-0 z-40 flex flex-col bg-background">
+        <div className="relative flex-1 min-h-0">
+          <MapView
+            drivers={liveDrivers}
+            me={position ? { lat: position.lat, lng: position.lng } : null}
+            routePolyline={routePolyline}
+            className="h-full w-full"
+            theme="vivid"
+          />
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            aria-label="Revenir à la saisie"
+            className="absolute top-3 left-3 h-10 w-10 rounded-full bg-background/90 backdrop-blur shadow-lg flex items-center justify-center"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div className="absolute top-3 left-16 right-3 rounded-2xl bg-background/90 backdrop-blur px-4 py-2.5 shadow-lg">
+            <p className="text-sm font-semibold truncate flex items-center gap-1">
+              <Navigation className="h-3.5 w-3.5 text-primary" /> {to}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {estimating
+                ? "Calcul de l'itinéraire…"
+                : distance && duration
+                  ? `${distance} km · ${duration} min depuis votre position`
+                  : estimateError ?? "En attente de l'itinéraire"}
+            </p>
+          </div>
+        </div>
+        <div className="max-h-[58vh] overflow-y-auto border-t p-3 space-y-3 pb-6">{bookingSteps}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-4">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Où allez-vous ?</h1>
+        <p className="text-muted-foreground">Nous vous localisons — indiquez juste la destination</p>
+      </div>
+
+      {/* Carte en direct */}
+      <MapView
+        drivers={liveDrivers}
+        me={position ? { lat: position.lat, lng: position.lng } : null}
+        routePolyline={routePolyline}
+        className="h-56"
+        theme="vivid"
+      />
+
+      {/* Statut GPS */}
+      <div className="rounded-lg border bg-muted/40 p-3 text-sm flex items-center gap-2">
+        <Locate className={`h-4 w-4 ${position ? "text-green-500" : "text-muted-foreground animate-pulse"}`} />
+        {position ? (
+          <span className="text-muted-foreground">📍 Position détectée — {liveDrivers.length} chauffeur(s) en ligne autour de vous</span>
+        ) : geoError ? (
+          <span className="text-destructive">Activez la géolocalisation pour continuer ({geoError})</span>
+        ) : (
+          <span className="text-muted-foreground">Localisation en cours…</span>
+        )}
+      </div>
+
+      {destinationCard}
+      {bookingSteps}
     </div>
   );
 }
