@@ -98,12 +98,15 @@ export function MapView({
   me,
   routePolyline,
   className,
+  theme = "dark",
 }: {
   drivers: LiveDriver[];
   me?: { lat: number; lng: number } | null;
   /** Encoded polyline of the active trip: drawn in green and framed automatically. */
   routePolyline?: string | null;
   className?: string;
+  /** "vivid" = carte claire colorée avec noms de rues et POI bien visibles. */
+  theme?: "dark" | "vivid";
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -125,7 +128,7 @@ export function MapView({
           disableDefaultUI: true,
           zoomControl: true,
           gestureHandling: "greedy",
-          styles: DARK_STYLE,
+          styles: theme === "vivid" ? VIVID_STYLE : DARK_STYLE,
         });
         setReady(true);
       })
@@ -134,6 +137,13 @@ export function MapView({
       cancelled = true;
     };
   }, []);
+
+  // Changement de thème à chaud
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    mapRef.current.setOptions({ styles: theme === "vivid" ? VIVID_STYLE : DARK_STYLE });
+  }, [theme, ready]);
+
 
   // Recenter on me when first available (skip while a trip route is framed)
   useEffect(() => {
