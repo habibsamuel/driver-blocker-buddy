@@ -48,6 +48,27 @@ const DARK_STYLE = [
   { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#333" }] },
 ];
 
+/** Carte claire, colorée et très lisible : quartiers, axes, POI et noms de rues visibles. */
+const VIVID_STYLE = [
+  { elementType: "geometry", stylers: [{ color: "#f4f2ec" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#3f3d33" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#ffffff" }, { weight: 3 }] },
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#eae6da" }] },
+  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "on" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#8a6d1f" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#bfe3b4" }] },
+  { featureType: "poi.business", elementType: "geometry", stylers: [{ color: "#f6e2b8" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road", elementType: "labels", stylers: [{ visibility: "on" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#ffe9a8" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#ffcc00" }] },
+  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#e0a800" }] },
+  { featureType: "transit.line", elementType: "geometry", stylers: [{ color: "#d7cdb5" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#9fd3e8" }] },
+  { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#6b6455" }] },
+];
+
+
 /** Google encoded-polyline decoder (no extra library needed). */
 function decodePolyline(encoded: string): { lat: number; lng: number }[] {
   const points: { lat: number; lng: number }[] = [];
@@ -77,12 +98,15 @@ export function MapView({
   me,
   routePolyline,
   className,
+  theme = "dark",
 }: {
   drivers: LiveDriver[];
   me?: { lat: number; lng: number } | null;
   /** Encoded polyline of the active trip: drawn in green and framed automatically. */
   routePolyline?: string | null;
   className?: string;
+  /** "vivid" = carte claire colorée avec noms de rues et POI bien visibles. */
+  theme?: "dark" | "vivid";
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -104,7 +128,7 @@ export function MapView({
           disableDefaultUI: true,
           zoomControl: true,
           gestureHandling: "greedy",
-          styles: DARK_STYLE,
+          styles: theme === "vivid" ? VIVID_STYLE : DARK_STYLE,
         });
         setReady(true);
       })
@@ -113,6 +137,13 @@ export function MapView({
       cancelled = true;
     };
   }, []);
+
+  // Changement de thème à chaud
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    mapRef.current.setOptions({ styles: theme === "vivid" ? VIVID_STYLE : DARK_STYLE });
+  }, [theme, ready]);
+
 
   // Recenter on me when first available (skip while a trip route is framed)
   useEffect(() => {
@@ -132,15 +163,29 @@ export function MapView({
     const path = decodePolyline(routePolyline);
     if (path.length < 2) return;
 
+    // Liseré blanc pour un contraste maximal sur la carte claire
+    routeMarkersRef.current.push(
+      new window.google.maps.Polyline({
+        path,
+        map: mapRef.current,
+        strokeColor: "#ffffff",
+        strokeOpacity: 1,
+        strokeWeight: 12,
+        geodesic: true,
+        zIndex: 4,
+      }),
+    );
+
     routeRef.current = new window.google.maps.Polyline({
       path,
       map: mapRef.current,
       strokeColor: "#22c55e",
-      strokeOpacity: 0.95,
+      strokeOpacity: 0.98,
       strokeWeight: 7,
       geodesic: true,
       zIndex: 5,
     });
+
 
     const endpoints: [{ lat: number; lng: number }, string, string][] = [
       [path[0], "Départ", "#22c55e"],

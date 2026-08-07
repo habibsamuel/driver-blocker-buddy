@@ -11,13 +11,15 @@ import { useDriverPositions } from "@/hooks/useDriverPositions";
 import { supabase } from "@/integrations/supabase/client";
 import { MapView } from "@/components/MapView";
 import { RideProgress } from "@/components/RideProgress";
+import { DestinationInput } from "@/components/DestinationInput";
+import { DriverInfoCard } from "@/components/DriverInfoCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, Phone, ShieldCheck, LogIn, Locate } from "lucide-react";
+import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, Phone, ShieldCheck, LogIn, Locate, ChevronLeft } from "lucide-react";
 
 const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
   { id: "moto", label: "Bend-Skin", sub: "Moto-taxi · rapide", icon: Bike },
@@ -43,9 +45,10 @@ export function Course() {
   const [estimating, setEstimating] = useState(false);
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [confirmed, setConfirmed] = useState<null | {
     rideId: string; startPin: string; driverName: string; driverPhone: string;
-    plate?: string; vehicle?: string; total: number; routePolyline?: string | null;
+    plate?: string; vehicle?: string; rating?: number; total: number; routePolyline?: string | null;
   }>(null);
 
   useEffect(() => {
@@ -67,6 +70,22 @@ export function Course() {
 
   // Course en cours suivie côté client (progression étape par étape)
   const confirmedRide = confirmed ? rides.find((r) => r.id === confirmed.rideId) : undefined;
+
+  // ETA du chauffeur : distance du chauffeur en ligne le plus proche (~22 km/h en ville)
+  const etaMin = useMemo(() => {
+    if (!position || liveDrivers.length === 0) return null;
+    const km = Math.min(
+      ...liveDrivers.map((d) => {
+        const dLat = ((d.lat - position.lat) * Math.PI) / 180;
+        const dLng = ((d.lng - position.lng) * Math.PI) / 180;
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos((position.lat * Math.PI) / 180) * Math.cos((d.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+        return 2 * 6371 * Math.asin(Math.sqrt(a));
+      }),
+    );
+    return Math.max(1, Math.round((km / 22) * 60));
+  }, [position?.lat, position?.lng, liveDrivers]);
 
 
   // Auto-estimation : origin = position GPS, destination = saisie
@@ -167,7 +186,7 @@ export function Course() {
       setConfirmed({
         rideId: ride.id, startPin: ride.startPin,
         driverName: driver.name, driverPhone: driver.phone,
-        plate: driver.plate, vehicle: driver.vehicle, total: finalTotal,
+        plate: driver.plate, vehicle: driver.vehicle, rating: driver.rating, total: finalTotal,
         routePolyline,
       });
       toast.success("Course confirmée — un chauffeur arrive !");
@@ -175,95 +194,75 @@ export function Course() {
   };
 
   const reset = () => {
-    setConfirmed(null); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
+    setConfirmed(null); setExpanded(false); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
   };
 
   if (confirmed) {
     return (
-      <div className="max-w-xl mx-auto space-y-4">
-        <div className="text-center">
-          <div className="inline-flex h-16 w-16 rounded-full bg-primary/20 items-center justify-center mb-3">
-            <ShieldCheck className="h-8 w-8 text-primary" />
+      <div className="fixed inset-0 z-40 bg-background flex flex-col">
+        {/* Carte plein écran, colorée et lisible */}
+        <div className="relative flex-1 min-h-0">
+          <MapView
+            drivers={liveDrivers}
+            me={position ? { lat: position.lat, lng: position.lng } : null}
+            routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
+            className="h-full w-full"
+            theme="vivid"
+          />
+          <div className="absolute top-3 left-3 right-3 rounded-2xl bg-background/90 backdrop-blur px-4 py-2.5 shadow-lg flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
+            <div className="min-w-0">
+              <p className="font-bold text-sm leading-tight">Course confirmée 🚖</p>
+              <p className="text-[11px] text-muted-foreground truncate">Vers {to}</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold">Course confirmée 🚖</h1>
-          <p className="text-muted-foreground text-sm">Suivez l'arrivée de votre chauffeur</p>
         </div>
 
-        <MapView
-          drivers={liveDrivers}
-          me={position ? { lat: position.lat, lng: position.lng } : null}
-          routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
-          className="h-64"
-        />
+        {/* Fiche chauffeur en bas d'écran */}
+        <div className="max-h-[62vh] overflow-y-auto border-t bg-background p-3 space-y-3 pb-6">
+          {confirmedRide && <RideProgress ride={confirmedRide} remaining={liveRoute.info} />}
 
-        {confirmedRide && <RideProgress ride={confirmedRide} remaining={liveRoute.info} />}
+          <DriverInfoCard
+            name={confirmed.driverName}
+            phone={confirmed.driverPhone}
+            plate={confirmed.plate}
+            vehicle={confirmed.vehicle}
+            rating={confirmed.rating}
+            etaMin={etaMin}
+          />
 
+          <div className="rounded-2xl bg-primary/10 border-2 border-primary p-4 text-center">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Code PIN de départ</p>
+            <p className="text-4xl font-black tracking-[0.4em] text-primary">{confirmed.startPin}</p>
+            <p className="text-xs text-muted-foreground mt-1">Communiquez ce code au chauffeur à son arrivée</p>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Total à payer en liquide</span>
+            <span className="font-bold text-lg text-primary">{confirmed.total} XAF</span>
+          </div>
 
-        <Card>
-          <CardHeader><CardTitle>Votre chauffeur</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-bold text-lg">{confirmed.driverName}</p>
-                <p className="text-sm text-muted-foreground">{confirmed.vehicle} · {confirmed.plate}</p>
-              </div>
-              <a href={`tel:${confirmed.driverPhone}`}>
-                <Button size="sm" variant="outline"><Phone className="h-4 w-4 mr-1" /> Appeler</Button>
-              </a>
-            </div>
-            <div className="rounded-lg bg-primary/10 border-2 border-primary p-4 text-center">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">Code PIN de départ</p>
-              <p className="text-4xl font-black tracking-[0.4em] text-primary">{confirmed.startPin}</p>
-              <p className="text-xs text-muted-foreground mt-1">Communiquez ce code au chauffeur à son arrivée</p>
-            </div>
-            <div className="flex justify-between text-sm pt-2 border-t">
-              <span className="text-muted-foreground">Total à payer en liquide</span>
-              <span className="font-bold text-lg text-primary">{confirmed.total} XAF</span>
-            </div>
-          </CardContent>
-        </Card>
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex-1" onClick={reset}>Nouvelle course</Button>
-          <Link to="/historique" className="flex-1"><Button className="w-full">Voir l'historique</Button></Link>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={reset}>Nouvelle course</Button>
+            <Link to="/historique" className="flex-1"><Button className="w-full">Voir l'historique</Button></Link>
+          </div>
         </div>
       </div>
+
     );
   }
 
-  return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Où allez-vous ?</h1>
-        <p className="text-muted-foreground">Nous vous localisons — indiquez juste la destination</p>
-      </div>
-
-      {/* Carte en direct */}
-      <MapView
-        drivers={liveDrivers}
-        me={position ? { lat: position.lat, lng: position.lng } : null}
-        routePolyline={routePolyline}
-        className="h-56"
-      />
-
-      {/* Statut GPS */}
-      <div className="rounded-lg border bg-muted/40 p-3 text-sm flex items-center gap-2">
-        <Locate className={`h-4 w-4 ${position ? "text-green-500" : "text-muted-foreground animate-pulse"}`} />
-        {position ? (
-          <span className="text-muted-foreground">📍 Position détectée — {liveDrivers.length} chauffeur(s) en ligne autour de vous</span>
-        ) : geoError ? (
-          <span className="text-destructive">Activez la géolocalisation pour continuer ({geoError})</span>
-        ) : (
-          <span className="text-muted-foreground">Localisation en cours…</span>
-        )}
-      </div>
-
-      {/* Étape 1 : destination */}
+  const destinationCard = (
       <Card>
         <CardHeader><CardTitle className="text-base">1. Votre destination</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
             <Label className="flex items-center gap-1"><Navigation className="h-3 w-3 text-primary" /> Où allez-vous ?</Label>
-            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Ex: Aéroport Nsimalen, Bastos, Mvog-Mbi…" />
+            <DestinationInput
+              value={to}
+              onChange={setTo}
+              onSelect={() => setExpanded(true)}
+              position={position ? { lat: position.lat, lng: position.lng } : null}
+            />
           </div>
           <div className="rounded-lg border bg-muted/40 p-3 text-sm">
             {!position ? (
@@ -280,7 +279,10 @@ export function Course() {
           </div>
         </CardContent>
       </Card>
+  );
 
+  const bookingSteps = (
+    <>
       {/* Étape 2 : catégorie */}
       <Card>
         <CardHeader><CardTitle className="text-base">2. Type de véhicule</CardTitle></CardHeader>
@@ -361,6 +363,77 @@ export function Course() {
           )}
         </CardContent>
       </Card>
+    </>
+  );
+
+  // Dès qu'une destination est choisie : carte plein écran, colorée et lisible
+  if (expanded) {
+    return (
+      <div className="fixed inset-0 z-40 flex flex-col bg-background">
+        <div className="relative flex-1 min-h-0">
+          <MapView
+            drivers={liveDrivers}
+            me={position ? { lat: position.lat, lng: position.lng } : null}
+            routePolyline={routePolyline}
+            className="h-full w-full"
+            theme="vivid"
+          />
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            aria-label="Revenir à la saisie"
+            className="absolute top-3 left-3 h-10 w-10 rounded-full bg-background/90 backdrop-blur shadow-lg flex items-center justify-center"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div className="absolute top-3 left-16 right-3 rounded-2xl bg-background/90 backdrop-blur px-4 py-2.5 shadow-lg">
+            <p className="text-sm font-semibold truncate flex items-center gap-1">
+              <Navigation className="h-3.5 w-3.5 text-primary" /> {to}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {estimating
+                ? "Calcul de l'itinéraire…"
+                : distance && duration
+                  ? `${distance} km · ${duration} min depuis votre position`
+                  : estimateError ?? "En attente de l'itinéraire"}
+            </p>
+          </div>
+        </div>
+        <div className="max-h-[58vh] overflow-y-auto border-t p-3 space-y-3 pb-6">{bookingSteps}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-4">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Où allez-vous ?</h1>
+        <p className="text-muted-foreground">Nous vous localisons — indiquez juste la destination</p>
+      </div>
+
+      {/* Carte en direct */}
+      <MapView
+        drivers={liveDrivers}
+        me={position ? { lat: position.lat, lng: position.lng } : null}
+        routePolyline={routePolyline}
+        className="h-56"
+        theme="vivid"
+      />
+
+      {/* Statut GPS */}
+      <div className="rounded-lg border bg-muted/40 p-3 text-sm flex items-center gap-2">
+        <Locate className={`h-4 w-4 ${position ? "text-green-500" : "text-muted-foreground animate-pulse"}`} />
+        {position ? (
+          <span className="text-muted-foreground">📍 Position détectée — {liveDrivers.length} chauffeur(s) en ligne autour de vous</span>
+        ) : geoError ? (
+          <span className="text-destructive">Activez la géolocalisation pour continuer ({geoError})</span>
+        ) : (
+          <span className="text-muted-foreground">Localisation en cours…</span>
+        )}
+      </div>
+
+      {destinationCard}
+      {bookingSteps}
     </div>
   );
 }
