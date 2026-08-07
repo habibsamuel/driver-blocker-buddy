@@ -163,15 +163,29 @@ export function MapView({
     const path = decodePolyline(routePolyline);
     if (path.length < 2) return;
 
+    // Liseré blanc pour un contraste maximal sur la carte claire
+    routeMarkersRef.current.push(
+      new window.google.maps.Polyline({
+        path,
+        map: mapRef.current,
+        strokeColor: "#ffffff",
+        strokeOpacity: 1,
+        strokeWeight: 12,
+        geodesic: true,
+        zIndex: 4,
+      }),
+    );
+
     routeRef.current = new window.google.maps.Polyline({
       path,
       map: mapRef.current,
       strokeColor: "#22c55e",
-      strokeOpacity: 0.95,
+      strokeOpacity: 0.98,
       strokeWeight: 7,
       geodesic: true,
       zIndex: 5,
     });
+
 
     const endpoints: [{ lat: number; lng: number }, string, string][] = [
       [path[0], "Départ", "#22c55e"],
