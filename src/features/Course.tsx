@@ -253,6 +253,7 @@ export function Course() {
 
   const destinationCard = (
       {/* Étape 1 : destination */}
+
       <Card>
         <CardHeader><CardTitle className="text-base">1. Votre destination</CardTitle></CardHeader>
         <CardContent className="space-y-3">
