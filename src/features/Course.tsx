@@ -38,6 +38,13 @@ export function Course() {
   const liveDrivers = useDriverPositions();
 
   const [profile, setProfile] = useState<{ name: string; phone: string; quartier: string } | null>(null);
+  const [guest, setGuest] = useState({ name: "", phone: "" });
+  const [guestUsed, setGuestUsed] = useState(false);
+
+  useEffect(() => {
+    try { setGuestUsed(localStorage.getItem(GUEST_RIDE_KEY) === "1"); } catch { /* stockage indisponible */ }
+  }, []);
+
   const [to, setTo] = useState("");
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
