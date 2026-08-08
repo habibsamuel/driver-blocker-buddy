@@ -27,6 +27,8 @@ const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
   { id: "confort", label: "Confort", sub: "Berline climatisée", icon: Crown },
 ];
 
+const GUEST_RIDE_KEY = "taxi-proxi-guest-ride-used";
+
 export function Course() {
   const { drivers, addRide, applyPromo, addClient, clients, rides } = useStore();
   const { rules: pricingRules, error: pricingError } = usePricingRules();
@@ -36,6 +38,13 @@ export function Course() {
   const liveDrivers = useDriverPositions();
 
   const [profile, setProfile] = useState<{ name: string; phone: string; quartier: string } | null>(null);
+  const [guest, setGuest] = useState({ name: "", phone: "" });
+  const [guestUsed, setGuestUsed] = useState(false);
+
+  useEffect(() => {
+    try { setGuestUsed(localStorage.getItem(GUEST_RIDE_KEY) === "1"); } catch { /* stockage indisponible */ }
+  }, []);
+
   const [to, setTo] = useState("");
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
@@ -133,16 +142,18 @@ export function Course() {
     ? Math.ceil(Math.max(currentRule?.minimum_fare ?? 0, baseTotal - (promoResult.ok ? promoResult.discount : 0)) / 50) * 50
     : 0;
 
-  if (!user) {
+  // Invité : une seule course sans compte, ensuite inscription requise
+  if (!user && guestUsed) {
     return (
       <div className="max-w-md mx-auto mt-12">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><LogIn className="h-5 w-5 text-primary" /> Connexion requise</CardTitle>
+            <CardTitle className="flex items-center gap-2"><LogIn className="h-5 w-5 text-primary" /> Créez votre compte</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Pour réserver une course, créez un compte ou connectez-vous. Vos infos seront utilisées automatiquement.
+              Vous avez déjà profité de votre course sans inscription. Créez un compte gratuit pour continuer à
+              commander, suivre votre historique et gagner des bonus de parrainage.
             </p>
             <Link to="/auth"><Button className="w-full">Se connecter / S'inscrire</Button></Link>
           </CardContent>
@@ -157,13 +168,17 @@ export function Course() {
     const dist = parseFloat(distance), dur = parseFloat(duration);
     if (!dist || !dur) { toast.error("Itinéraire en cours de calcul…"); return; }
     if (available.length === 0) { toast.error("Aucun chauffeur disponible dans cette catégorie"); return; }
+    if (!user) {
+      if (guest.name.trim().length < 2) { toast.error("Indiquez votre nom"); return; }
+      if (guest.phone.replace(/\D/g, "").length < 8) { toast.error("Indiquez un numéro de téléphone valide"); return; }
+    }
 
     setBooking(true);
     try {
-      const name = profile?.name || "Client";
-      const phone = profile?.phone || "";
+      const name = user ? profile?.name || "Client" : guest.name.trim();
+      const phone = user ? profile?.phone || "" : guest.phone.trim();
       let client = clients.find((c) => c.phone && phone && c.phone === phone);
-      if (!client) client = addClient({ name, phone, quartier: profile?.quartier || "" });
+      if (!client) client = addClient({ name, phone, quartier: user ? profile?.quartier || "" : "" });
 
       const driver = available[0];
 
@@ -183,6 +198,11 @@ export function Course() {
       });
       if (!ride) { toast.error("Chauffeur indisponible"); return; }
 
+      if (!user) {
+        try { localStorage.setItem(GUEST_RIDE_KEY, "1"); } catch { /* stockage indisponible */ }
+        setGuestUsed(true);
+      }
+
       setConfirmed({
         rideId: ride.id, startPin: ride.startPin,
         driverName: driver.name, driverPhone: driver.phone,
@@ -192,6 +212,7 @@ export function Course() {
       toast.success("Course confirmée — un chauffeur arrive !");
     } finally { setBooking(false); }
   };
+
 
   const reset = () => {
     setConfirmed(null); setExpanded(false); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
@@ -350,17 +371,36 @@ export function Course() {
             )}
             <Badge variant="outline" className="mt-1"><MapPin className="h-3 w-3 mr-1" /> 💵 Paiement en liquide au chauffeur</Badge>
           </div>
+          {!user && (
+            <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 space-y-2">
+              <p className="text-xs font-semibold">Commande sans compte · 1 course offerte 🎁</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs">Nom *</Label>
+                  <Input value={guest.name} onChange={(e) => setGuest({ ...guest, name: e.target.value })} placeholder="Jean" />
+                </div>
+                <div>
+                  <Label className="text-xs">Téléphone *</Label>
+                  <Input value={guest.phone} onChange={(e) => setGuest({ ...guest, phone: e.target.value })} placeholder="6XX XXX XXX" />
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Le chauffeur vous appelle sur ce numéro. <Link to="/auth" className="text-primary underline">Créer un compte</Link> pour commander sans limite.
+              </p>
+            </div>
+          )}
           <Button
             className="w-full" size="lg" onClick={handleBook}
             disabled={!to || !distance || !duration || estimating || booking || !position || !pricingRules || finalTotal === 0}
           >
             {booking ? "Réservation…" : estimating ? "Calcul en cours…" : !position ? "Localisation…" : `Commander — ${finalTotal} XAF`}
           </Button>
-          {profile && (
+          {user && profile && (
             <p className="text-[11px] text-muted-foreground text-center">
               Réservé au nom de <b>{profile.name}</b>{profile.phone ? ` · ${profile.phone}` : ""}
             </p>
           )}
+
         </CardContent>
       </Card>
     </>
