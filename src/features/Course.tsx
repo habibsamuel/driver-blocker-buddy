@@ -133,16 +133,18 @@ export function Course() {
     ? Math.ceil(Math.max(currentRule?.minimum_fare ?? 0, baseTotal - (promoResult.ok ? promoResult.discount : 0)) / 50) * 50
     : 0;
 
-  if (!user) {
+  // Invité : une seule course sans compte, ensuite inscription requise
+  if (!user && guestUsed) {
     return (
       <div className="max-w-md mx-auto mt-12">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><LogIn className="h-5 w-5 text-primary" /> Connexion requise</CardTitle>
+            <CardTitle className="flex items-center gap-2"><LogIn className="h-5 w-5 text-primary" /> Créez votre compte</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Pour réserver une course, créez un compte ou connectez-vous. Vos infos seront utilisées automatiquement.
+              Vous avez déjà profité de votre course sans inscription. Créez un compte gratuit pour continuer à
+              commander, suivre votre historique et gagner des bonus de parrainage.
             </p>
             <Link to="/auth"><Button className="w-full">Se connecter / S'inscrire</Button></Link>
           </CardContent>
@@ -157,13 +159,17 @@ export function Course() {
     const dist = parseFloat(distance), dur = parseFloat(duration);
     if (!dist || !dur) { toast.error("Itinéraire en cours de calcul…"); return; }
     if (available.length === 0) { toast.error("Aucun chauffeur disponible dans cette catégorie"); return; }
+    if (!user) {
+      if (guest.name.trim().length < 2) { toast.error("Indiquez votre nom"); return; }
+      if (guest.phone.replace(/\D/g, "").length < 8) { toast.error("Indiquez un numéro de téléphone valide"); return; }
+    }
 
     setBooking(true);
     try {
-      const name = profile?.name || "Client";
-      const phone = profile?.phone || "";
+      const name = user ? profile?.name || "Client" : guest.name.trim();
+      const phone = user ? profile?.phone || "" : guest.phone.trim();
       let client = clients.find((c) => c.phone && phone && c.phone === phone);
-      if (!client) client = addClient({ name, phone, quartier: profile?.quartier || "" });
+      if (!client) client = addClient({ name, phone, quartier: user ? profile?.quartier || "" : "" });
 
       const driver = available[0];
 
@@ -183,6 +189,11 @@ export function Course() {
       });
       if (!ride) { toast.error("Chauffeur indisponible"); return; }
 
+      if (!user) {
+        try { localStorage.setItem(GUEST_RIDE_KEY, "1"); } catch { /* stockage indisponible */ }
+        setGuestUsed(true);
+      }
+
       setConfirmed({
         rideId: ride.id, startPin: ride.startPin,
         driverName: driver.name, driverPhone: driver.phone,
@@ -192,6 +203,7 @@ export function Course() {
       toast.success("Course confirmée — un chauffeur arrive !");
     } finally { setBooking(false); }
   };
+
 
   const reset = () => {
     setConfirmed(null); setExpanded(false); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
