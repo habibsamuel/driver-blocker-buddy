@@ -21,7 +21,7 @@ export function Landing() {
               Bend-Skin, Éco ou Confort — géolocalisation en temps réel, paiement cash ou Mobile Money, code PIN de sécurité. Trouvez et évaluez les chauffeurs près de chez vous.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link to="/auth">
+              <Link to="/course">
                 <Button size="lg" className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-base h-12 px-6 shadow-xl">
                   Réserver un taxi <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -48,7 +48,7 @@ export function Landing() {
                 <RideOption icon={Car} title="Éco" price="1 500 XAF" desc="Taxi partagé, économique" />
                 <RideOption icon={Car} title="Confort" price="3 000 XAF" desc="Course privée, climatisée" />
               </div>
-              <Link to="/auth" className="block mt-4">
+              <Link to="/course" className="block mt-4">
                 <Button className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold h-11">
                   Commander maintenant
                 </Button>
