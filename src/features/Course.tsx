@@ -371,17 +371,36 @@ export function Course() {
             )}
             <Badge variant="outline" className="mt-1"><MapPin className="h-3 w-3 mr-1" /> 💵 Paiement en liquide au chauffeur</Badge>
           </div>
+          {!user && (
+            <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 space-y-2">
+              <p className="text-xs font-semibold">Commande sans compte · 1 course offerte 🎁</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs">Nom *</Label>
+                  <Input value={guest.name} onChange={(e) => setGuest({ ...guest, name: e.target.value })} placeholder="Jean" />
+                </div>
+                <div>
+                  <Label className="text-xs">Téléphone *</Label>
+                  <Input value={guest.phone} onChange={(e) => setGuest({ ...guest, phone: e.target.value })} placeholder="6XX XXX XXX" />
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Le chauffeur vous appelle sur ce numéro. <Link to="/auth" className="text-primary underline">Créer un compte</Link> pour commander sans limite.
+              </p>
+            </div>
+          )}
           <Button
             className="w-full" size="lg" onClick={handleBook}
             disabled={!to || !distance || !duration || estimating || booking || !position || !pricingRules || finalTotal === 0}
           >
             {booking ? "Réservation…" : estimating ? "Calcul en cours…" : !position ? "Localisation…" : `Commander — ${finalTotal} XAF`}
           </Button>
-          {profile && (
+          {user && profile && (
             <p className="text-[11px] text-muted-foreground text-center">
               Réservé au nom de <b>{profile.name}</b>{profile.phone ? ` · ${profile.phone}` : ""}
             </p>
           )}
+
         </CardContent>
       </Card>
     </>
