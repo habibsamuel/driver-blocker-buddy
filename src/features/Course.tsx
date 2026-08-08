@@ -27,6 +27,8 @@ const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
   { id: "confort", label: "Confort", sub: "Berline climatisée", icon: Crown },
 ];
 
+const GUEST_RIDE_KEY = "taxi-proxi-guest-ride-used";
+
 export function Course() {
   const { drivers, addRide, applyPromo, addClient, clients, rides } = useStore();
   const { rules: pricingRules, error: pricingError } = usePricingRules();
