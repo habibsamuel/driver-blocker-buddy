@@ -42,8 +42,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setRolesLoading(false);
+      return;
+    }
     let cancelled = false;
+    setRolesLoading(true);
     supabase
       .from("user_roles")
       .select("role")
@@ -51,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(({ data }) => {
         if (cancelled) return;
         setRoles((data ?? []).map((r) => r.role as AppRole));
+        setRolesLoading(false);
       });
     return () => {
       cancelled = true;
@@ -64,7 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{ user, session, roles, loading, isOnlineDriver, setOnlineDriver, signOut }}>
+    <Ctx.Provider value={{ user, session, roles, loading, rolesLoading, isOnlineDriver, setOnlineDriver, signOut }}>
+
       {children}
     </Ctx.Provider>
   );
