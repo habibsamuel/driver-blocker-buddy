@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { Layout } from "@/components/Layout";
 import { AuthProvider } from "@/hooks/useAuth";
 import { registerServiceWorker } from "@/lib/register-sw";
+import { OfflineBanner } from "@/components/OfflineBanner";
 
 function NotFoundComponent() {
   return (
@@ -158,6 +159,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Layout />
+        <OfflineBanner />
       </AuthProvider>
     </QueryClientProvider>
   );
