@@ -47,20 +47,26 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const { user, roles, loading } = useAuth();
+  const { user, roles, loading, rolesLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loading || !user) return;
-    // Role-based redirect after login
-    if (roles.includes("admin")) return; // admin stays on dashboard-style home
-    if (roles.includes("chauffeur")) {
-      navigate({ to: "/chauffeurs" });
-      return;
+    if (loading || rolesLoading || !user) return;
+    // Redirection de bienvenue : une seule fois par session, après connexion.
+    // L'accueil reste ensuite librement accessible (y compris aux nouveaux inscrits).
+    let already = false;
+    try {
+      already = sessionStorage.getItem(`taxi-proxi-landed-${user.id}`) === "1";
+      sessionStorage.setItem(`taxi-proxi-landed-${user.id}`, "1");
+    } catch {
+      already = true;
     }
-    // client → réservation
-    navigate({ to: "/course" });
-  }, [user, roles, loading, navigate]);
+    if (already) return;
+    if (roles.includes("admin")) return;
+    if (roles.includes("chauffeur")) navigate({ to: "/chauffeurs" });
+    else navigate({ to: "/course" });
+  }, [user, roles, loading, rolesLoading, navigate]);
+
 
   if (!user) return <Landing />;
   // Authenticated fallback (admin sees dashboard, others briefly before redirect)

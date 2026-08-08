@@ -9,8 +9,10 @@ type AuthCtx = {
   session: Session | null;
   roles: AppRole[];
   loading: boolean;
+  rolesLoading: boolean;
   isOnlineDriver: boolean;
   setOnlineDriver: (v: boolean) => void;
+
   signOut: () => Promise<void>;
 };
 
@@ -21,7 +23,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rolesLoading, setRolesLoading] = useState(false);
   const [isOnlineDriver, setOnlineDriver] = useState(false);
+
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
@@ -38,8 +42,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setRolesLoading(false);
+      return;
+    }
     let cancelled = false;
+    setRolesLoading(true);
     supabase
       .from("user_roles")
       .select("role")
@@ -47,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(({ data }) => {
         if (cancelled) return;
         setRoles((data ?? []).map((r) => r.role as AppRole));
+        setRolesLoading(false);
       });
     return () => {
       cancelled = true;
@@ -60,7 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{ user, session, roles, loading, isOnlineDriver, setOnlineDriver, signOut }}>
+    <Ctx.Provider value={{ user, session, roles, loading, rolesLoading, isOnlineDriver, setOnlineDriver, signOut }}>
+
       {children}
     </Ctx.Provider>
   );
