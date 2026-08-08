@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   query: z.string().min(2).max(120),
@@ -23,7 +22,6 @@ export type PlaceSuggestion = {
  * position GPS de l'utilisateur pour maximiser la précision.
  */
 export const suggestPlaces = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d) => Input.parse(d))
   .handler(async ({ data }): Promise<{ suggestions: PlaceSuggestion[] }> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
