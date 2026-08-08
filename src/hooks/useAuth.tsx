@@ -9,7 +9,8 @@ type AuthCtx = {
   session: Session | null;
   roles: AppRole[];
   loading: boolean;
-  isOnlineDriver: boolean;
+  rolesLoading: boolean;
+
   setOnlineDriver: (v: boolean) => void;
   signOut: () => Promise<void>;
 };
