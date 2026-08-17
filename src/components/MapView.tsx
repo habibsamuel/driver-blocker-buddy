@@ -93,6 +93,39 @@ function decodePolyline(encoded: string): { lat: number; lng: number }[] {
   return points;
 }
 
+/** Icône SVG d'un taxi jaune vu du dessus, orientée selon le cap et pulsée. */
+function taxiIcon(heading: number, pulse: number) {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <g transform="rotate(${heading} 24 24)">
+    <ellipse cx="24" cy="24" rx="15" ry="19" fill="#FFCC00" opacity="0.18"/>
+    <rect x="12" y="6" width="24" height="36" rx="8" fill="#111827"/>
+    <rect x="14" y="8" width="20" height="32" rx="7" fill="#FFCC00"/>
+    <rect x="17" y="11" width="14" height="8" rx="3" fill="#0f172a" opacity="0.85"/>
+    <rect x="17" y="29" width="14" height="7" rx="3" fill="#0f172a" opacity="0.6"/>
+    <rect x="19" y="20" width="10" height="7" rx="2" fill="#ffffff"/>
+    <text x="24" y="26" font-size="6" font-weight="bold" text-anchor="middle" fill="#111827">TAXI</text>
+    <rect x="10" y="14" width="3" height="7" rx="1.5" fill="#111827"/>
+    <rect x="35" y="14" width="3" height="7" rx="1.5" fill="#111827"/>
+    <rect x="10" y="28" width="3" height="7" rx="1.5" fill="#111827"/>
+    <rect x="35" y="28" width="3" height="7" rx="1.5" fill="#111827"/>
+  </g>
+</svg>`.trim();
+  const size = Math.round(40 * pulse);
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new window.google.maps.Size(size, size),
+    anchor: new window.google.maps.Point(size / 2, size / 2),
+  };
+}
+
+type DriverMarkerEntry = {
+  marker: any;
+  target: { lat: number; lng: number };
+  current: { lat: number; lng: number };
+  heading: number;
+};
+
 export function MapView({
   drivers,
   me,
@@ -110,7 +143,7 @@ export function MapView({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const driverMarkersRef = useRef<Map<string, DriverMarkerEntry>>(new Map());
   const meMarkerRef = useRef<any>(null);
   const routeRef = useRef<any>(null);
   const routeMarkersRef = useRef<any[]>([]);
@@ -215,29 +248,64 @@ export function MapView({
     mapRef.current.fitBounds(bounds, { top: 48, right: 32, bottom: 32, left: 32 });
   }, [routePolyline, ready]);
 
-  // Driver markers
+  // Marqueurs chauffeurs : voiture taxi jaune animée (pulsation + rotation + déplacement fluide)
   useEffect(() => {
     if (!ready || !mapRef.current || !window.google) return;
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = [];
+    const map = mapRef.current;
+    const store = driverMarkersRef.current;
+
     drivers.forEach((d) => {
-      const marker = new window.google.maps.Marker({
-        position: { lat: d.lat, lng: d.lng },
-        map: mapRef.current,
-        title: d.name ?? "Chauffeur",
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: "#FFCC00",
-          fillOpacity: 1,
-          strokeColor: "#000",
-          strokeWeight: 2,
-        },
-        label: { text: "🚖", fontSize: "14px" },
-      });
-      markersRef.current.push(marker);
+      const pos = { lat: d.lat, lng: d.lng };
+      const existing = store.get(d.driver_id);
+      if (!existing) {
+        const marker = new window.google.maps.Marker({
+          position: pos,
+          map,
+          title: d.name ?? "Chauffeur",
+          zIndex: 8,
+          icon: taxiIcon(d.heading ?? 0, 1),
+          optimized: false,
+        });
+        store.set(d.driver_id, { marker, target: pos, current: pos, heading: d.heading ?? 0 });
+      } else {
+        existing.target = pos;
+        existing.heading = d.heading ?? existing.heading;
+        existing.marker.setTitle(d.name ?? "Chauffeur");
+      }
+    });
+
+    // Retire les chauffeurs hors ligne
+    store.forEach((entry, id) => {
+      if (!drivers.some((d) => d.driver_id === id)) {
+        entry.marker.setMap(null);
+        store.delete(id);
+      }
     });
   }, [drivers, ready]);
+
+  // Boucle d'animation : glissement fluide + pulsation du marqueur taxi
+  useEffect(() => {
+    if (!ready || !window.google) return;
+    let raf = 0;
+    const tick = () => {
+      const t = Date.now() / 1000;
+      const pulse = 1 + 0.14 * Math.sin(t * 3.2);
+      driverMarkersRef.current.forEach((entry) => {
+        // interpolation douce vers la dernière position connue
+        const next = {
+          lat: entry.current.lat + (entry.target.lat - entry.current.lat) * 0.12,
+          lng: entry.current.lng + (entry.target.lng - entry.current.lng) * 0.12,
+        };
+        entry.current = next;
+        entry.marker.setPosition(next);
+        entry.marker.setIcon(taxiIcon(entry.heading, pulse));
+      });
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [ready]);
+
 
   // Me marker
   useEffect(() => {

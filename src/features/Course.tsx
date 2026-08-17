@@ -237,7 +237,27 @@ export function Course() {
               <p className="text-[11px] text-muted-foreground truncate">Vers {to}</p>
             </div>
           </div>
+          <div className="absolute bottom-3 left-3 right-3 rounded-2xl border-2 border-primary bg-background/95 backdrop-blur px-4 py-3 shadow-lg flex items-center gap-3">
+            <span className="relative flex h-3 w-3 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-70" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-bold leading-tight">
+                {etaMin === null
+                  ? "Recherche du taxi le plus proche…"
+                  : etaMin <= 1
+                    ? "Votre taxi est arrivé 🚖"
+                    : `Votre taxi arrive dans ${etaMin} min`}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Suivez le marqueur taxi jaune animé sur la carte
+              </p>
+            </div>
+          </div>
         </div>
+
+
 
         {/* Fiche chauffeur en bas d'écran */}
         <div className="max-h-[62vh] overflow-y-auto border-t bg-background p-3 space-y-3 pb-6">
