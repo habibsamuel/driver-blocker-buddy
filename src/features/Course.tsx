@@ -255,6 +255,8 @@ export function Course() {
               </p>
             </div>
           </div>
+        </div>
+
 
 
         {/* Fiche chauffeur en bas d'écran */}
