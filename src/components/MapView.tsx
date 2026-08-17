@@ -143,7 +143,7 @@ export function MapView({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const driverMarkersRef = useRef<Map<string, DriverMarkerEntry>>(new Map());
   const meMarkerRef = useRef<any>(null);
   const routeRef = useRef<any>(null);
   const routeMarkersRef = useRef<any[]>([]);
