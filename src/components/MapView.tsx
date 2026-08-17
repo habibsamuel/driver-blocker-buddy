@@ -215,29 +215,64 @@ export function MapView({
     mapRef.current.fitBounds(bounds, { top: 48, right: 32, bottom: 32, left: 32 });
   }, [routePolyline, ready]);
 
-  // Driver markers
+  // Marqueurs chauffeurs : voiture taxi jaune animée (pulsation + rotation + déplacement fluide)
   useEffect(() => {
     if (!ready || !mapRef.current || !window.google) return;
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = [];
+    const map = mapRef.current;
+    const store = driverMarkersRef.current;
+
     drivers.forEach((d) => {
-      const marker = new window.google.maps.Marker({
-        position: { lat: d.lat, lng: d.lng },
-        map: mapRef.current,
-        title: d.name ?? "Chauffeur",
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: "#FFCC00",
-          fillOpacity: 1,
-          strokeColor: "#000",
-          strokeWeight: 2,
-        },
-        label: { text: "🚖", fontSize: "14px" },
-      });
-      markersRef.current.push(marker);
+      const pos = { lat: d.lat, lng: d.lng };
+      const existing = store.get(d.driver_id);
+      if (!existing) {
+        const marker = new window.google.maps.Marker({
+          position: pos,
+          map,
+          title: d.name ?? "Chauffeur",
+          zIndex: 8,
+          icon: taxiIcon(d.heading ?? 0, 1),
+          optimized: false,
+        });
+        store.set(d.driver_id, { marker, target: pos, current: pos, heading: d.heading ?? 0 });
+      } else {
+        existing.target = pos;
+        existing.heading = d.heading ?? existing.heading;
+        existing.marker.setTitle(d.name ?? "Chauffeur");
+      }
+    });
+
+    // Retire les chauffeurs hors ligne
+    store.forEach((entry, id) => {
+      if (!drivers.some((d) => d.driver_id === id)) {
+        entry.marker.setMap(null);
+        store.delete(id);
+      }
     });
   }, [drivers, ready]);
+
+  // Boucle d'animation : glissement fluide + pulsation du marqueur taxi
+  useEffect(() => {
+    if (!ready || !window.google) return;
+    let raf = 0;
+    const tick = () => {
+      const t = Date.now() / 1000;
+      const pulse = 1 + 0.14 * Math.sin(t * 3.2);
+      driverMarkersRef.current.forEach((entry) => {
+        // interpolation douce vers la dernière position connue
+        const next = {
+          lat: entry.current.lat + (entry.target.lat - entry.current.lat) * 0.12,
+          lng: entry.current.lng + (entry.target.lng - entry.current.lng) * 0.12,
+        };
+        entry.current = next;
+        entry.marker.setPosition(next);
+        entry.marker.setIcon(taxiIcon(entry.heading, pulse));
+      });
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [ready]);
+
 
   // Me marker
   useEffect(() => {
