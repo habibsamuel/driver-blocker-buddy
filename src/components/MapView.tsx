@@ -93,6 +93,39 @@ function decodePolyline(encoded: string): { lat: number; lng: number }[] {
   return points;
 }
 
+/** Icône SVG d'un taxi jaune vu du dessus, orientée selon le cap et pulsée. */
+function taxiIcon(heading: number, pulse: number) {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <g transform="rotate(${heading} 24 24)">
+    <ellipse cx="24" cy="24" rx="15" ry="19" fill="#FFCC00" opacity="0.18"/>
+    <rect x="12" y="6" width="24" height="36" rx="8" fill="#111827"/>
+    <rect x="14" y="8" width="20" height="32" rx="7" fill="#FFCC00"/>
+    <rect x="17" y="11" width="14" height="8" rx="3" fill="#0f172a" opacity="0.85"/>
+    <rect x="17" y="29" width="14" height="7" rx="3" fill="#0f172a" opacity="0.6"/>
+    <rect x="19" y="20" width="10" height="7" rx="2" fill="#ffffff"/>
+    <text x="24" y="26" font-size="6" font-weight="bold" text-anchor="middle" fill="#111827">TAXI</text>
+    <rect x="10" y="14" width="3" height="7" rx="1.5" fill="#111827"/>
+    <rect x="35" y="14" width="3" height="7" rx="1.5" fill="#111827"/>
+    <rect x="10" y="28" width="3" height="7" rx="1.5" fill="#111827"/>
+    <rect x="35" y="28" width="3" height="7" rx="1.5" fill="#111827"/>
+  </g>
+</svg>`.trim();
+  const size = Math.round(40 * pulse);
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new window.google.maps.Size(size, size),
+    anchor: new window.google.maps.Point(size / 2, size / 2),
+  };
+}
+
+type DriverMarkerEntry = {
+  marker: any;
+  target: { lat: number; lng: number };
+  current: { lat: number; lng: number };
+  heading: number;
+};
+
 export function MapView({
   drivers,
   me,
