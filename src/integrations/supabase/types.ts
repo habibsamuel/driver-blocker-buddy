@@ -85,6 +85,33 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_ratings: {
+        Row: {
+          client_id: string
+          comment: string | null
+          created_at: string
+          driver_id: string
+          id: string
+          stars: number
+        }
+        Insert: {
+          client_id?: string
+          comment?: string | null
+          created_at?: string
+          driver_id: string
+          id?: string
+          stars: number
+        }
+        Update: {
+          client_id?: string
+          comment?: string | null
+          created_at?: string
+          driver_id?: string
+          id?: string
+          stars?: number
+        }
+        Relationships: []
+      }
       driver_subscriptions: {
         Row: {
           created_at: string
@@ -136,6 +163,8 @@ export type Database = {
           name: string
           phone: string
           plate: string
+          rating: number
+          review_count: number
           subscription_status: Database["public"]["Enums"]["driver_sub_state"]
           updated_at: string
           user_id: string
@@ -153,6 +182,8 @@ export type Database = {
           name?: string
           phone?: string
           plate?: string
+          rating?: number
+          review_count?: number
           subscription_status?: Database["public"]["Enums"]["driver_sub_state"]
           updated_at?: string
           user_id: string
@@ -170,6 +201,8 @@ export type Database = {
           name?: string
           phone?: string
           plate?: string
+          rating?: number
+          review_count?: number
           subscription_status?: Database["public"]["Enums"]["driver_sub_state"]
           updated_at?: string
           user_id?: string
@@ -294,6 +327,98 @@ export type Database = {
         }
         Relationships: []
       }
+      ride_request_offers: {
+        Row: {
+          created_at: string
+          distance_km: number
+          driver_id: string
+          request_id: string
+          responded_at: string | null
+          status: Database["public"]["Enums"]["ride_offer_status"]
+        }
+        Insert: {
+          created_at?: string
+          distance_km?: number
+          driver_id: string
+          request_id: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["ride_offer_status"]
+        }
+        Update: {
+          created_at?: string
+          distance_km?: number
+          driver_id?: string
+          request_id?: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["ride_offer_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_request_offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ride_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ride_requests: {
+        Row: {
+          accepted_at: string | null
+          client_id: string
+          client_name: string
+          client_phone: string
+          created_at: string
+          destination: string
+          distance_km: number
+          driver_id: string | null
+          duration_min: number
+          expires_at: string
+          fare: number
+          id: string
+          origin_lat: number
+          origin_lng: number
+          status: Database["public"]["Enums"]["ride_request_status"]
+          vehicle_class: Database["public"]["Enums"]["driver_vehicle_class"]
+        }
+        Insert: {
+          accepted_at?: string | null
+          client_id?: string
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          destination: string
+          distance_km?: number
+          driver_id?: string | null
+          duration_min?: number
+          expires_at?: string
+          fare?: number
+          id?: string
+          origin_lat: number
+          origin_lng: number
+          status?: Database["public"]["Enums"]["ride_request_status"]
+          vehicle_class?: Database["public"]["Enums"]["driver_vehicle_class"]
+        }
+        Update: {
+          accepted_at?: string | null
+          client_id?: string
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          destination?: string
+          distance_km?: number
+          driver_id?: string | null
+          duration_min?: number
+          expires_at?: string
+          fare?: number
+          id?: string
+          origin_lat?: number
+          origin_lng?: number
+          status?: Database["public"]["Enums"]["ride_request_status"]
+          vehicle_class?: Database["public"]["Enums"]["driver_vehicle_class"]
+        }
+        Relationships: []
+      }
       subscription_payments: {
         Row: {
           amount_xaf: number
@@ -414,6 +539,7 @@ export type Database = {
         Returns: string
       }
       consume_free_ride: { Args: { _driver_id: string }; Returns: number }
+      dispatch_ride_request: { Args: { _request_id: string }; Returns: number }
       expire_driver_subscriptions: { Args: never; Returns: undefined }
       generate_referral_code: { Args: never; Returns: string }
       has_role: {
@@ -427,6 +553,10 @@ export type Database = {
       reject_subscription_payment: {
         Args: { _payment_id: string }
         Returns: undefined
+      }
+      respond_ride_request: {
+        Args: { _accept: boolean; _request_id: string }
+        Returns: boolean
       }
     }
     Enums: {
@@ -450,6 +580,8 @@ export type Database = {
         | "verifie"
         | "rejete"
       pricing_vehicle_category: "bend_skin" | "eco" | "confort"
+      ride_offer_status: "ringing" | "accepted" | "declined" | "expired"
+      ride_request_status: "searching" | "accepted" | "expired" | "cancelled"
       subscription_payment_status: "en_attente" | "approuve" | "rejete"
     }
     CompositeTypes: {
@@ -601,6 +733,8 @@ export const Constants = {
         "rejete",
       ],
       pricing_vehicle_category: ["bend_skin", "eco", "confort"],
+      ride_offer_status: ["ringing", "accepted", "declined", "expired"],
+      ride_request_status: ["searching", "accepted", "expired", "cancelled"],
       subscription_payment_status: ["en_attente", "approuve", "rejete"],
     },
   },
