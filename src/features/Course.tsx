@@ -122,7 +122,7 @@ export function Course() {
       } finally { if (!ctrl.signal.aborted) setEstimating(false); }
     }, 600);
     return () => { ctrl.abort(); clearTimeout(timer); };
-  }, [to, position?.lat, position?.lng, estimate]);
+  }, [to, posLat, posLng, estimate, confirmed]);
 
   const available = useMemo(
     () => drivers.filter((d) => !d.blocked && d.vehicleClass === vehicleClass).sort((a, b) => b.rating - a.rating),
