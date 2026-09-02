@@ -164,7 +164,15 @@ export function Historique() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!rateFor} onOpenChange={(o) => !o && setRateFor(null)}>
+      <Dialog
+        open={!!rateFor}
+        onOpenChange={(o) => {
+          if (!o) {
+            if (rateFor) skipped.current.add(rateFor);
+            setRateFor(null);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Notez le chauffeur</DialogTitle></DialogHeader>
           <div className="flex justify-center gap-1 py-2">
