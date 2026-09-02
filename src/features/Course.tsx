@@ -110,7 +110,7 @@ export function Course() {
     const timer = setTimeout(async () => {
       try {
         const r = await estimate({
-          data: { originLat: position.lat, originLng: position.lng, to: t },
+          data: { originLat: posLat, originLng: posLng, to: t },
         });
         if (ctrl.signal.aborted) return;
         setDistance(String(r.distanceKm)); setDuration(String(r.durationMin));
