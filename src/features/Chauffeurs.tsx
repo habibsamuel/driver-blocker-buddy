@@ -115,7 +115,12 @@ export function Chauffeurs() {
                 const palier = d.subscriptionPaid ? 0 : palierBase;
                 return (
                   <TableRow key={d.id}>
-                    <TableCell className="font-medium">{d.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {d.name}
+                      {d.rating > 0 && (
+                        <span className="ml-2 text-xs text-amber-500">★ {d.rating.toFixed(1)} ({d.ratingsCount})</span>
+                      )}
+                    </TableCell>
                     <TableCell>{d.phone}</TableCell>
                     <TableCell>{d.zone}</TableCell>
                     <TableCell className="text-center">
