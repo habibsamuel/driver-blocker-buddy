@@ -258,6 +258,34 @@ export function Course() {
         plate: driver.plate, vehicle: driver.vehicle, rating: driver.rating, total: finalTotal,
         routePolyline,
       });
+
+      // Dispatch temps réel : fait sonner les chauffeurs vérifiés à moins de 2 km
+      if (user) {
+        try {
+          const { data: req } = await supabase
+            .from("ride_requests")
+            .insert({
+              client_id: user.id,
+              client_name: name,
+              client_phone: phone,
+              origin_lat: position.lat,
+              origin_lng: position.lng,
+              destination: to.trim(),
+              distance_km: dist,
+              duration_min: Math.round(dur),
+              vehicle_class: vehicleClass,
+              fare: finalTotal,
+            })
+            .select("id")
+            .single();
+          if (req) {
+            setRequestId(req.id);
+            const { data: count } = await supabase.rpc("dispatch_ride_request", { _request_id: req.id });
+            setSearchingDrivers(Number(count) || 0);
+            if (!count) toast.info("Aucun chauffeur en ligne à moins de 2 km — recherche élargie");
+          }
+        } catch { /* dispatch indisponible : la course locale reste valide */ }
+      }
       toast.success("Course confirmée — un chauffeur arrive !");
     } finally { setBooking(false); }
   };
