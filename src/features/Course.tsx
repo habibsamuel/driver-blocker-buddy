@@ -328,7 +328,9 @@ export function Course() {
                     : `Votre taxi arrive dans ${etaMin} min`}
               </p>
               <p className="text-[11px] text-muted-foreground">
-                Suivez le marqueur taxi jaune animé sur la carte
+                {requestId && searchingDrivers > 0
+                  ? `${searchingDrivers} chauffeur(s) sonnent — le premier qui accepte vient vous chercher`
+                  : "Suivez le marqueur taxi jaune animé sur la carte"}
               </p>
             </div>
           </div>
