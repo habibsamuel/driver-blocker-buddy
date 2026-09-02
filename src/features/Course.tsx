@@ -59,6 +59,51 @@ export function Course() {
     rideId: string; startPin: string; driverName: string; driverPhone: string;
     plate?: string; vehicle?: string; rating?: number; total: number; routePolyline?: string | null;
   }>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [searchingDrivers, setSearchingDrivers] = useState(0);
+
+  // Suivi temps réel de la demande envoyée aux chauffeurs proches
+  useEffect(() => {
+    if (!requestId) return;
+    const channel = supabase
+      .channel(`ride-request-${requestId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "ride_requests", filter: `id=eq.${requestId}` },
+        async (payload) => {
+          const row = payload.new as { status: string; driver_id: string | null };
+          if (row.status === "accepted" && row.driver_id) {
+            const { data } = await supabase
+              .from("drivers")
+              .select("name, phone, plate, vehicle, rating")
+              .eq("user_id", row.driver_id)
+              .maybeSingle();
+            if (data) {
+              setConfirmed((c) =>
+                c
+                  ? {
+                      ...c,
+                      driverName: data.name || c.driverName,
+                      driverPhone: data.phone || c.driverPhone,
+                      plate: data.plate || c.plate,
+                      vehicle: data.vehicle || c.vehicle,
+                      rating: Number(data.rating) || c.rating,
+                    }
+                  : c,
+              );
+            }
+            toast.success("Un chauffeur a accepté votre course 🚖");
+            setRequestId(null);
+          } else if (row.status === "expired") {
+            toast.error("Aucun chauffeur n'a répondu — réessayez");
+            setRequestId(null);
+          }
+        },
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [requestId]);
+
 
   useEffect(() => {
     if (!user) return;
