@@ -59,6 +59,51 @@ export function Course() {
     rideId: string; startPin: string; driverName: string; driverPhone: string;
     plate?: string; vehicle?: string; rating?: number; total: number; routePolyline?: string | null;
   }>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [searchingDrivers, setSearchingDrivers] = useState(0);
+
+  // Suivi temps réel de la demande envoyée aux chauffeurs proches
+  useEffect(() => {
+    if (!requestId) return;
+    const channel = supabase
+      .channel(`ride-request-${requestId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "ride_requests", filter: `id=eq.${requestId}` },
+        async (payload) => {
+          const row = payload.new as { status: string; driver_id: string | null };
+          if (row.status === "accepted" && row.driver_id) {
+            const { data } = await supabase
+              .from("drivers")
+              .select("name, phone, plate, vehicle, rating")
+              .eq("user_id", row.driver_id)
+              .maybeSingle();
+            if (data) {
+              setConfirmed((c) =>
+                c
+                  ? {
+                      ...c,
+                      driverName: data.name || c.driverName,
+                      driverPhone: data.phone || c.driverPhone,
+                      plate: data.plate || c.plate,
+                      vehicle: data.vehicle || c.vehicle,
+                      rating: Number(data.rating) || c.rating,
+                    }
+                  : c,
+              );
+            }
+            toast.success("Un chauffeur a accepté votre course 🚖");
+            setRequestId(null);
+          } else if (row.status === "expired") {
+            toast.error("Aucun chauffeur n'a répondu — réessayez");
+            setRequestId(null);
+          }
+        },
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [requestId]);
+
 
   useEffect(() => {
     if (!user) return;
@@ -97,16 +142,20 @@ export function Course() {
   }, [position?.lat, position?.lng, liveDrivers]);
 
 
+  // Position arrondie (~11 m) : évite les recalculs d'itinéraire en boucle
+  const posLat = position ? Math.round(position.lat * 1e4) / 1e4 : null;
+  const posLng = position ? Math.round(position.lng * 1e4) / 1e4 : null;
+
   // Auto-estimation : origin = position GPS, destination = saisie
   useEffect(() => {
     const t = to.trim();
-    if (t.length < 2 || !position) { setDistance(""); setDuration(""); setRoutePolyline(null); setEstimateError(null); return; }
+    if (t.length < 2 || posLat === null || posLng === null || confirmed) { return; }
     const ctrl = new AbortController();
     setEstimating(true); setEstimateError(null);
     const timer = setTimeout(async () => {
       try {
         const r = await estimate({
-          data: { originLat: position.lat, originLng: position.lng, to: t },
+          data: { originLat: posLat, originLng: posLng, to: t },
         });
         if (ctrl.signal.aborted) return;
         setDistance(String(r.distanceKm)); setDuration(String(r.durationMin));
@@ -118,7 +167,7 @@ export function Course() {
       } finally { if (!ctrl.signal.aborted) setEstimating(false); }
     }, 600);
     return () => { ctrl.abort(); clearTimeout(timer); };
-  }, [to, position?.lat, position?.lng, estimate]);
+  }, [to, posLat, posLng, estimate, confirmed]);
 
   const available = useMemo(
     () => drivers.filter((d) => !d.blocked && d.vehicleClass === vehicleClass).sort((a, b) => b.rating - a.rating),
@@ -209,6 +258,34 @@ export function Course() {
         plate: driver.plate, vehicle: driver.vehicle, rating: driver.rating, total: finalTotal,
         routePolyline,
       });
+
+      // Dispatch temps réel : fait sonner les chauffeurs vérifiés à moins de 2 km
+      if (user) {
+        try {
+          const { data: req } = await supabase
+            .from("ride_requests")
+            .insert({
+              client_id: user.id,
+              client_name: name,
+              client_phone: phone,
+              origin_lat: position.lat,
+              origin_lng: position.lng,
+              destination: to.trim(),
+              distance_km: dist,
+              duration_min: Math.round(dur),
+              vehicle_class: vehicleClass,
+              fare: finalTotal,
+            })
+            .select("id")
+            .single();
+          if (req) {
+            setRequestId(req.id);
+            const { data: count } = await supabase.rpc("dispatch_ride_request", { _request_id: req.id });
+            setSearchingDrivers(Number(count) || 0);
+            if (!count) toast.info("Aucun chauffeur en ligne à moins de 2 km — recherche élargie");
+          }
+        } catch { /* dispatch indisponible : la course locale reste valide */ }
+      }
       toast.success("Course confirmée — un chauffeur arrive !");
     } finally { setBooking(false); }
   };
@@ -251,7 +328,9 @@ export function Course() {
                     : `Votre taxi arrive dans ${etaMin} min`}
               </p>
               <p className="text-[11px] text-muted-foreground">
-                Suivez le marqueur taxi jaune animé sur la carte
+                {requestId && searchingDrivers > 0
+                  ? `${searchingDrivers} chauffeur(s) sonnent — le premier qui accepte vient vous chercher`
+                  : "Suivez le marqueur taxi jaune animé sur la carte"}
               </p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStore } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,14 @@ export function Historique() {
   const [rateFor, setRateFor] = useState<string | null>(null);
   const [stars, setStars] = useState(5);
   const [comment, setComment] = useState("");
+  const skipped = useRef<Set<string>>(new Set());
+
+  // Pop-up de notation automatique dès qu'une course est terminée (côté client)
+  useEffect(() => {
+    if (role !== "client" || rateFor) return;
+    const pending = rides.find((r) => r.status === "completed" && !r.driverRating && !skipped.current.has(r.id));
+    if (pending) { setRateFor(pending.id); setStars(5); setComment(""); }
+  }, [rides, role, rateFor]);
 
   const sorted = [...rides].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
 
@@ -83,7 +91,14 @@ export function Historique() {
                 )}
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div><span className="text-muted-foreground">Chauffeur:</span> <b>{d?.name ?? "—"}</b></div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Chauffeur:</span> <b>{d?.name ?? "—"}</b>
+                    {d && d.rating > 0 && (
+                      <span className="inline-flex items-center gap-0.5 text-amber-500">
+                        <Star className="h-3 w-3 fill-current" />{d.rating.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
                   <div><span className="text-muted-foreground">Client:</span> <b>{c?.name ?? "—"}</b></div>
                   <div><span className="text-muted-foreground">Classe:</span> {r.vehicleClass}</div>
                   <div><span className="text-muted-foreground">Total:</span> <b>{r.total} XAF</b> {r.paid ? "💵 payé" : "(à payer cash)"}</div>
@@ -156,7 +171,15 @@ export function Historique() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!rateFor} onOpenChange={(o) => !o && setRateFor(null)}>
+      <Dialog
+        open={!!rateFor}
+        onOpenChange={(o) => {
+          if (!o) {
+            if (rateFor) skipped.current.add(rateFor);
+            setRateFor(null);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Notez le chauffeur</DialogTitle></DialogHeader>
           <div className="flex justify-center gap-1 py-2">
