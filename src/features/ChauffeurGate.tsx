@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { KeyRound, Lock } from "lucide-react";
+import { DriverCallListener } from "@/components/DriverCallListener";
 
 const SESSION_KEY = "chauffeur_unlocked_id";
 
