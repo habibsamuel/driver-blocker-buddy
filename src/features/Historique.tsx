@@ -16,6 +16,14 @@ export function Historique() {
   const [rateFor, setRateFor] = useState<string | null>(null);
   const [stars, setStars] = useState(5);
   const [comment, setComment] = useState("");
+  const skipped = useRef<Set<string>>(new Set());
+
+  // Pop-up de notation automatique dès qu'une course est terminée (côté client)
+  useEffect(() => {
+    if (role !== "client" || rateFor) return;
+    const pending = rides.find((r) => r.status === "completed" && !r.driverRating && !skipped.current.has(r.id));
+    if (pending) { setRateFor(pending.id); setStars(5); setComment(""); }
+  }, [rides, role, rateFor]);
 
   const sorted = [...rides].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
 
