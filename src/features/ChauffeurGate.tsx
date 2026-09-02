@@ -43,6 +43,7 @@ export function ChauffeurGate({ children }: { children: ReactNode }) {
           </Button>
         </div>
         {children}
+        <DriverCallListener />
       </div>
     );
   }
