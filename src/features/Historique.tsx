@@ -91,7 +91,14 @@ export function Historique() {
                 )}
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div><span className="text-muted-foreground">Chauffeur:</span> <b>{d?.name ?? "—"}</b></div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Chauffeur:</span> <b>{d?.name ?? "—"}</b>
+                    {d && d.rating > 0 && (
+                      <span className="inline-flex items-center gap-0.5 text-amber-500">
+                        <Star className="h-3 w-3 fill-current" />{d.rating.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
                   <div><span className="text-muted-foreground">Client:</span> <b>{c?.name ?? "—"}</b></div>
                   <div><span className="text-muted-foreground">Classe:</span> {r.vehicleClass}</div>
                   <div><span className="text-muted-foreground">Total:</span> <b>{r.total} XAF</b> {r.paid ? "💵 payé" : "(à payer cash)"}</div>
