@@ -97,10 +97,14 @@ export function Course() {
   }, [position?.lat, position?.lng, liveDrivers]);
 
 
+  // Position arrondie (~11 m) : évite les recalculs d'itinéraire en boucle
+  const posLat = position ? Math.round(position.lat * 1e4) / 1e4 : null;
+  const posLng = position ? Math.round(position.lng * 1e4) / 1e4 : null;
+
   // Auto-estimation : origin = position GPS, destination = saisie
   useEffect(() => {
     const t = to.trim();
-    if (t.length < 2 || !position) { setDistance(""); setDuration(""); setRoutePolyline(null); setEstimateError(null); return; }
+    if (t.length < 2 || posLat === null || posLng === null || confirmed) { return; }
     const ctrl = new AbortController();
     setEstimating(true); setEstimateError(null);
     const timer = setTimeout(async () => {
