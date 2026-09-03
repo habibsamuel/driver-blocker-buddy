@@ -280,11 +280,22 @@ export function Course() {
             .single();
           if (req) {
             setRequestId(req.id);
-            const { data: count } = await supabase.rpc("dispatch_ride_request", { _request_id: req.id });
-            setSearchingDrivers(Number(count) || 0);
-            if (!count) toast.info("Aucun chauffeur en ligne à moins de 2 km — recherche élargie");
+            const { data: count, error: dispatchError } = await supabase.rpc("dispatch_ride_request", {
+              _request_id: req.id,
+            });
+            if (dispatchError) {
+              console.error("dispatch_ride_request", dispatchError);
+              toast.error("Impossible de contacter les chauffeurs — réessayez");
+            } else {
+              setSearchingDrivers(Number(count) || 0);
+              if (!count) toast.info("Aucun chauffeur en ligne à moins de 2 km — recherche élargie");
+            }
           }
-        } catch { /* dispatch indisponible : la course locale reste valide */ }
+        } catch (e) {
+          console.error("ride_requests", e);
+          toast.error("Envoi de la demande indisponible — course enregistrée localement");
+        }
+
       }
       toast.success("Course confirmée — un chauffeur arrive !");
     } finally { setBooking(false); }
