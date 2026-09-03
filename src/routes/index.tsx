@@ -1,13 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Suspense, lazy, useEffect } from "react";
+import { useEffect } from "react";
 import { Landing } from "@/features/Landing";
 import { useAuth } from "@/hooks/useAuth";
 
-// Lazy: Dashboard (and its heavy deps like MapView/charts) is only needed
-// for signed-in users. Anonymous landing visitors should not download it.
-const Dashboard = lazy(() =>
-  import("@/features/Dashboard").then((m) => ({ default: m.Dashboard })),
-);
 
 export const Route = createFileRoute("/")({
   component: Home,
