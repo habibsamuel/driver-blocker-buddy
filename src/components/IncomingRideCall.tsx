@@ -41,7 +41,13 @@ export function IncomingRideCall({
         <p className="text-sm opacity-80 flex items-center justify-center gap-1">
           <MapPin className="h-4 w-4" /> à {offer.distanceKm} km de vous
         </p>
+        <div className="mx-auto w-fit rounded-2xl bg-primary px-6 py-3 text-foreground shadow-xl">
+          <p className="text-[10px] font-semibold uppercase tracking-widest opacity-70">Prix de la course</p>
+          <p className="text-4xl font-black leading-tight">{offer.fare} XAF</p>
+          <p className="text-[11px] font-medium opacity-80">💵 Paiement en liquide</p>
+        </div>
       </div>
+
 
       <div className="w-full max-w-sm space-y-3 rounded-3xl bg-background/10 p-5 backdrop-blur">
         <p className="flex items-start gap-2 text-base font-semibold">
