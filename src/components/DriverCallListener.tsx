@@ -11,6 +11,7 @@ import { toast } from "sonner";
 export function DriverCallListener() {
   const { user } = useAuth();
   const { offer, respond, responding } = useDriverOffers(user?.id ?? null);
+  useNativePush(user?.id ?? null);
 
   if (!offer) return null;
 
