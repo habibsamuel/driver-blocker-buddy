@@ -35,6 +35,7 @@ export function Course() {
   const { rules: pricingRules, error: pricingError } = usePricingRules();
   const { user } = useAuth();
   const estimate = useServerFn(estimateRoute);
+  const notifyDrivers = useServerFn(notifyNearbyDrivers);
   const { position, error: geoError } = useGeolocation(true);
   const liveDrivers = useDriverPositions();
 
