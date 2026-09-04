@@ -291,6 +291,12 @@ export function Course() {
             } else {
               setSearchingDrivers(Number(count) || 0);
               if (!count) toast.info("Aucun chauffeur en ligne à moins de 2 km — recherche élargie");
+              // Sonnerie sur les téléphones des chauffeurs, même app fermée
+              try {
+                await notifyDrivers({ data: { requestId: req.id } });
+              } catch (e) {
+                console.error("notifyNearbyDrivers", e);
+              }
             }
           }
         } catch (e) {
