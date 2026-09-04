@@ -16,7 +16,11 @@
     "test:coverage": "vitest --coverage",
     "deploy": "npm run build && npm run test",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "cap:sync": "cap sync android",
+    "cap:open": "cap open android",
+    "android:apk": "cd android && ./gradlew assembleRelease",
+    "android:bundle": "cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
