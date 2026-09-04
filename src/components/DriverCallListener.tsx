@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useDriverOffers } from "@/hooks/useDriverOffers";
+import { useNativePush } from "@/hooks/useNativePush";
 import { IncomingRideCall } from "@/components/IncomingRideCall";
 import { toast } from "sonner";
 
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 export function DriverCallListener() {
   const { user } = useAuth();
   const { offer, respond, responding } = useDriverOffers(user?.id ?? null);
+  useNativePush(user?.id ?? null);
 
   if (!offer) return null;
 

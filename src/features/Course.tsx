@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useStore, type VehicleClass } from "@/lib/store";
 import { estimateRoute } from "@/lib/route.functions";
+import { notifyNearbyDrivers } from "@/lib/push.functions";
 import { usePricingRules, vehicleClassToCategory, computeDynamicFare } from "@/lib/pricing";
 import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -34,6 +35,7 @@ export function Course() {
   const { rules: pricingRules, error: pricingError } = usePricingRules();
   const { user } = useAuth();
   const estimate = useServerFn(estimateRoute);
+  const notifyDrivers = useServerFn(notifyNearbyDrivers);
   const { position, error: geoError } = useGeolocation(true);
   const liveDrivers = useDriverPositions();
 
@@ -289,6 +291,12 @@ export function Course() {
             } else {
               setSearchingDrivers(Number(count) || 0);
               if (!count) toast.info("Aucun chauffeur en ligne à moins de 2 km — recherche élargie");
+              // Sonnerie sur les téléphones des chauffeurs, même app fermée
+              try {
+                await notifyDrivers({ data: { requestId: req.id } });
+              } catch (e) {
+                console.error("notifyNearbyDrivers", e);
+              }
             }
           }
         } catch (e) {
