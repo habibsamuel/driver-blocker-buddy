@@ -40,6 +40,22 @@ export async function enableNativePush(
       console.error("push registration error", e);
     });
 
+    if (platform === "android") {
+      try {
+        await PushNotifications.createChannel({
+          id: "rides",
+          name: "Courses",
+          description: "Appels de course entrants",
+          importance: 5,
+          visibility: 1,
+          sound: "default",
+          vibration: true,
+        });
+      } catch (e) {
+        console.error("createChannel", e);
+      }
+    }
+
     await PushNotifications.register();
     return "registered";
   } catch (e) {
