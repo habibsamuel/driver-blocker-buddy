@@ -1,4 +1,6 @@
-import { Shield, Database, MapPin, Bell, Lock, UserCheck, Mail } from "lucide-react";
+import { Shield, Database, MapPin, Bell, Lock, UserCheck, Mail, Trash2 } from "lucide-react";
+import { DeleteAccount } from "@/components/DeleteAccount";
+
 
 const UPDATED = "5 septembre 2026";
 
@@ -96,6 +98,17 @@ export function Confidentialite() {
           sera publiée sur cette page avec une nouvelle date de mise à jour.
         </p>
       </Section>
+
+      <Section icon={Trash2} title="10. Supprimer votre compte et vos données">
+        <p>
+          Vous pouvez supprimer votre compte à tout moment, directement depuis l'application. Votre profil,
+          vos courses, vos parrainages et vos documents sont alors effacés définitivement. Les informations
+          que la loi nous oblige à conserver (facturation, litiges) le sont pour la durée légale, sous accès
+          restreint.
+        </p>
+        <DeleteAccount />
+      </Section>
+
     </div>
   );
 }
