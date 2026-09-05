@@ -18,6 +18,7 @@ import { Route as InscriptionChauffeurRouteImport } from './routes/inscription-c
 import { Route as HistoriqueRouteImport } from './routes/historique'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as CourseRouteImport } from './routes/course'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as ChauffeursRouteImport } from './routes/chauffeurs'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -72,6 +73,11 @@ const DocumentsRoute = DocumentsRouteImport.update({
 const CourseRoute = CourseRouteImport.update({
   id: '/course',
   path: '/course',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClientsRoute = ClientsRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/course': typeof CourseRoute
   '/documents': typeof DocumentsRoute
   '/historique': typeof HistoriqueRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/course': typeof CourseRoute
   '/documents': typeof DocumentsRoute
   '/historique': typeof HistoriqueRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/chauffeurs': typeof ChauffeursRoute
   '/clients': typeof ClientsRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/course': typeof CourseRoute
   '/documents': typeof DocumentsRoute
   '/historique': typeof HistoriqueRoute
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/chauffeurs'
     | '/clients'
+    | '/confidentialite'
     | '/course'
     | '/documents'
     | '/historique'
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/chauffeurs'
     | '/clients'
+    | '/confidentialite'
     | '/course'
     | '/documents'
     | '/historique'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/chauffeurs'
     | '/clients'
+    | '/confidentialite'
     | '/course'
     | '/documents'
     | '/historique'
@@ -265,6 +277,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ChauffeursRoute: typeof ChauffeursRoute
   ClientsRoute: typeof ClientsRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
   CourseRoute: typeof CourseRoute
   DocumentsRoute: typeof DocumentsRoute
   HistoriqueRoute: typeof HistoriqueRoute
@@ -343,6 +356,13 @@ declare module '@tanstack/react-router' {
       path: '/course'
       fullPath: '/course'
       preLoaderRoute: typeof CourseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clients': {
@@ -425,6 +445,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ChauffeursRoute: ChauffeursRoute,
   ClientsRoute: ClientsRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
   CourseRoute: CourseRoute,
   DocumentsRoute: DocumentsRoute,
   HistoriqueRoute: HistoriqueRoute,
