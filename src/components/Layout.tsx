@@ -209,7 +209,15 @@ export function Layout() {
       </main>
 
       <footer className="border-t border-border bg-secondary text-secondary-foreground/70 text-xs py-3 text-center">
-        🚖 TAXI PROXI · DEUS Corporation · Yaoundé, Cameroun
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <span>🚖 TAXI PROXI · DEUS Corporation · Yaoundé, Cameroun</span>
+          <Link to="/confidentialite" className="hover:text-primary underline underline-offset-2">
+            Politique de confidentialité
+          </Link>
+          <Link to="/conditions" className="hover:text-primary underline underline-offset-2">
+            Conditions d'utilisation
+          </Link>
+        </div>
       </footer>
 
       <Dialog open={pinOpen} onOpenChange={(o) => { setPinOpen(o); if (!o) setPinValue(""); }}>
