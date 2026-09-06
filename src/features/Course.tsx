@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, Phone, ShieldCheck, LogIn, Locate, ChevronLeft } from "lucide-react";
+import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, ShieldCheck, LogIn, Locate, Banknote, Check, Sparkles } from "lucide-react";
 
 const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
   { id: "moto", label: "Bend-Skin", sub: "Moto-taxi · rapide", icon: Bike },
@@ -56,7 +56,6 @@ export function Course() {
   const [estimating, setEstimating] = useState(false);
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
-  const [expanded, setExpanded] = useState(false);
   const [confirmed, setConfirmed] = useState<null | {
     rideId: string; startPin: string; driverName: string; driverPhone: string;
     plate?: string; vehicle?: string; rating?: number; total: number; routePolyline?: string | null;
@@ -311,7 +310,7 @@ export function Course() {
 
 
   const reset = () => {
-    setConfirmed(null); setExpanded(false); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
+    setConfirmed(null); setTo(""); setDistance(""); setDuration(""); setPromo(""); setRoutePolyline(null);
   };
 
   if (confirmed) {
@@ -390,208 +389,118 @@ export function Course() {
     );
   }
 
-  const destinationCard = (
-      <Card>
-        <CardHeader><CardTitle className="text-base">1. Votre destination</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-1"><Navigation className="h-3 w-3 text-primary" /> Où allez-vous ?</Label>
-            <DestinationInput
-              value={to}
-              onChange={setTo}
-              onSelect={() => setExpanded(true)}
-              position={position ? { lat: position.lat, lng: position.lng } : null}
-            />
-          </div>
-          <div className="rounded-lg border bg-muted/40 p-3 text-sm">
-            {!position ? (
-              <span className="text-muted-foreground">En attente de votre position GPS…</span>
-            ) : estimating ? (
-              <span className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Calcul de l'itinéraire…</span>
-            ) : estimateError ? (
-              <span className="text-destructive">{estimateError}</span>
-            ) : distance && duration ? (
-              <span>📍 <b>{distance} km</b> · ⏱ <b>{duration} min</b> depuis votre position</span>
-            ) : (
-              <span className="text-muted-foreground">Saisissez votre destination…</span>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-  );
-
-  const bookingSteps = (
-    <>
-      {/* Étape 2 : catégorie */}
-      <Card>
-        <CardHeader><CardTitle className="text-base">2. Type de véhicule</CardTitle></CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-2">
-            {classes.map((c) => {
-              const Icon = c.icon;
-              const active = vehicleClass === c.id;
-              const count = drivers.filter((d) => !d.blocked && d.vehicleClass === c.id).length;
-              return (
-                <button
-                  key={c.id} type="button" onClick={() => setVehicleClass(c.id)}
-                  className={`text-left rounded-2xl p-3 border-2 transition ${
-                    active ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"
-                  }`}
-                >
-                  <Icon className="h-5 w-5 mb-2" />
-                  <p className="font-bold text-sm">{c.label}</p>
-                  <p className="text-[10px] text-muted-foreground">{c.sub}</p>
-                  <p className="text-[10px] text-primary mt-1">{count} dispo</p>
-                </button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Étape 3 : promo + récap */}
-      <Card>
-        <CardHeader><CardTitle className="text-base">3. Récapitulatif</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-1 text-xs"><Tag className="h-3 w-3" /> Code promo (optionnel)</Label>
-            <Input value={promo} onChange={(e) => setPromo(e.target.value.toUpperCase())} placeholder="BIENVENUE" />
-            {promo && (
-              <p className={`text-xs ${promoResult.ok ? "text-green-600" : "text-destructive"}`}>{promoResult.msg}</p>
-            )}
-          </div>
-          <div className="border-t pt-3 space-y-2">
-            {distance && duration && (
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="rounded-md bg-muted/40 p-2">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Distance</p>
-                  <p className="font-semibold">{distance} km</p>
-                </div>
-                <div className="rounded-md bg-muted/40 p-2">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Durée</p>
-                  <p className="font-semibold">{duration} min</p>
-                </div>
-              </div>
-            )}
-            <div className="flex items-baseline justify-between">
-              <span className="text-sm text-muted-foreground">Prix total</span>
-              <span className="text-3xl font-bold text-primary">
-                {pricingError ? "—" : !pricingRules ? "…" : distance && duration ? finalTotal : "—"} XAF
-              </span>
-            </div>
-            {distance && duration && pricingRules && (
-              <p className="text-[11px] text-green-600 font-medium">
-                ✓ Prix fixe garanti, aucune surprise à l'arrivée
-              </p>
-            )}
-            {pricingError && (
-              <p className="text-[11px] text-destructive">Tarifs indisponibles — réessayez plus tard</p>
-            )}
-            <Badge variant="outline" className="mt-1"><MapPin className="h-3 w-3 mr-1" /> 💵 Paiement en liquide au chauffeur</Badge>
-          </div>
-          {!user && (
-            <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 space-y-2">
-              <p className="text-xs font-semibold">Commande sans compte · 1 course offerte 🎁</p>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs">Nom *</Label>
-                  <Input value={guest.name} onChange={(e) => setGuest({ ...guest, name: e.target.value })} placeholder="Jean" />
-                </div>
-                <div>
-                  <Label className="text-xs">Téléphone *</Label>
-                  <Input value={guest.phone} onChange={(e) => setGuest({ ...guest, phone: e.target.value })} placeholder="6XX XXX XXX" />
-                </div>
-              </div>
-              <p className="text-[10px] text-muted-foreground">
-                Le chauffeur vous appelle sur ce numéro. <Link to="/auth" className="text-primary underline">Créer un compte</Link> pour commander sans limite.
-              </p>
-            </div>
-          )}
-          <Button
-            className="w-full" size="lg" onClick={handleBook}
-            disabled={!to || !distance || !duration || estimating || booking || !position || !pricingRules || finalTotal === 0}
-          >
-            {booking ? "Réservation…" : estimating ? "Calcul en cours…" : !position ? "Localisation…" : `Commander — ${finalTotal} XAF`}
-          </Button>
-          {user && profile && (
-            <p className="text-[11px] text-muted-foreground text-center">
-              Réservé au nom de <b>{profile.name}</b>{profile.phone ? ` · ${profile.phone}` : ""}
-            </p>
-          )}
-
-        </CardContent>
-      </Card>
-    </>
-  );
-
-  // Dès qu'une destination est choisie : carte plein écran, colorée et lisible
-  if (expanded) {
-    return (
-      <div className="fixed inset-0 z-40 flex flex-col bg-background">
-        <div className="relative flex-1 min-h-0">
-          <MapView
-            drivers={liveDrivers}
-            me={position ? { lat: position.lat, lng: position.lng } : null}
-            routePolyline={routePolyline}
-            className="h-full w-full"
-            theme="vivid"
-          />
-          <button
-            type="button"
-            onClick={() => setExpanded(false)}
-            aria-label="Revenir à la saisie"
-            className="absolute top-3 left-3 h-10 w-10 rounded-full bg-background/90 backdrop-blur shadow-lg flex items-center justify-center"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <div className="absolute top-3 left-16 right-3 rounded-2xl bg-background/90 backdrop-blur px-4 py-2.5 shadow-lg">
-            <p className="text-sm font-semibold truncate flex items-center gap-1">
-              <Navigation className="h-3.5 w-3.5 text-primary" /> {to}
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              {estimating
-                ? "Calcul de l'itinéraire…"
-                : distance && duration
-                  ? `${distance} km · ${duration} min depuis votre position`
-                  : estimateError ?? "En attente de l'itinéraire"}
-            </p>
-          </div>
-        </div>
-        <div className="max-h-[58vh] overflow-y-auto border-t p-3 space-y-3 pb-6">{bookingSteps}</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Où allez-vous ?</h1>
-        <p className="text-muted-foreground">Nous vous localisons — indiquez juste la destination</p>
-      </div>
-
-      {/* Carte en direct */}
+    <div className="relative h-full min-h-[100dvh] overflow-hidden bg-secondary text-secondary-foreground">
       <MapView
         drivers={liveDrivers}
         me={position ? { lat: position.lat, lng: position.lng } : null}
         routePolyline={routePolyline}
-        className="h-56"
+        className="absolute inset-0 h-full w-full"
         theme="vivid"
       />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-secondary/55 via-transparent to-secondary/75" />
 
-      {/* Statut GPS */}
-      <div className="rounded-lg border bg-muted/40 p-3 text-sm flex items-center gap-2">
-        <Locate className={`h-4 w-4 ${position ? "text-green-500" : "text-muted-foreground animate-pulse"}`} />
-        {position ? (
-          <span className="text-muted-foreground">📍 Position détectée — {liveDrivers.length} chauffeur(s) en ligne autour de vous</span>
-        ) : geoError ? (
-          <span className="text-destructive">Activez la géolocalisation pour continuer ({geoError})</span>
-        ) : (
-          <span className="text-muted-foreground">Localisation en cours…</span>
+      <section className="absolute inset-x-0 bottom-0 z-20 max-h-[77dvh] overflow-y-auto rounded-t-[28px] border-t border-secondary-foreground/10 bg-secondary/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl backdrop-blur-xl md:bottom-5 md:left-5 md:right-auto md:top-20 md:max-h-[calc(100dvh-6.25rem)] md:w-[420px] md:rounded-2xl md:border">
+        <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-secondary-foreground/20 md:hidden" />
+        <div className="mb-5">
+          <p className="text-[11px] font-bold uppercase text-primary">Votre trajet</p>
+          <h1 className="mt-1 text-2xl font-bold">Où allez-vous ?</h1>
+        </div>
+
+        <div className="relative rounded-2xl border border-secondary-foreground/10 bg-secondary-foreground/5 p-4">
+          <div className="absolute bottom-8 left-[25px] top-8 w-px bg-gradient-to-b from-primary to-chart-2" />
+          <div className="relative flex items-center gap-3 border-b border-secondary-foreground/10 pb-3">
+            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 border-primary bg-secondary"><span className="h-1.5 w-1.5 rounded-full bg-primary" /></span>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase text-secondary-foreground/45">Départ</p>
+              <p className="truncate text-sm font-semibold">{position ? "Votre position actuelle" : "Localisation en cours…"}</p>
+            </div>
+            <Locate className={`ml-auto h-4 w-4 shrink-0 ${position ? "text-chart-2" : "animate-pulse text-secondary-foreground/40"}`} />
+          </div>
+          <div className="relative flex items-center gap-3 pt-3">
+            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-[5px] border-2 border-chart-2 bg-secondary"><span className="h-1.5 w-1.5 rounded-[2px] bg-chart-2" /></span>
+            <div className="min-w-0 flex-1">
+              <p className="mb-0.5 text-[10px] font-bold uppercase text-secondary-foreground/45">Destination</p>
+              <DestinationInput
+                value={to}
+                onChange={setTo}
+                position={position ? { lat: position.lat, lng: position.lng } : null}
+                placeholder="Saisissez un lieu"
+                inputClassName="h-7 border-0 bg-transparent p-0 pl-0 text-sm font-semibold text-secondary-foreground shadow-none placeholder:text-secondary-foreground/35 focus-visible:ring-0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 min-h-5 px-1 text-xs text-secondary-foreground/55">
+          {!position ? geoError ? <span className="text-destructive">Activez la localisation pour continuer</span> : "Recherche de votre position…" : estimating ? (
+            <span className="flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Calcul du meilleur trajet…</span>
+          ) : estimateError ? <span className="text-destructive">{estimateError}</span> : distance && duration ? (
+            <span className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-chart-2" /> {distance} km · {duration} min · {liveDrivers.length} chauffeur(s) autour</span>
+          ) : "Entrez votre destination pour voir les options"}
+        </div>
+
+        <div className="mt-5">
+          <div className="mb-2 flex items-center justify-between px-1">
+            <h2 className="text-xs font-bold uppercase text-secondary-foreground/55">Choisissez votre course</h2>
+            {distance && duration && <span className="text-xs font-semibold text-chart-2">Prix garanti</span>}
+          </div>
+          <div className="space-y-2">
+            {classes.map((c) => {
+              const Icon = c.icon;
+              const active = vehicleClass === c.id;
+              const count = drivers.filter((d) => !d.blocked && d.vehicleClass === c.id).length;
+              const rule = pricingRules?.[vehicleClassToCategory(c.id)] ?? null;
+              const optionFare = rule && distKm && durMin ? Math.ceil(computeDynamicFare(distKm, durMin, rule) / 50) * 50 : null;
+              return (
+                <Button
+                  key={c.id}
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setVehicleClass(c.id)}
+                  className={`h-[68px] w-full justify-start rounded-xl border px-3 text-left ${active ? "border-primary bg-primary/10 hover:bg-primary/15" : "border-secondary-foreground/10 bg-secondary-foreground/[0.04] hover:bg-secondary-foreground/[0.08]"}`}
+                >
+                  <span className={`grid h-11 w-14 shrink-0 place-items-center rounded-lg ${active ? "bg-primary text-primary-foreground" : "bg-secondary-foreground/10 text-secondary-foreground"}`}><Icon className="h-6 w-6" /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-1.5 font-bold text-secondary-foreground">{c.label}{active && <Sparkles className="h-3.5 w-3.5 text-primary" />}</span>
+                    <span className="block truncate text-[11px] font-normal text-secondary-foreground/50">{c.sub} · {count} disponible{count > 1 ? "s" : ""}</span>
+                  </span>
+                  <span className="shrink-0 text-right font-bold text-secondary-foreground">{optionFare ? `${optionFare.toLocaleString("fr-FR")} XAF` : "—"}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-secondary-foreground/10 bg-secondary-foreground/[0.04] px-3 py-2.5">
+          <div className="flex items-center gap-2 text-sm font-semibold"><Banknote className="h-4 w-4 text-primary" /> Paiement en liquide</div>
+          <div className="flex items-center gap-2">
+            <Tag className="h-3.5 w-3.5 text-secondary-foreground/45" />
+            <Input value={promo} onChange={(e) => setPromo(e.target.value.toUpperCase())} placeholder="Code promo" className="h-7 w-24 border-0 bg-transparent p-0 text-right text-xs text-secondary-foreground shadow-none focus-visible:ring-0" />
+          </div>
+        </div>
+        {promo && <p className={`mt-1 px-1 text-[11px] ${promoResult.ok ? "text-chart-2" : "text-destructive"}`}>{promoResult.msg}</p>}
+
+        {!user && (
+          <div className="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
+            <p className="mb-2 text-xs font-semibold text-primary">Première course sans compte</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div><Label className="sr-only">Nom</Label><Input value={guest.name} onChange={(e) => setGuest({ ...guest, name: e.target.value })} placeholder="Votre nom" className="border-secondary-foreground/10 bg-secondary-foreground/5 text-secondary-foreground placeholder:text-secondary-foreground/35" /></div>
+              <div><Label className="sr-only">Téléphone</Label><Input value={guest.phone} onChange={(e) => setGuest({ ...guest, phone: e.target.value })} placeholder="6XX XXX XXX" className="border-secondary-foreground/10 bg-secondary-foreground/5 text-secondary-foreground placeholder:text-secondary-foreground/35" /></div>
+            </div>
+          </div>
         )}
-      </div>
 
-      {destinationCard}
-      {bookingSteps}
+        <Button
+          className="mt-4 h-14 w-full rounded-xl text-base font-extrabold shadow-lg transition-transform active:scale-[0.98]"
+          size="lg"
+          onClick={handleBook}
+          disabled={!to || !distance || !duration || estimating || booking || !position || !pricingRules || finalTotal === 0}
+        >
+          {booking ? <><Loader2 className="animate-spin" /> Recherche du chauffeur…</> : estimating ? "Calcul du prix…" : !position ? "Localisation…" : finalTotal ? `Commander · ${finalTotal.toLocaleString("fr-FR")} XAF` : "Choisir une destination"}
+        </Button>
+        {user && profile && <p className="mt-2 text-center text-[11px] text-secondary-foreground/45">Course pour {profile.name}{profile.phone ? ` · ${profile.phone}` : ""}</p>}
+      </section>
     </div>
   );
 }
