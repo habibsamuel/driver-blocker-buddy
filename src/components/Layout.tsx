@@ -74,6 +74,7 @@ export function Layout() {
 
   const nav = allNav.filter((n) => n.roles.includes(role));
   const current = nav.find((n) => n.to === path) ?? nav[0];
+  const immersiveRide = path === "/course";
 
   useEffect(() => {
     if (path === "/auth") return;
@@ -125,8 +126,13 @@ export function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="sticky top-0 z-40 border-b border-border bg-secondary text-secondary-foreground shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <header className={cn(
+        "z-50 text-secondary-foreground",
+        immersiveRide
+          ? "absolute inset-x-0 top-0 border-0 bg-transparent"
+          : "sticky top-0 border-b border-border bg-secondary shadow-lg",
+      )}>
+        <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4", immersiveRide && "max-w-none")}>
           <Link to="/" className="flex items-center gap-2 group">
             <span className="text-3xl group-hover:scale-110 transition-transform">🚖</span>
             <div className="leading-tight">
@@ -136,7 +142,7 @@ export function Layout() {
           </Link>
 
           <div className="flex items-center gap-2">
-            <InstallButton />
+            {!immersiveRide && <InstallButton />}
             <AuthHeader />
             {role === "admin" && (
               <Badge className="hidden sm:flex bg-primary text-primary-foreground gap-1">
@@ -202,13 +208,13 @@ export function Layout() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-auto">
-        <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full">
+      <main className={cn("flex-1 overflow-auto", immersiveRide && "overflow-hidden")}>
+        <div className={cn("max-w-7xl mx-auto w-full", immersiveRide ? "h-[100dvh] max-w-none" : "p-4 sm:p-6")}>
           <Outlet />
         </div>
       </main>
 
-      <footer className="border-t border-border bg-secondary text-secondary-foreground/70 text-xs py-3 text-center">
+      <footer className={cn("border-t border-border bg-secondary text-secondary-foreground/70 text-xs py-3 text-center", immersiveRide && "hidden")}>
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <span>🚖 TAXI PROXI · DEUS Corporation · Yaoundé, Cameroun</span>
           <Link to="/confidentialite" className="hover:text-primary underline underline-offset-2">

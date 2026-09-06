@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { suggestPlaces, type PlaceSuggestion } from "@/lib/places.functions";
 import { Input } from "@/components/ui/input";
 import { Loader2, MapPin, Navigation } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 /**
  * Champ destination avec suggestions de lieux proches (repères, quartiers, rues)
@@ -14,12 +15,16 @@ export function DestinationInput({
   onSelect,
   position,
   placeholder = "Ex: Aéroport Nsimalen, Bastos, Mvog-Mbi…",
+  className,
+  inputClassName,
 }: {
   value: string;
   onChange: (v: string) => void;
   onSelect?: (v: string) => void;
   position?: { lat: number; lng: number } | null;
   placeholder?: string;
+  className?: string;
+  inputClassName?: string;
 }) {
   const suggest = useServerFn(suggestPlaces);
   const [items, setItems] = useState<PlaceSuggestion[]>([]);
@@ -73,7 +78,7 @@ export function DestinationInput({
   };
 
   return (
-    <div className="relative">
+    <div className={cn("relative", className)}>
       <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary pointer-events-none" />
       <Input
         value={value}
@@ -84,7 +89,7 @@ export function DestinationInput({
         onFocus={() => items.length > 0 && setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder={placeholder}
-        className="pl-9"
+        className={cn("pl-9", inputClassName)}
         autoComplete="off"
       />
       {loading && (
