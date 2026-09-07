@@ -47,7 +47,7 @@ export function RideProgress({
   const sinceLabel = elapsedMin(ride.phaseUpdatedAt ?? ride.createdAt);
 
   return (
-    <div className="rounded-xl border bg-muted/30 p-3 space-y-3">
+    <div className="rounded-xl border border-glass-border bg-muted/30 p-3 space-y-3">
       <div className="flex items-center justify-between text-xs">
         <span className="font-semibold flex items-center gap-1">
           {phase === "arrive" ? <Flag className="h-3.5 w-3.5 text-primary" /> : <Car className="h-3.5 w-3.5 text-primary" />}

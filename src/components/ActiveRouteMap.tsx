@@ -6,7 +6,7 @@ import { useLiveRoute } from "@/hooks/useLiveRoute";
 import type { Ride } from "@/lib/store";
 
 /**
- * Carte d'une course en cours : l'itinéraire vert est recalculé et recadré
+ * Carte d'une course en cours : l'itinéraire jaune est recalculé et recadré
  * automatiquement dès que la position GPS (client ou chauffeur) change,
  * avec le suivi de progression étape par étape.
  */
@@ -41,7 +41,7 @@ export function ActiveRouteMap({
       />
       {ride && <RideProgress ride={ride} remaining={info} canAdvance={canAdvance} />}
       <p className="text-[11px] text-muted-foreground">
-        Itinéraire en direct (tracé en vert) — mis à jour et recadré à chaque déplacement
+        Itinéraire en direct — mis à jour et recadré à chaque déplacement
         {info ? ` · ${info.distanceKm} km · ${info.durationMin} min restants` : ""}
       </p>
     </div>

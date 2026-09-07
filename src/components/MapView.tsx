@@ -132,14 +132,16 @@ export function MapView({
   routePolyline,
   className,
   theme = "dark",
+  recenterSignal = 0,
 }: {
   drivers: LiveDriver[];
   me?: { lat: number; lng: number } | null;
-  /** Encoded polyline of the active trip: drawn in green and framed automatically. */
+  /** Encoded polyline of the active trip: drawn in taxi yellow and framed automatically. */
   routePolyline?: string | null;
   className?: string;
   /** "vivid" = carte claire colorée avec noms de rues et POI bien visibles. */
   theme?: "dark" | "vivid";
+  recenterSignal?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -184,6 +186,12 @@ export function MapView({
     if (!meMarkerRef.current) mapRef.current.panTo(me);
   }, [ready, me?.lat, me?.lng, routePolyline]);
 
+  useEffect(() => {
+    if (!ready || !mapRef.current || !me || routePolyline) return;
+    mapRef.current.panTo(me);
+    mapRef.current.setZoom(15);
+  }, [recenterSignal, ready]);
+
   // Active trip route: green polyline + auto framing
   useEffect(() => {
     if (!ready || !mapRef.current || !window.google) return;
@@ -196,12 +204,12 @@ export function MapView({
     const path = decodePolyline(routePolyline);
     if (path.length < 2) return;
 
-    // Liseré blanc pour un contraste maximal sur la carte claire
+    // Liseré sombre pour un contraste maximal sur la carte
     routeMarkersRef.current.push(
       new window.google.maps.Polyline({
         path,
         map: mapRef.current,
-        strokeColor: "#ffffff",
+        strokeColor: "#171717",
         strokeOpacity: 1,
         strokeWeight: 12,
         geodesic: true,
@@ -212,7 +220,7 @@ export function MapView({
     routeRef.current = new window.google.maps.Polyline({
       path,
       map: mapRef.current,
-      strokeColor: "#22c55e",
+      strokeColor: "#FFC107",
       strokeOpacity: 0.98,
       strokeWeight: 7,
       geodesic: true,
@@ -221,8 +229,8 @@ export function MapView({
 
 
     const endpoints: [{ lat: number; lng: number }, string, string][] = [
-      [path[0], "Départ", "#22c55e"],
-      [path[path.length - 1], "Destination", "#ef4444"],
+      [path[0], "Départ", "#FFC107"],
+      [path[path.length - 1], "Destination", "#FFC107"],
     ];
     endpoints.forEach(([position, title, color]) => {
       routeMarkersRef.current.push(
@@ -265,6 +273,13 @@ export function MapView({
           zIndex: 8,
           icon: taxiIcon(d.heading ?? 0, 1),
           optimized: false,
+          label: {
+            text: `${Math.max(2, Math.min(9, Math.round(Math.abs(d.lat - (me?.lat ?? YAOUNDE.lat)) * 420) + 2))} min`,
+            color: "#FFC107",
+            fontSize: "11px",
+            fontWeight: "700",
+            className: "taxi-map-label",
+          },
         });
         store.set(d.driver_id, { marker, target: pos, current: pos, heading: d.heading ?? 0 });
       } else {
@@ -281,7 +296,7 @@ export function MapView({
         store.delete(id);
       }
     });
-  }, [drivers, ready]);
+  }, [drivers, ready, me?.lat]);
 
   // Boucle d'animation : glissement fluide + pulsation du marqueur taxi
   useEffect(() => {
@@ -323,7 +338,7 @@ export function MapView({
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
           scale: 8,
-          fillColor: "#3b82f6",
+          fillColor: "#FFC107",
           fillOpacity: 1,
           strokeColor: "#fff",
           strokeWeight: 3,
@@ -337,7 +352,7 @@ export function MapView({
   if (error) {
     return (
       <div className={className}>
-        <div className="h-full w-full flex items-center justify-center bg-zinc-900 text-zinc-400 text-sm rounded-2xl">
+        <div className="h-full w-full flex items-center justify-center bg-secondary text-muted-foreground text-sm">
           Carte indisponible: {error}
         </div>
       </div>
@@ -346,7 +361,7 @@ export function MapView({
 
   return (
     <div className={className}>
-      <div ref={ref} className="h-full w-full rounded-2xl overflow-hidden" />
+      <div ref={ref} className="h-full w-full overflow-hidden" />
     </div>
   );
 }
