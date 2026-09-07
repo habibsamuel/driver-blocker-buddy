@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Star, Clock, Car } from "lucide-react";
+import { Phone, Star, Clock, Car, ShieldCheck } from "lucide-react";
 
 const COLORS = [
   { name: "Blanc", hex: "#f8fafc" },
@@ -54,7 +54,7 @@ export function DriverInfoCard({
   const label = colorName ?? color.name;
 
   return (
-    <div className="rounded-2xl border-2 border-primary/40 bg-card p-4 shadow-lg space-y-4">
+    <div className="rounded-2xl border border-glass-border bg-card p-4 shadow-xl space-y-4">
       <div className="flex items-center gap-3">
         {photoUrl ? (
           <img
@@ -70,6 +70,9 @@ export function DriverInfoCard({
         )}
         <div className="min-w-0 flex-1">
           <p className="font-bold text-lg leading-tight truncate">{name}</p>
+          <p className="mt-1 flex items-center gap-1 text-[10px] font-bold uppercase text-primary">
+            <ShieldCheck className="h-3 w-3" /> Certifié CUY
+          </p>
           {typeof rating === "number" && rating > 0 && (
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <Star className="h-3 w-3 fill-primary text-primary" /> {rating.toFixed(1)}
@@ -94,9 +97,9 @@ export function DriverInfoCard({
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-xl bg-muted/50 p-3">
+        <div className="rounded-xl border border-primary/30 bg-secondary p-3">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Immatriculation</p>
-          <p className="font-mono font-bold text-base tracking-widest">{plate ?? "—"}</p>
+          <p className="font-mono font-bold text-base text-primary">CM · {plate ?? "—"}</p>
         </div>
         <div className="rounded-xl bg-primary/10 border border-primary/30 p-3">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">

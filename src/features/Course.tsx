@@ -20,12 +20,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Car, Crown, Bike, Tag, Loader2, MapPin, Navigation, ShieldCheck, LogIn, Locate, Banknote, Check, Sparkles } from "lucide-react";
+import { Car, Crown, Bike, Tag, Loader2, ShieldCheck, LogIn, Locate, Banknote, Check, Sparkles, Search, Pencil, Clock3, Route as RouteIcon } from "lucide-react";
 
 const classes: { id: VehicleClass; label: string; sub: string; icon: any }[] = [
-  { id: "moto", label: "Bend-Skin", sub: "Moto-taxi · rapide", icon: Bike },
-  { id: "eco", label: "Éco", sub: "Voiture standard", icon: Car },
-  { id: "confort", label: "Confort", sub: "Berline climatisée", icon: Crown },
+  { id: "moto", label: "Moto Proxi", sub: "Rapide dans le trafic", icon: Bike },
+  { id: "eco", label: "Taxi Standard", sub: "Le taxi jaune du quotidien", icon: Car },
+  { id: "confort", label: "Taxi Proxi Confort", sub: "Berline privée et climatisée", icon: Crown },
 ];
 
 const GUEST_RIDE_KEY = "taxi-proxi-guest-ride-used";
@@ -62,6 +62,7 @@ export function Course() {
   }>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [searchingDrivers, setSearchingDrivers] = useState(0);
+  const [recenterSignal, setRecenterSignal] = useState(0);
 
   // Suivi temps réel de la demande envoyée aux chauffeurs proches
   useEffect(() => {
@@ -323,16 +324,16 @@ export function Course() {
             me={position ? { lat: position.lat, lng: position.lng } : null}
             routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
             className="h-full w-full"
-            theme="vivid"
+            theme="dark"
           />
-          <div className="absolute top-3 left-3 right-3 rounded-2xl bg-background/90 backdrop-blur px-4 py-2.5 shadow-lg flex items-center gap-2">
+          <div className="liquid-glass absolute top-4 left-4 right-4 rounded-2xl px-4 py-3 flex items-center gap-2 animate-glass-condense">
             <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
             <div className="min-w-0">
               <p className="font-bold text-sm leading-tight">Course confirmée 🚖</p>
               <p className="text-[11px] text-muted-foreground truncate">Vers {to}</p>
             </div>
           </div>
-          <div className="absolute bottom-3 left-3 right-3 rounded-2xl border-2 border-primary bg-background/95 backdrop-blur px-4 py-3 shadow-lg flex items-center gap-3">
+          <div className="liquid-glass absolute bottom-3 left-3 right-3 rounded-2xl px-4 py-3 flex items-center gap-3">
             <span className="relative flex h-3 w-3 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-70" />
               <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
@@ -357,7 +358,7 @@ export function Course() {
 
 
         {/* Fiche chauffeur en bas d'écran */}
-        <div className="max-h-[62vh] overflow-y-auto border-t bg-background p-3 space-y-3 pb-6">
+        <div className="max-h-[62vh] overflow-y-auto rounded-t-[24px] border-t border-glass-border bg-card p-3 space-y-3 pb-6">
           {confirmedRide && <RideProgress ride={confirmedRide} remaining={liveRoute.info} />}
 
           <DriverInfoCard
@@ -396,41 +397,65 @@ export function Course() {
         me={position ? { lat: position.lat, lng: position.lng } : null}
         routePolyline={routePolyline}
         className="absolute inset-0 h-full w-full"
-        theme="vivid"
+        theme="dark"
+        recenterSignal={recenterSignal}
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-secondary/55 via-transparent to-secondary/75" />
+      <div className="pointer-events-none absolute inset-0 bg-secondary/40" />
 
-      <section className="absolute inset-x-0 bottom-0 z-20 max-h-[77dvh] overflow-y-auto rounded-t-[28px] border-t border-secondary-foreground/10 bg-secondary/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl backdrop-blur-xl md:bottom-5 md:left-5 md:right-auto md:top-20 md:max-h-[calc(100dvh-6.25rem)] md:w-[420px] md:rounded-2xl md:border">
-        <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-secondary-foreground/20 md:hidden" />
-        <div className="mb-5">
-          <p className="text-[11px] font-bold uppercase text-primary">Votre trajet</p>
-          <h1 className="mt-1 text-2xl font-bold">Où allez-vous ?</h1>
-        </div>
+      <Button
+        type="button"
+        size="icon"
+        onClick={() => setRecenterSignal((value) => value + 1)}
+        aria-label="Recentrer sur ma position"
+        title="Recentrer sur ma position"
+        className="liquid-glass absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-30 h-12 w-12 rounded-full text-primary hover:bg-primary/15"
+      >
+        <Locate className="h-5 w-5" />
+      </Button>
 
-        <div className="relative rounded-2xl border border-secondary-foreground/10 bg-secondary-foreground/5 p-4">
-          <div className="absolute bottom-8 left-[25px] top-8 w-px bg-gradient-to-b from-primary to-chart-2" />
-          <div className="relative flex items-center gap-3 border-b border-secondary-foreground/10 pb-3">
-            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 border-primary bg-secondary"><span className="h-1.5 w-1.5 rounded-full bg-primary" /></span>
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase text-secondary-foreground/45">Départ</p>
-              <p className="truncate text-sm font-semibold">{position ? "Votre position actuelle" : "Localisation en cours…"}</p>
-            </div>
-            <Locate className={`ml-auto h-4 w-4 shrink-0 ${position ? "text-chart-2" : "animate-pulse text-secondary-foreground/40"}`} />
-          </div>
-          <div className="relative flex items-center gap-3 pt-3">
-            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-[5px] border-2 border-chart-2 bg-secondary"><span className="h-1.5 w-1.5 rounded-[2px] bg-chart-2" /></span>
-            <div className="min-w-0 flex-1">
-              <p className="mb-0.5 text-[10px] font-bold uppercase text-secondary-foreground/45">Destination</p>
-              <DestinationInput
-                value={to}
-                onChange={setTo}
-                position={position ? { lat: position.lat, lng: position.lng } : null}
-                placeholder="Saisissez un lieu"
-                inputClassName="h-7 border-0 bg-transparent p-0 pl-0 text-sm font-semibold text-secondary-foreground shadow-none placeholder:text-secondary-foreground/35 focus-visible:ring-0"
-              />
-            </div>
-          </div>
+      {distance && duration && (
+        <div className="liquid-glass animate-glass-condense absolute left-4 right-20 top-[max(1rem,env(safe-area-inset-top))] z-20 flex min-h-12 items-center gap-3 rounded-2xl px-4">
+          <Clock3 className="h-4 w-4 text-primary" />
+          <strong className="text-sm">{duration} min <span className="font-normal text-muted-foreground">({distance} km)</span></strong>
+          <span className="ml-auto text-xs font-semibold text-primary">Trafic modéré</span>
         </div>
+      )}
+
+      <section className={`absolute inset-x-0 bottom-0 z-20 px-3 pb-[max(.75rem,env(safe-area-inset-bottom))] transition-all duration-500 ${to.trim().length < 2 ? "translate-y-0" : "md:bottom-4 md:left-4 md:right-auto md:w-[430px]"}`}>
+        <div className={`liquid-glass transition-all duration-500 ${to.trim().length < 2 ? "rounded-full p-2" : "max-h-[70dvh] overflow-y-auto rounded-[24px] p-4"}`}>
+          {to.trim().length >= 2 && <div className="mx-auto mb-3 h-1 w-11 rounded-full bg-muted-foreground/35" />}
+
+          <div className={to.trim().length < 2 ? "" : "rounded-2xl border border-glass-border bg-secondary/45 p-3"}>
+            {to.trim().length >= 2 && (
+              <div className="mb-3 flex items-center gap-3 border-b border-glass-border pb-3">
+                <span className="relative grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 border-primary"><span className="h-2 w-2 rounded-full bg-primary" /><span className="absolute h-5 w-5 animate-ping rounded-full border border-primary/60" /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-bold uppercase text-muted-foreground">Départ</p>
+                  <p className="truncate text-sm font-semibold">{position ? "Votre position actuelle" : "Localisation en cours…"}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              {to.trim().length < 2 ? <Search className="ml-2 h-5 w-5 shrink-0 text-primary" /> : <span className="grid h-5 w-5 shrink-0 place-items-center rounded-[5px] border-2 border-primary"><span className="h-2 w-2 rounded-sm bg-primary" /></span>}
+              <div className="min-w-0 flex-1">
+                {to.trim().length >= 2 && <p className="text-[10px] font-bold uppercase text-muted-foreground">Destination</p>}
+                <DestinationInput
+                  value={to}
+                  onChange={setTo}
+                  position={position ? { lat: position.lat, lng: position.lng } : null}
+                  placeholder="Où allez-vous ?"
+                  inputClassName="h-11 border-0 bg-transparent p-0 text-[15px] font-semibold text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+                />
+              </div>
+              {to.trim().length >= 2 && <Pencil className="h-4 w-4 shrink-0 text-primary" />}
+            </div>
+          </div>
+
+          {to.trim().length < 2 && (
+            <p className="sr-only">Les taxis jaunes visibles sur la carte sont disponibles autour de vous.</p>
+          )}
+
+          {to.trim().length >= 2 && <>
 
         <div className="mt-3 min-h-5 px-1 text-xs text-secondary-foreground/55">
           {!position ? geoError ? <span className="text-destructive">Activez la localisation pour continuer</span> : "Recherche de votre position…" : estimating ? (
@@ -442,8 +467,8 @@ export function Course() {
 
         <div className="mt-5">
           <div className="mb-2 flex items-center justify-between px-1">
-            <h2 className="text-xs font-bold uppercase text-secondary-foreground/55">Choisissez votre course</h2>
-            {distance && duration && <span className="text-xs font-semibold text-chart-2">Prix garanti</span>}
+            <h2 className="text-xs font-bold uppercase text-secondary-foreground/55">Choisissez votre véhicule</h2>
+            {distance && duration && <span className="text-xs font-semibold text-primary">Prix estimé</span>}
           </div>
           <div className="space-y-2">
             {classes.map((c) => {
@@ -458,14 +483,14 @@ export function Course() {
                   type="button"
                   variant="ghost"
                   onClick={() => setVehicleClass(c.id)}
-                  className={`h-[68px] w-full justify-start rounded-xl border px-3 text-left ${active ? "border-primary bg-primary/10 hover:bg-primary/15" : "border-secondary-foreground/10 bg-secondary-foreground/[0.04] hover:bg-secondary-foreground/[0.08]"}`}
+                  className={`relative h-[72px] w-full justify-start rounded-xl border px-3 text-left ${active ? "border-primary bg-primary/10 hover:bg-primary/15" : "border-secondary-foreground/10 bg-secondary-foreground/[0.04] hover:bg-secondary-foreground/[0.08]"}`}
                 >
                   <span className={`grid h-11 w-14 shrink-0 place-items-center rounded-lg ${active ? "bg-primary text-primary-foreground" : "bg-secondary-foreground/10 text-secondary-foreground"}`}><Icon className="h-6 w-6" /></span>
                   <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1.5 font-bold text-secondary-foreground">{c.label}{active && <Sparkles className="h-3.5 w-3.5 text-primary" />}</span>
+                    <span className="flex items-center gap-1.5 font-bold text-secondary-foreground">{c.label}{c.id === "eco" && <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-black uppercase text-primary-foreground">Populaire</span>}{active && <Sparkles className="h-3.5 w-3.5 text-primary" />}</span>
                     <span className="block truncate text-[11px] font-normal text-secondary-foreground/50">{c.sub} · {count} disponible{count > 1 ? "s" : ""}</span>
                   </span>
-                  <span className="shrink-0 text-right font-bold text-secondary-foreground">{optionFare ? `${optionFare.toLocaleString("fr-FR")} XAF` : "—"}</span>
+                   <span className="shrink-0 text-right font-extrabold text-primary">{optionFare ? `${optionFare.toLocaleString("fr-FR")} FCFA` : "—"}</span>
                 </Button>
               );
             })}
@@ -473,7 +498,7 @@ export function Course() {
         </div>
 
         <div className="mt-4 flex items-center justify-between rounded-xl border border-secondary-foreground/10 bg-secondary-foreground/[0.04] px-3 py-2.5">
-          <div className="flex items-center gap-2 text-sm font-semibold"><Banknote className="h-4 w-4 text-primary" /> Paiement en liquide</div>
+          <div className="flex items-center gap-2 text-sm font-semibold"><Banknote className="h-4 w-4 text-primary" /> Espèces</div>
           <div className="flex items-center gap-2">
             <Tag className="h-3.5 w-3.5 text-secondary-foreground/45" />
             <Input value={promo} onChange={(e) => setPromo(e.target.value.toUpperCase())} placeholder="Code promo" className="h-7 w-24 border-0 bg-transparent p-0 text-right text-xs text-secondary-foreground shadow-none focus-visible:ring-0" />
@@ -497,9 +522,11 @@ export function Course() {
           onClick={handleBook}
           disabled={!to || !distance || !duration || estimating || booking || !position || !pricingRules || finalTotal === 0}
         >
-          {booking ? <><Loader2 className="animate-spin" /> Recherche du chauffeur…</> : estimating ? "Calcul du prix…" : !position ? "Localisation…" : finalTotal ? `Commander · ${finalTotal.toLocaleString("fr-FR")} XAF` : "Choisir une destination"}
+          {booking ? <><Loader2 className="animate-spin" /> Recherche du chauffeur…</> : estimating ? "Calcul du prix…" : !position ? "Localisation…" : finalTotal ? `Commander · ${finalTotal.toLocaleString("fr-FR")} FCFA` : "Choisir une destination"}
         </Button>
         {user && profile && <p className="mt-2 text-center text-[11px] text-secondary-foreground/45">Course pour {profile.name}{profile.phone ? ` · ${profile.phone}` : ""}</p>}
+          </>}
+        </div>
       </section>
     </div>
   );
