@@ -129,7 +129,7 @@ export function Layout() {
       <header className={cn(
         "z-50 text-secondary-foreground",
         immersiveRide
-          ? "absolute inset-x-0 top-0 border-0 bg-transparent"
+          ? "hidden"
           : "sticky top-0 border-b border-border bg-secondary shadow-lg",
       )}>
         <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4", immersiveRide && "max-w-none")}>
