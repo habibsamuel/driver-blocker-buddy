@@ -13,18 +13,18 @@ export function Paiements() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Paiements</h1>
-        <p className="text-muted-foreground">Suivi financier des courses</p>
+        <h1 className="text-3xl font-black tracking-tight">Paiements</h1>
+        <p className="text-sm text-muted-foreground">Suivi financier des courses · paiement en liquide</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground uppercase">Encaissé</p><p className="text-2xl font-bold text-green-600">{paid.toLocaleString()} XAF</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground uppercase">En attente</p><p className="text-2xl font-bold text-amber-600">{pending.toLocaleString()} XAF</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground uppercase">Total courses</p><p className="text-2xl font-bold">{rides.length}</p></CardContent></Card>
+        <Card className="liquid-glass animate-glass-condense border-0"><CardContent className="pt-6"><p className="text-[11px] text-muted-foreground uppercase tracking-widest">Encaissé</p><p className="text-2xl font-black text-success">{paid.toLocaleString()} XAF</p></CardContent></Card>
+        <Card className="liquid-glass animate-glass-condense border-0"><CardContent className="pt-6"><p className="text-[11px] text-muted-foreground uppercase tracking-widest">En attente</p><p className="text-2xl font-black text-primary">{pending.toLocaleString()} XAF</p></CardContent></Card>
+        <Card className="liquid-glass animate-glass-condense border-0"><CardContent className="pt-6"><p className="text-[11px] text-muted-foreground uppercase tracking-widest">Total courses</p><p className="text-2xl font-black">{rides.length}</p></CardContent></Card>
       </div>
 
-      <Card>
-        <CardHeader><CardTitle>Historique des courses</CardTitle></CardHeader>
+      <Card className="liquid-glass border-0">
+        <CardHeader><CardTitle className="text-base">Historique des courses</CardTitle></CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -49,10 +49,10 @@ export function Paiements() {
                     <TableCell>{d?.name || "—"}</TableCell>
                     <TableCell>{c?.name || "—"}</TableCell>
                     <TableCell className="text-xs">{r.from} → {r.to}</TableCell>
-                    <TableCell className="text-right font-medium">{r.total} XAF</TableCell>
-                    <TableCell>{r.paid ? <Badge className="bg-green-600 hover:bg-green-600">Payé</Badge> : <Badge variant="outline">En attente</Badge>}</TableCell>
+                    <TableCell className="text-right font-bold">{r.total} XAF</TableCell>
+                    <TableCell>{r.paid ? <Badge className="bg-success text-success-foreground hover:bg-success">Payé</Badge> : <Badge variant="outline">En attente</Badge>}</TableCell>
                     <TableCell className="text-right">
-                      {!r.paid && <Button size="sm" onClick={()=>{markRidePaid(r.id);toast.success("Paiement confirmé");}}>Marquer payé</Button>}
+                      {!r.paid && <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold" onClick={()=>{markRidePaid(r.id);toast.success("Paiement confirmé");}}>Marquer payé</Button>}
                     </TableCell>
                   </TableRow>
                 );
