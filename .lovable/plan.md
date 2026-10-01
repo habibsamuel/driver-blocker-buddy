@@ -1,60 +1,24 @@
-# Système de parrainage — Taxi Proxi
+# Refonte UI/UX mobile TAXI PROXI
 
 ## Objectif
-Chaque client reçoit un **code de parrainage unique** (ex: `TAXI-A3F9K2`). Il peut le partager. Quand un nouveau client s'inscrit avec ce code, les deux gagnent une récompense (ex: 500 XAF de crédit ou 1 course offerte).
+Créer un parcours mobile fluide et premium pour les taxis jaunes conventionnels de Yaoundé, en conservant la carte Google en couleurs naturelles, le jaune/noir TAXI PROXI et toutes les fonctions de course existantes.
 
-## 1. Base de données (migration)
+## Ce qui sera construit
+- Recomposer l’écran de réservation autour d’une carte plein écran et de panneaux en verre liquide, adaptés au téléphone.
+- Décliner les six états du document dans le parcours réel : recherche, chauffeur assigné/arrivé, course, suivi étendu, détails chauffeur et course terminée.
+- Faire évoluer automatiquement l’interface selon l’étape réelle de la course, sans modifier le calcul du prix, l’affectation, le suivi GPS ou le paiement en espèces.
+- Ajouter des illustrations Microsoft Fluent Emoji 3D réalistes pour le taxi, le chauffeur, la position, la sécurité et la confirmation, avec un usage mesuré et cohérent.
+- Afficher les informations locales demandées : FCFA, plaques camerounaises, badge CUY, quartiers de Yaoundé, itinéraire jaune et repères de trajet.
+- Ajouter les actions utiles aux bons moments : appel, partage, position en direct, détails chauffeur, annulation et retour à l’accueil.
 
-**Nouvelle colonne sur `profiles`:**
-- `referral_code text unique` — généré automatiquement à la création du profil
-- `referred_by uuid` — id du parrain (nullable, immuable après set)
-- `referral_credit int not null default 0` — crédit gagné en XAF
-
-**Nouvelle table `referrals`** (historique/audit) :
-- `id uuid pk`
-- `referrer_id uuid` (parrain)
-- `referee_id uuid unique` (filleul — un client ne peut être parrainé qu'une fois)
-- `code_used text`
-- `reward_amount int` (ex: 500)
-- `created_at timestamptz`
-
-**Fonctions/triggers :**
-- `generate_referral_code()` — génère `TAXI-XXXXXX` unique
-- Modifier `handle_new_user()` pour :
-  1. Générer un code de parrainage
-  2. Lire `raw_user_meta_data->>'referral_code'` (code saisi à l'inscription)
-  3. Résoudre le parrain, créer la ligne `referrals`, créditer les deux profils
-- RLS + GRANT selon les règles du projet
-
-## 2. Frontend
-
-**`src/routes/auth.tsx`** — ajouter un champ optionnel "Code de parrainage" au formulaire d'inscription, envoyé via `options.data.referral_code`.
-
-**Nouvel écran `src/features/Parrainage.tsx`** (route `/parrainage`) accessible depuis le menu client :
-- Affiche le code du client avec bouton "Copier"
-- Bouton "Partager" (Web Share API + fallback WhatsApp)
-- Compteur : nombre de filleuls + crédit total gagné
-- Liste des filleuls (nom masqué : `Jean D.`)
-- Explication : "Invitez un ami, gagnez 500 XAF chacun à sa première course"
-
-**`src/components/Layout.tsx`** — ajouter l'entrée "Parrainage" dans la navigation client.
-
-## 3. Récompense (choix)
-Deux options — je prends la 1re par défaut sauf si vous préférez la 2e :
-1. **Crédit affiché** : `referral_credit` s'accumule, affiché comme "solde parrainage" (aucune intégration paiement nécessaire tout de suite)
-2. **Course offerte** : flag `free_ride_available` déduit lors de la prochaine réservation
+## Direction visuelle
+- Noir profond et anthracite pour les panneaux, jaune taxi pour les actions et l’itinéraire, vert uniquement pour confirmer.
+- Carte Google standard en couleurs naturelles, toujours dominante et automatiquement recadrée.
+- Verre liquide lisible, ombres douces, coins généreux et mouvements courts respectant la réduction des animations.
+- Sora pour les titres et Manrope pour le texte.
 
 ## Détails techniques
-- Code format `TAXI-` + 6 chars base32 (Crockford, sans I/O/0/1) — lisible et sans ambiguïté
-- Anti-auto-parrainage : trigger vérifie `referrer_id != referee_id`
-- Anti-cumul : `referee_id unique` sur `referrals`
-- Génération code : boucle avec retry sur collision (extrêmement rare)
-- RLS : le client voit uniquement ses propres filleuls via `referrer_id = auth.uid()`
-
-## Ce que je vais livrer
-1. Migration SQL (colonnes, table, trigger modifié, RLS, GRANTs)
-2. Champ code parrainage dans `/auth` (inscription)
-3. Page `/parrainage` avec code, partage, statistiques
-4. Entrée menu
-
-Voulez-vous que je parte sur la **récompense en crédit (option 1)** et que j'implémente maintenant ?
+- Intégrer les emojis Fluent 3D comme ressources locales pour préserver le fonctionnement hors connexion.
+- Étendre les composants de suivi et de fiche chauffeur au lieu de dupliquer la logique métier.
+- Garder les boutons du système existant et les couleurs sémantiques du thème.
+- Vérifier les états mobile et bureau, les interactions, les erreurs d’exécution et la compilation après la refonte.
