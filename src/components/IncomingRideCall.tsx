@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Phone, PhoneOff, MapPin, Navigation } from "lucide-react";
 import type { RingingOffer } from "@/hooks/useDriverOffers";
+import { FluentEmoji } from "@/components/FluentEmoji";
+import { Button } from "@/components/ui/button";
 
 /**
  * Écran d'appel entrant plein écran (style WhatsApp/FaceTime) affiché au
@@ -34,9 +36,7 @@ export function IncomingRideCall({
     <div className="fixed inset-0 z-[60] flex flex-col items-center justify-between bg-foreground/95 px-6 py-10 text-background">
       <div className="text-center space-y-2">
         <p className="text-sm uppercase tracking-[0.3em] opacity-70">Nouvelle course</p>
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary text-4xl">
-          🚖
-        </div>
+        <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/30"><FluentEmoji name="oncoming-taxi" className="h-24 w-24 animate-taxi-breathe" /></div>
         <p className="text-2xl font-bold">{offer.clientName}</p>
         <p className="text-sm opacity-80 flex items-center justify-center gap-1">
           <MapPin className="h-4 w-4" /> à {offer.distanceKm} km de vous
@@ -71,26 +71,27 @@ export function IncomingRideCall({
       </div>
 
       <div className="flex w-full max-w-sm items-center justify-around">
-        <button
+        <Button
           type="button"
           onClick={onDecline}
           disabled={busy}
           aria-label="Refuser la course"
-          className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-full bg-destructive text-destructive-foreground shadow-2xl active:scale-95 disabled:opacity-60"
+          variant="destructive"
+          className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-full shadow-2xl active:scale-95 disabled:opacity-60"
         >
           <PhoneOff className="h-9 w-9" />
           <span className="text-xs font-bold">REFUSER</span>
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           onClick={onAccept}
           disabled={busy}
           aria-label="Accepter la course"
-          className="flex h-28 w-28 animate-pulse flex-col items-center justify-center gap-1 rounded-full bg-green-600 text-white shadow-2xl active:scale-95 disabled:opacity-60"
+          className="flex h-28 w-28 animate-pulse flex-col items-center justify-center gap-1 rounded-full bg-success text-success-foreground shadow-2xl active:scale-95 disabled:opacity-60"
         >
           <Phone className="h-10 w-10" />
           <span className="text-xs font-bold">ACCEPTER</span>
-        </button>
+        </Button>
       </div>
     </div>
   );

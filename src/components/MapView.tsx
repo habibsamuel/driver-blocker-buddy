@@ -131,7 +131,7 @@ export function MapView({
   me,
   routePolyline,
   className,
-  theme = "dark",
+  theme = "standard",
   recenterSignal = 0,
 }: {
   drivers: LiveDriver[];
@@ -139,8 +139,8 @@ export function MapView({
   /** Encoded polyline of the active trip: drawn in taxi yellow and framed automatically. */
   routePolyline?: string | null;
   className?: string;
-  /** "vivid" = carte claire colorée avec noms de rues et POI bien visibles. */
-  theme?: "dark" | "vivid";
+  /** "standard" conserve les couleurs naturelles de Google Maps. */
+  theme?: "dark" | "vivid" | "standard";
   recenterSignal?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -163,7 +163,7 @@ export function MapView({
           disableDefaultUI: true,
           zoomControl: true,
           gestureHandling: "greedy",
-          styles: theme === "vivid" ? VIVID_STYLE : DARK_STYLE,
+          styles: theme === "standard" ? undefined : theme === "vivid" ? VIVID_STYLE : DARK_STYLE,
         });
         setReady(true);
       })
@@ -176,7 +176,7 @@ export function MapView({
   // Changement de thème à chaud
   useEffect(() => {
     if (!ready || !mapRef.current) return;
-    mapRef.current.setOptions({ styles: theme === "vivid" ? VIVID_STYLE : DARK_STYLE });
+    mapRef.current.setOptions({ styles: theme === "standard" ? undefined : theme === "vivid" ? VIVID_STYLE : DARK_STYLE });
   }, [theme, ready]);
 
 
@@ -192,7 +192,7 @@ export function MapView({
     mapRef.current.setZoom(15);
   }, [recenterSignal, ready]);
 
-  // Active trip route: green polyline + auto framing
+  // Active trip route: taxi-yellow polyline + auto framing
   useEffect(() => {
     if (!ready || !mapRef.current || !window.google) return;
     routeRef.current?.setMap(null);

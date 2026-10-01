@@ -66,6 +66,7 @@
   --color-glass: var(--glass);
   --color-glass-border: var(--glass-border);
   --color-map-route: var(--map-route);
+  --background-image-map-fade: linear-gradient(to bottom, oklch(0.075 0 0 / 72%), transparent);
 }
 
 :root {
@@ -173,7 +174,14 @@
   background: linear-gradient(180deg, color-mix(in oklab, white 9%, transparent), transparent 32%), var(--glass);
   box-shadow: 0 18px 52px oklch(0 0 0 / 38%), inset 0 1px 0 oklch(1 0 0 / 12%);
   backdrop-filter: blur(22px) saturate(145%);
-  -webkit-backdrop-filter: blur(22px) saturate(145%);
+}
+
+@utility taxi-map-label {
+  border: 1px solid oklch(0.84 0.17 88 / 48%);
+  border-radius: 999px;
+  background: oklch(0.075 0 0 / 88%);
+  padding: 3px 7px;
+  box-shadow: 0 8px 20px oklch(0 0 0 / 35%);
 }
 
 @keyframes glass-condense {

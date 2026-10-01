@@ -14,6 +14,8 @@ import { MapView } from "@/components/MapView";
 import { RideProgress } from "@/components/RideProgress";
 import { DestinationInput } from "@/components/DestinationInput";
 import { DriverInfoCard } from "@/components/DriverInfoCard";
+import { RideExperience } from "@/components/RideExperience";
+import { FluentEmoji } from "@/components/FluentEmoji";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -316,76 +318,24 @@ export function Course() {
 
   if (confirmed) {
     return (
-      <div className="fixed inset-0 z-40 bg-background flex flex-col">
-        {/* Carte plein écran, colorée et lisible */}
-        <div className="relative flex-1 min-h-0">
-          <MapView
-            drivers={liveDrivers}
-            me={position ? { lat: position.lat, lng: position.lng } : null}
-            routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
-            className="h-full w-full"
-            theme="dark"
-          />
-          <div className="liquid-glass absolute top-4 left-4 right-4 rounded-2xl px-4 py-3 flex items-center gap-2 animate-glass-condense">
-            <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
-            <div className="min-w-0">
-              <p className="font-bold text-sm leading-tight">Course confirmée 🚖</p>
-              <p className="text-[11px] text-muted-foreground truncate">Vers {to}</p>
-            </div>
-          </div>
-          <div className="liquid-glass absolute bottom-3 left-3 right-3 rounded-2xl px-4 py-3 flex items-center gap-3">
-            <span className="relative flex h-3 w-3 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-70" />
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-bold leading-tight">
-                {etaMin === null
-                  ? "Recherche du taxi le plus proche…"
-                  : etaMin <= 1
-                    ? "Votre taxi est arrivé 🚖"
-                    : `Votre taxi arrive dans ${etaMin} min`}
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                {requestId && searchingDrivers > 0
-                  ? `${searchingDrivers} chauffeur(s) sonnent — le premier qui accepte vient vous chercher`
-                  : "Suivez le marqueur taxi jaune animé sur la carte"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-
-
-        {/* Fiche chauffeur en bas d'écran */}
-        <div className="max-h-[62vh] overflow-y-auto rounded-t-[24px] border-t border-glass-border bg-card p-3 space-y-3 pb-6">
-          {confirmedRide && <RideProgress ride={confirmedRide} remaining={liveRoute.info} />}
-
-          <DriverInfoCard
-            name={confirmed.driverName}
-            phone={confirmed.driverPhone}
-            plate={confirmed.plate}
-            vehicle={confirmed.vehicle}
-            rating={confirmed.rating}
-            etaMin={etaMin}
-          />
-
-          <div className="rounded-2xl bg-primary/10 border-2 border-primary p-4 text-center">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Code PIN de départ</p>
-            <p className="text-4xl font-black tracking-[0.4em] text-primary">{confirmed.startPin}</p>
-            <p className="text-xs text-muted-foreground mt-1">Communiquez ce code au chauffeur à son arrivée</p>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Total à payer en liquide</span>
-            <span className="font-bold text-lg text-primary">{confirmed.total} XAF</span>
-          </div>
-
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex-1" onClick={reset}>Nouvelle course</Button>
-            <Link to="/historique" className="flex-1"><Button className="w-full">Voir l'historique</Button></Link>
-          </div>
-        </div>
-      </div>
+      <RideExperience
+        confirmed={confirmed}
+        ride={confirmedRide}
+        destination={to}
+        position={position}
+        drivers={liveDrivers}
+        routePolyline={liveRoute.polyline ?? confirmed.routePolyline}
+        remaining={liveRoute.info}
+        etaMin={etaMin}
+        requestId={requestId}
+        searchingDrivers={searchingDrivers}
+        onReset={reset}
+        onCancel={() => {
+          if (confirmedRide) useStore.getState().cancelRide(confirmedRide.id);
+          reset();
+          toast.success("Course annulée");
+        }}
+      />
 
     );
   }
@@ -397,10 +347,9 @@ export function Course() {
         me={position ? { lat: position.lat, lng: position.lng } : null}
         routePolyline={routePolyline}
         className="absolute inset-0 h-full w-full"
-        theme="dark"
+        theme="standard"
         recenterSignal={recenterSignal}
       />
-      <div className="pointer-events-none absolute inset-0 bg-secondary/40" />
 
       <Button
         type="button"
@@ -436,7 +385,7 @@ export function Course() {
               </div>
             )}
             <div className="flex items-center gap-3">
-              {to.trim().length < 2 ? <Search className="ml-2 h-5 w-5 shrink-0 text-primary" /> : <span className="grid h-5 w-5 shrink-0 place-items-center rounded-[5px] border-2 border-primary"><span className="h-2 w-2 rounded-sm bg-primary" /></span>}
+               {to.trim().length < 2 ? <FluentEmoji name="pin" className="ml-1 h-9 w-9 shrink-0" /> : <FluentEmoji name="pin" className="h-8 w-8 shrink-0" />}
               <div className="min-w-0 flex-1">
                 {to.trim().length >= 2 && <p className="text-[10px] font-bold uppercase text-muted-foreground">Destination</p>}
                 <DestinationInput
@@ -485,7 +434,7 @@ export function Course() {
                   onClick={() => setVehicleClass(c.id)}
                   className={`relative h-[72px] w-full justify-start rounded-xl border px-3 text-left ${active ? "border-primary bg-primary/10 hover:bg-primary/15" : "border-secondary-foreground/10 bg-secondary-foreground/[0.04] hover:bg-secondary-foreground/[0.08]"}`}
                 >
-                  <span className={`grid h-11 w-14 shrink-0 place-items-center rounded-lg ${active ? "bg-primary text-primary-foreground" : "bg-secondary-foreground/10 text-secondary-foreground"}`}><Icon className="h-6 w-6" /></span>
+                   <span className={`grid h-11 w-14 shrink-0 place-items-center rounded-lg ${active ? "bg-primary/12" : "bg-secondary-foreground/10"}`}>{c.id === "eco" ? <FluentEmoji name="taxi" className="h-11 w-11" /> : <Icon className={`h-6 w-6 ${active ? "text-primary" : "text-secondary-foreground"}`} />}</span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1.5 font-bold text-secondary-foreground">{c.label}{c.id === "eco" && <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-black uppercase text-primary-foreground">Populaire</span>}{active && <Sparkles className="h-3.5 w-3.5 text-primary" />}</span>
                     <span className="block truncate text-[11px] font-normal text-secondary-foreground/50">{c.sub} · {count} disponible{count > 1 ? "s" : ""}</span>
