@@ -1,11 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { Landing } from "@/features/Landing";
-import { useAuth } from "@/hooks/useAuth";
-
+import { createFileRoute } from "@tanstack/react-router";
+import { TaxiHome } from "@/features/TaxiHome";
 
 export const Route = createFileRoute("/")({
-  component: Home,
+  component: TaxiHome,
   head: () => ({
     meta: [
       { title: "Taxi Proxi — Réservez votre taxi à Yaoundé" },
@@ -22,6 +19,7 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:url", content: "https://taxiproxicamer.lovable.app/" },
       { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://taxiproxicamer.lovable.app/" }],
     scripts: [
@@ -40,19 +38,3 @@ export const Route = createFileRoute("/")({
     ],
   }),
 });
-
-function Home() {
-  const { user, roles, loading, rolesLoading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (loading || rolesLoading || !user) return;
-    if (roles.includes("admin")) navigate({ to: "/admin" });
-    else if (roles.includes("chauffeur")) navigate({ to: "/chauffeurs" });
-    else navigate({ to: "/course" });
-  }, [user, roles, loading, rolesLoading, navigate]);
-
-  if (!user) return <Landing />;
-  return null;
-
-}

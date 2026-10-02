@@ -9,66 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SecuriteRouteImport } from './routes/securite'
-import { Route as ParrainageRouteImport } from './routes/parrainage'
-import { Route as PaiementsRouteImport } from './routes/paiements'
-import { Route as McpRouteImport } from './routes/mcp'
-import { Route as InscriptionChauffeurRouteImport } from './routes/inscription-chauffeur'
-import { Route as HistoriqueRouteImport } from './routes/historique'
-import { Route as DocumentsRouteImport } from './routes/documents'
-import { Route as CourseRouteImport } from './routes/course'
-import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
-import { Route as ConditionsRouteImport } from './routes/conditions'
-import { Route as ClientsRouteImport } from './routes/clients'
-import { Route as ChauffeursRouteImport } from './routes/chauffeurs'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AbonnementChauffeurRouteImport } from './routes/abonnement-chauffeur'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as CourseRouteImport } from './routes/course'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SecuriteRoute = SecuriteRouteImport.update({
-  id: '/securite',
-  path: '/securite',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ParrainageRoute = ParrainageRouteImport.update({
-  id: '/parrainage',
-  path: '/parrainage',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaiementsRoute = PaiementsRouteImport.update({
-  id: '/paiements',
-  path: '/paiements',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const McpRoute = McpRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InscriptionChauffeurRoute = InscriptionChauffeurRouteImport.update({
-  id: '/inscription-chauffeur',
-  path: '/inscription-chauffeur',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoriqueRoute = HistoriqueRouteImport.update({
-  id: '/historique',
-  path: '/historique',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocumentsRoute = DocumentsRouteImport.update({
-  id: '/documents',
-  path: '/documents',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CourseRoute = CourseRouteImport.update({
@@ -76,62 +28,26 @@ const CourseRoute = CourseRouteImport.update({
   path: '/course',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
-  id: '/confidentialite',
-  path: '/confidentialite',
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConditionsRoute = ConditionsRouteImport.update({
-  id: '/conditions',
-  path: '/conditions',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ClientsRoute = ClientsRouteImport.update({
-  id: '/clients',
-  path: '/clients',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChauffeursRoute = ChauffeursRouteImport.update({
-  id: '/chauffeurs',
-  path: '/chauffeurs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AbonnementChauffeurRoute = AbonnementChauffeurRouteImport.update({
-  id: '/abonnement-chauffeur',
-  path: '/abonnement-chauffeur',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Char91DotwellKnownChar93OauthProtectedResourceRoute =
-  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
-    id: '/.well-known/oauth-protected-resource',
-    path: '/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const Char91DotmcpChar93ListToolsRoute =
   Char91DotmcpChar93ListToolsRouteImport.update({
     id: '/.mcp/list-tools',
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
-const Char91DotmcpChar93InvokeToolToolRoute =
-  Char91DotmcpChar93InvokeToolToolRouteImport.update({
-    id: '/.mcp/invoke-tool/$tool',
-    path: '/.mcp/invoke-tool/$tool',
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
@@ -139,24 +55,17 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/abonnement-chauffeur': typeof AbonnementChauffeurRoute
-  '/admin': typeof AdminRoute
-  '/auth': typeof AuthRoute
-  '/chauffeurs': typeof ChauffeursRoute
-  '/clients': typeof ClientsRoute
-  '/conditions': typeof ConditionsRoute
-  '/confidentialite': typeof ConfidentialiteRoute
   '/course': typeof CourseRoute
-  '/documents': typeof DocumentsRoute
-  '/historique': typeof HistoriqueRoute
-  '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/mcp': typeof McpRoute
-  '/paiements': typeof PaiementsRoute
-  '/parrainage': typeof ParrainageRoute
-  '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -165,21 +74,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/abonnement-chauffeur': typeof AbonnementChauffeurRoute
-  '/admin': typeof AdminRoute
-  '/auth': typeof AuthRoute
-  '/chauffeurs': typeof ChauffeursRoute
-  '/clients': typeof ClientsRoute
-  '/conditions': typeof ConditionsRoute
-  '/confidentialite': typeof ConfidentialiteRoute
   '/course': typeof CourseRoute
-  '/documents': typeof DocumentsRoute
-  '/historique': typeof HistoriqueRoute
-  '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/mcp': typeof McpRoute
-  '/paiements': typeof PaiementsRoute
-  '/parrainage': typeof ParrainageRoute
-  '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -189,21 +85,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/abonnement-chauffeur': typeof AbonnementChauffeurRoute
-  '/admin': typeof AdminRoute
-  '/auth': typeof AuthRoute
-  '/chauffeurs': typeof ChauffeursRoute
-  '/clients': typeof ClientsRoute
-  '/conditions': typeof ConditionsRoute
-  '/confidentialite': typeof ConfidentialiteRoute
   '/course': typeof CourseRoute
-  '/documents': typeof DocumentsRoute
-  '/historique': typeof HistoriqueRoute
-  '/inscription-chauffeur': typeof InscriptionChauffeurRoute
   '/mcp': typeof McpRoute
-  '/paiements': typeof PaiementsRoute
-  '/parrainage': typeof ParrainageRoute
-  '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -214,21 +97,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/abonnement-chauffeur'
-    | '/admin'
-    | '/auth'
-    | '/chauffeurs'
-    | '/clients'
-    | '/conditions'
-    | '/confidentialite'
     | '/course'
-    | '/documents'
-    | '/historique'
-    | '/inscription-chauffeur'
     | '/mcp'
-    | '/paiements'
-    | '/parrainage'
-    | '/securite'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -237,21 +107,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/abonnement-chauffeur'
-    | '/admin'
-    | '/auth'
-    | '/chauffeurs'
-    | '/clients'
-    | '/conditions'
-    | '/confidentialite'
     | '/course'
-    | '/documents'
-    | '/historique'
-    | '/inscription-chauffeur'
     | '/mcp'
-    | '/paiements'
-    | '/parrainage'
-    | '/securite'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -260,21 +117,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/abonnement-chauffeur'
-    | '/admin'
-    | '/auth'
-    | '/chauffeurs'
-    | '/clients'
-    | '/conditions'
-    | '/confidentialite'
     | '/course'
-    | '/documents'
-    | '/historique'
-    | '/inscription-chauffeur'
     | '/mcp'
-    | '/paiements'
-    | '/parrainage'
-    | '/securite'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -284,21 +128,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AbonnementChauffeurRoute: typeof AbonnementChauffeurRoute
-  AdminRoute: typeof AdminRoute
-  AuthRoute: typeof AuthRoute
-  ChauffeursRoute: typeof ChauffeursRoute
-  ClientsRoute: typeof ClientsRoute
-  ConditionsRoute: typeof ConditionsRoute
-  ConfidentialiteRoute: typeof ConfidentialiteRoute
   CourseRoute: typeof CourseRoute
-  DocumentsRoute: typeof DocumentsRoute
-  HistoriqueRoute: typeof HistoriqueRoute
-  InscriptionChauffeurRoute: typeof InscriptionChauffeurRoute
   McpRoute: typeof McpRoute
-  PaiementsRoute: typeof PaiementsRoute
-  ParrainageRoute: typeof ParrainageRoute
-  SecuriteRoute: typeof SecuriteRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -308,60 +139,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/securite': {
-      id: '/securite'
-      path: '/securite'
-      fullPath: '/securite'
-      preLoaderRoute: typeof SecuriteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/parrainage': {
-      id: '/parrainage'
-      path: '/parrainage'
-      fullPath: '/parrainage'
-      preLoaderRoute: typeof ParrainageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/paiements': {
-      id: '/paiements'
-      path: '/paiements'
-      fullPath: '/paiements'
-      preLoaderRoute: typeof PaiementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inscription-chauffeur': {
-      id: '/inscription-chauffeur'
-      path: '/inscription-chauffeur'
-      fullPath: '/inscription-chauffeur'
-      preLoaderRoute: typeof InscriptionChauffeurRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historique': {
-      id: '/historique'
-      path: '/historique'
-      fullPath: '/historique'
-      preLoaderRoute: typeof HistoriqueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/documents': {
-      id: '/documents'
-      path: '/documents'
-      fullPath: '/documents'
-      preLoaderRoute: typeof DocumentsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/course': {
@@ -371,67 +153,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CourseRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/confidentialite': {
-      id: '/confidentialite'
-      path: '/confidentialite'
-      fullPath: '/confidentialite'
-      preLoaderRoute: typeof ConfidentialiteRouteImport
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/conditions': {
-      id: '/conditions'
-      path: '/conditions'
-      fullPath: '/conditions'
-      preLoaderRoute: typeof ConditionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/clients': {
-      id: '/clients'
-      path: '/clients'
-      fullPath: '/clients'
-      preLoaderRoute: typeof ClientsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chauffeurs': {
-      id: '/chauffeurs'
-      path: '/chauffeurs'
-      fullPath: '/chauffeurs'
-      preLoaderRoute: typeof ChauffeursRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/abonnement-chauffeur': {
-      id: '/abonnement-chauffeur'
-      path: '/abonnement-chauffeur'
-      fullPath: '/abonnement-chauffeur'
-      preLoaderRoute: typeof AbonnementChauffeurRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/.well-known/oauth-protected-resource': {
-      id: '/.well-known/oauth-protected-resource'
-      path: '/.well-known/oauth-protected-resource'
-      fullPath: '/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/list-tools': {
@@ -441,11 +174,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.mcp/invoke-tool/$tool': {
-      id: '/.mcp/invoke-tool/$tool'
-      path: '/.mcp/invoke-tool/$tool'
-      fullPath: '/.mcp/invoke-tool/$tool'
-      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
@@ -455,26 +188,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AbonnementChauffeurRoute: AbonnementChauffeurRoute,
-  AdminRoute: AdminRoute,
-  AuthRoute: AuthRoute,
-  ChauffeursRoute: ChauffeursRoute,
-  ClientsRoute: ClientsRoute,
-  ConditionsRoute: ConditionsRoute,
-  ConfidentialiteRoute: ConfidentialiteRoute,
   CourseRoute: CourseRoute,
-  DocumentsRoute: DocumentsRoute,
-  HistoriqueRoute: HistoriqueRoute,
-  InscriptionChauffeurRoute: InscriptionChauffeurRoute,
   McpRoute: McpRoute,
-  PaiementsRoute: PaiementsRoute,
-  ParrainageRoute: ParrainageRoute,
-  SecuriteRoute: SecuriteRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:

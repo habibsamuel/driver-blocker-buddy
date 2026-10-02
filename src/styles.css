@@ -66,6 +66,20 @@
   --color-glass: var(--glass);
   --color-glass-border: var(--glass-border);
   --color-map-route: var(--map-route);
+  --color-surface: var(--surface);
+  --color-field: var(--field);
+  --color-sheet-border: var(--sheet-border);
+  --color-handle: var(--handle);
+  --color-brand-strong: var(--brand-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-success-soft: var(--success-soft);
+  --color-map-canvas: var(--map-canvas);
+  --color-map-road: var(--map-road);
+  --color-overlay: var(--overlay);
+  --shadow-map-control: 0 8px 28px oklch(0 0 0 / 18%);
+  --shadow-bottom-sheet: 0 -12px 42px oklch(0 0 0 / 22%);
+  --shadow-vehicle: 0 8px 20px oklch(0.78 0.17 88 / 18%);
+  --shadow-cta: 0 12px 24px oklch(0.78 0.17 88 / 28%);
   --background-image-map-fade: linear-gradient(to bottom, oklch(0.075 0 0 / 72%), transparent);
 }
 
@@ -77,7 +91,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0.004 70);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.84 0.17 88);
+  --primary: oklch(0.84 0.18 89);
   --primary-foreground: oklch(0.095 0 0);
   --secondary: oklch(0.12 0.002 70);
   --secondary-foreground: oklch(0.985 0 0);
@@ -108,6 +122,16 @@
   --glass: oklch(0.13 0.004 70 / 76%);
   --glass-border: oklch(1 0 0 / 16%);
   --map-route: oklch(0.84 0.17 88);
+  --surface: oklch(1 0 0);
+  --field: oklch(0.965 0.003 90);
+  --sheet-border: oklch(0.88 0.004 90);
+  --handle: oklch(0.78 0 0);
+  --brand-strong: oklch(0.72 0.17 84);
+  --primary-soft: oklch(0.965 0.055 92);
+  --success-soft: oklch(0.94 0.06 150);
+  --map-canvas: oklch(0.92 0.02 160);
+  --map-road: oklch(0.82 0.01 90);
+  --overlay: oklch(0 0 0 / 46%);
 }
 
 .dark {
@@ -159,12 +183,56 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    margin: 0;
+    overflow: hidden;
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     letter-spacing: 0;
   }
+}
+
+@utility taxi-proxi-map-car {
+  display: grid;
+  height: 2.75rem;
+  width: 2.75rem;
+  place-items: center;
+  border: 3px solid var(--surface);
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: var(--shadow-map-control);
+  animation: taxi-map-pop 500ms ease-out both;
+  animation-delay: var(--taxi-delay);
+
+  & span {
+    display: block;
+    font-size: 1.45rem;
+    transform: rotate(var(--taxi-angle));
+  }
+}
+
+@utility taxi-proxi-user-marker {
+  display: grid;
+  height: 2rem;
+  width: 2rem;
+  place-items: center;
+  border: 3px solid var(--surface);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--success) 25%, transparent);
+  box-shadow: 0 0 0 8px color-mix(in oklab, var(--success) 14%, transparent);
+
+  & span {
+    height: 0.75rem;
+    width: 0.75rem;
+    border-radius: 999px;
+    background: var(--success);
+  }
+}
+
+@keyframes taxi-map-pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.7); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @utility liquid-glass {

@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Course } from "@/features/Course";
+import { TaxiHome } from "@/features/TaxiHome";
 import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/course")({
-  component: Course,
+  component: TaxiHome,
   head: () =>
     pageHead({
       path: "/course",
