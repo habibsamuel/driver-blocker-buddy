@@ -103,7 +103,7 @@ export function TaxiHome() {
               onSelect={() => setExpanded(true)}
               position={position ? { lat: position.lat, lng: position.lng } : null}
               placeholder="Où allez-vous ?"
-              className="flex-1"
+              className="flex-1 [&>svg]:hidden"
               inputClassName="h-12 border-0 bg-transparent pl-0 text-base font-bold text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 [&+svg]:hidden"
             />
             <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
