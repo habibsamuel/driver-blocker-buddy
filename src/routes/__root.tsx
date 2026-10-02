@@ -10,10 +10,9 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { Layout } from "@/components/Layout";
 import { AuthProvider } from "@/hooks/useAuth";
 import { registerServiceWorker } from "@/lib/register-sw";
-import { OfflineBanner } from "@/components/OfflineBanner";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -80,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "TAXI PROXI — Taxi & covoiturage à Yaoundé" },
       { name: "description", content: "Réservez votre taxi à Yaoundé en quelques secondes : Bend-Skin, Éco, Confort. Paiement cash, géolocalisation temps réel, code PIN sécurisé." },
       { name: "author", content: "DEUS Corporation" },
-      { name: "theme-color", content: "#484423" },
+      { name: "theme-color", content: "#FFC300" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Taxi Proxi" },
@@ -161,8 +160,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Layout />
-        <OfflineBanner />
+        <Outlet />
+        <Toaster position="top-center" richColors />
       </AuthProvider>
     </QueryClientProvider>
   );
