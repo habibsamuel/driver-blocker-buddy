@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { suggestPlaces, type PlaceSuggestion } from "@/lib/places.functions";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Navigation } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -99,11 +100,12 @@ export function DestinationInput({
         <ul className="absolute z-30 mt-1 w-full overflow-hidden rounded-xl border bg-popover shadow-lg">
           {items.map((s) => (
             <li key={s.id}>
-              <button
+              <Button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(s)}
-                className="flex w-full items-start gap-2 px-3 py-2.5 text-left hover:bg-accent transition"
+                variant="ghost"
+                className="h-auto w-full justify-start rounded-none px-3 py-2.5 text-left transition duration-300 hover:bg-accent"
               >
                 <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
                 <span className="min-w-0">
@@ -112,7 +114,7 @@ export function DestinationInput({
                     <span className="block text-xs text-muted-foreground truncate">{s.secondary}</span>
                   )}
                 </span>
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

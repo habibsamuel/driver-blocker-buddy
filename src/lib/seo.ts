@@ -18,6 +18,7 @@ export function pageHead(opts: {
       { property: "og:site_name", content: SITE_NAME },
       { name: "twitter:title", content: opts.title },
       { name: "twitter:description", content: opts.description },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: url }],
   };
