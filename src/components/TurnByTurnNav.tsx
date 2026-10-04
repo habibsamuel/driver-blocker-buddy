@@ -83,7 +83,7 @@ export function TurnByTurnNav() {
       mapboxgl.accessToken = token;
       mapRef.current = new mapboxgl.Map({
         container: container.current,
-        style: "mapbox://styles/mapbox/navigation-night-v1",
+        style: "mapbox://styles/mapbox/streets-v12",
         center: YAOUNDE,
         zoom: 13,
         attributionControl: false,
