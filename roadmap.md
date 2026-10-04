@@ -5,4 +5,4 @@
 - [x] Add the mobile bottom sheet and vehicle choices
 - [x] Turn the booking screen into the three-screen light-mode booking journey
 - [x] Add 300 ms transitions, destination shortcuts, vehicle selection, and active trip details
-- [ ] Verify every screen on mobile and desktop, then clear production diagnostics
+- [x] Verify every screen on mobile and desktop, then clear production diagnostics
