@@ -294,3 +294,18 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+.nav-dark {
+  --background: oklch(0.16 0 0);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.21 0 0);
+  --card-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.26 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --border: oklch(0.3 0 0);
+  --input: oklch(0.3 0 0);
+  --primary: oklch(0.84 0.18 89);
+  --primary-foreground: oklch(0.16 0 0);
+  --accent: oklch(0.62 0.19 255);
+  --accent-foreground: oklch(0.98 0 0);
+}
