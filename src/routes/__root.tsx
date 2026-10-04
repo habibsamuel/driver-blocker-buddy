@@ -37,7 +37,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
 
@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "TAXI PROXI — Taxi & covoiturage à Yaoundé" },
-      { name: "description", content: "Réservez votre taxi à Yaoundé en quelques secondes : Bend-Skin, Éco, Confort. Paiement cash, géolocalisation temps réel, code PIN sécurisé." },
+      { name: "description", content: "Réservez votre taxi Eco ou Confort à Yaoundé en quelques secondes. Paiement cash et géolocalisation temps réel." },
       { name: "author", content: "DEUS Corporation" },
       { name: "theme-color", content: "#FFC300" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
@@ -86,12 +86,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "Taxi Proxi" },
       { name: "mobile-web-app-capable", content: "yes" },
       { property: "og:title", content: "TAXI PROXI — Taxi & covoiturage à Yaoundé" },
-      { property: "og:description", content: "Réservez votre taxi à Yaoundé : Bend-Skin, Éco, Confort. Paiement cash, géoloc temps réel." },
+      { property: "og:description", content: "Réservez votre taxi Eco ou Confort à Yaoundé. Paiement cash et géolocalisation temps réel." },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7ad3105d-0a70-4ad9-b6df-bf7bdbe30644" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "TAXI PROXI — Taxi & covoiturage à Yaoundé" },
-      { name: "twitter:description", content: "Réservez votre taxi à Yaoundé : Bend-Skin, Éco, Confort. Paiement cash." },
+      { name: "twitter:description", content: "Réservez votre taxi Eco ou Confort à Yaoundé. Paiement cash." },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7ad3105d-0a70-4ad9-b6df-bf7bdbe30644" },
       { property: "og:site_name", content: "Taxi Proxi" },
       { name: "google-site-verification", content: "ga9Llh59iOpUkrtYpehXg95BU8eKfaJzQkUNuDACNQo" },
