@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Taxi Proxi : réservez un taxi à Yaoundé (Bend-Skin, Éco, Confort) en quelques secondes. Géolocalisation temps réel, code PIN sécurisé, paiement cash.",
+          "Taxi Proxi : réservez un taxi Eco ou Confort à Yaoundé en quelques secondes. Géolocalisation temps réel et paiement cash.",
       },
       { property: "og:title", content: "Taxi Proxi — Réservez votre taxi à Yaoundé" },
       {

@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  Bike,
   CalendarClock,
   CarFront,
   ChevronDown,
@@ -15,7 +14,6 @@ import {
   Menu,
   MessageCircle,
   Navigation,
-  Package,
   Phone,
   Search,
   Share2,
@@ -26,8 +24,8 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import taxiAsset from "@/assets/taxi.png.asset.json";
-import oncomingTaxiAsset from "@/assets/oncoming-taxi.png.asset.json";
+import ecoTaxiAsset from "@/assets/taxi-proxi-eco.jpeg.asset.json";
+import comfortTaxiAsset from "@/assets/taxi-proxi-confort.jpeg.asset.json";
 import { TaxiMap, type MapMode } from "@/components/TaxiMap";
 import { DestinationInput } from "@/components/DestinationInput";
 import { Button } from "@/components/ui/button";
@@ -51,19 +49,19 @@ const recentPlaces = [
 
 const vehicleOptions = {
   standard: {
-    name: "Standard Proxi",
+    name: "Taxi Eco",
     price: 500,
     eta: 3,
     badge: "Éco-accessible",
-    image: taxiAsset.url,
-    details: "4 places · Climatisé · Certifié",
+    image: ecoTaxiAsset.url,
+    details: "4 places · Climatisé · Taxi Proxi",
   },
   comfort: {
-    name: "Confort VIP",
+    name: "Taxi Confort",
     price: 1000,
     eta: 5,
     badge: "★ Recommandé",
-    image: oncomingTaxiAsset.url,
+    image: comfortTaxiAsset.url,
     details: "Berline spacieuse · Wi-Fi · 5 étoiles",
   },
 } as const;
@@ -215,12 +213,11 @@ function SearchScreen({
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-4 gap-1.5" aria-label="Services disponibles">
+        <div className="mt-4 grid grid-cols-3 gap-2" aria-label="Services de taxi disponibles">
           {[
-            { label: "Taxi Proxi", icon: CarFront, active: true },
-            { label: "Moto", icon: Bike },
-            { label: "Livraison", icon: Package },
-            { label: "Réservé", icon: CalendarClock },
+            { label: "Taxi Eco", icon: CarFront, active: true },
+            { label: "Taxi Confort", icon: Star },
+            { label: "Réserver", icon: CalendarClock },
           ].map(({ label, icon: Icon, active }) => (
             <Button key={label} type="button" variant="ghost" className="h-[72px] min-w-0 flex-col gap-1 rounded-2xl px-1 hover:bg-field">
               <span className={cn("grid h-10 w-10 place-items-center rounded-full", active ? "bg-primary" : "bg-field")}><Icon className="h-5 w-5" /></span>
@@ -267,7 +264,9 @@ function VehicleScreen({ destination, vehicle, onVehicleChange, onBack, onConfir
             const active = vehicle === id;
             return (
               <Button key={id} type="button" variant="ghost" role="radio" aria-checked={active} onClick={() => onVehicleChange(id)} className={cn("h-[108px] w-full justify-start rounded-2xl border p-3 transition-all duration-300 hover:bg-field", active ? "border-primary bg-primary-soft shadow-vehicle" : "border-sheet-border bg-surface")}>
-                <img src={item.image} alt="" className="h-20 w-24 shrink-0 object-contain drop-shadow-md" />
+                <span className="h-20 w-24 shrink-0 overflow-hidden rounded-xl bg-field">
+                  <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                </span>
                 <span className="min-w-0 flex-1 text-left"><span className="flex items-center gap-2"><span className="text-sm font-black">{item.name}</span><span className={cn("rounded-full px-2 py-0.5 text-[8px] font-black", id === "standard" ? "bg-success-soft text-success" : "bg-secondary text-primary")}>{item.badge}</span></span><span className="mt-1 block text-[10px] font-semibold text-muted-foreground">{item.details}</span><span className="mt-1 block text-xs font-bold">~ {item.eta} min</span></span>
                 <span className="text-base font-black">{item.price.toLocaleString("fr-FR")} FCFA</span>
               </Button>
