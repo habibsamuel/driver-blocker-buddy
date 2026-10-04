@@ -21,11 +21,12 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
       const next = location.pathname + location.searchStr;
-      throw redirect({ to: "/auth", search: { next } });
+      throw redirect({ href: `/?next=${encodeURIComponent(next)}` });
     }
   },
   loader: async ({ location }) => {
-    const authorizationId = new URLSearchParams(location.search).get("authorization_id")!;
+    const authorizationId = new URLSearchParams(location.search).get("authorization_id");
+    if (!authorizationId) throw new Error("authorization_id manquant");
     const { data, error } = await oauth().getAuthorizationDetails(authorizationId);
     if (error) throw error;
     const immediate = data?.redirect_url ?? data?.redirect_to;
